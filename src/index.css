@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * PROVISIONAL PALETTE — structure is final, values are not.
+ *
+ * design-brief.md proposes a material identity rooted in Jharkhand's mineral
+ * strata: dark slate/graphite grounding, warm rust/ochre for freshly-submitted
+ * problems, cool verdigris for matched/resolved states. Seeded here so the token
+ * layer exists and nothing has to be retrofitted later — deliberately NOT
+ * shadcn's default zinc, and deliberately not the cream+serif+terracotta look the
+ * brief rules out.
+ *
+ * The brief also requires a real brainstorm -> critique -> build pass before UI
+ * work. That pass has NOT happened yet; it belongs to Tasks 2/3. Treat these hex
+ * values as a starting position to critique, not a ratified palette.
+ */
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 215 28% 17%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 28% 17%;
+
+    /* Graphite — institutional, data-forward register */
+    --primary: 215 25% 27%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 210 16% 93%;
+    --secondary-foreground: 215 25% 27%;
+
+    --muted: 210 16% 93%;
+    --muted-foreground: 215 14% 42%;
+
+    /* Verdigris — matched / resolved */
+    --accent: 174 45% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 214 18% 87%;
+    --input: 214 18% 87%;
+    --ring: 174 45% 40%;
+
+    --radius: 0.625rem;
+
+    /* Challenge lifecycle — the brief's "strata, not step badges" direction.
+       Ordered submitted -> resolved so the progression reads as a gradient. */
+    --status-submitted: 18 68% 48%; /* rust */
+    --status-ai-matched: 32 72% 48%; /* ochre */
+    --status-claimed: 190 42% 40%;
+    --status-in-progress: 182 44% 36%;
+    --status-resolved: 168 46% 34%; /* verdigris */
+  }
+
+  .dark {
+    --background: 215 28% 11%;
+    --foreground: 210 20% 96%;
+
+    --card: 215 26% 15%;
+    --card-foreground: 210 20% 96%;
+
+    --popover: 215 26% 15%;
+    --popover-foreground: 210 20% 96%;
+
+    --primary: 210 20% 96%;
+    --primary-foreground: 215 28% 17%;
+
+    --secondary: 215 20% 22%;
+    --secondary-foreground: 210 20% 96%;
+
+    --muted: 215 20% 22%;
+    --muted-foreground: 215 14% 65%;
+
+    --accent: 174 48% 46%;
+    --accent-foreground: 215 28% 11%;
+
+    --destructive: 0 62% 52%;
+    --destructive-foreground: 210 20% 96%;
+
+    --border: 215 20% 26%;
+    --input: 215 20% 26%;
+    --ring: 174 48% 46%;
+
+    --status-submitted: 18 72% 56%;
+    --status-ai-matched: 32 76% 56%;
+    --status-claimed: 190 46% 50%;
+    --status-in-progress: 182 48% 46%;
+    --status-resolved: 168 50% 44%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* design-brief.md quality floor: visible keyboard focus, always. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* design-brief.md quality floor: respect reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Leaflet ships its own CSS; these keep it from fighting the token system. */
+.leaflet-container {
+  @apply bg-muted;
+  font: inherit;
+}

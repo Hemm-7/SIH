@@ -1,0 +1,254 @@
+[
+  {
+    "name": "Ranchi Institute of Rural Technology",
+    "department": "Department of Rural Engineering",
+    "institution_type": "university",
+    "expertise_tags": [
+      "rural_livelihoods",
+      "water_resources",
+      "village-scale infrastructure",
+      "handpump and borewell maintenance",
+      "appropriate technology for low-resource settings"
+    ],
+    "contact_email": "outreach@rirt-ranchi.ac.in"
+  },
+  {
+    "name": "Jharkhand University of Agricultural Sciences, Hazaribagh",
+    "department": "Department of Agronomy and Soil Science",
+    "institution_type": "university",
+    "expertise_tags": [
+      "agriculture",
+      "rural_livelihoods",
+      "soil health and nutrient management",
+      "rainfed and upland farming systems",
+      "seed variety trials",
+      "farmer producer organisations"
+    ],
+    "contact_email": "research@juas-hazaribagh.ac.in"
+  },
+  {
+    "name": "Damodar Valley Institute of Water Resources",
+    "department": "Centre for Watershed Management",
+    "institution_type": "university",
+    "expertise_tags": [
+      "water_resources",
+      "environment",
+      "watershed management",
+      "groundwater recharge",
+      "river basin hydrology",
+      "surface water quality monitoring"
+    ],
+    "contact_email": "cwm@dviwr.ac.in"
+  },
+  {
+    "name": "Chotanagpur Medical Research College, Ranchi",
+    "department": "Department of Community Medicine",
+    "institution_type": "university",
+    "expertise_tags": [
+      "healthcare",
+      "public health outreach",
+      "maternal and child health",
+      "vector-borne disease control",
+      "primary health centre capacity"
+    ],
+    "contact_email": "communitymed@cmrc-ranchi.ac.in"
+  },
+  {
+    "name": "Bokaro Institute of Metallurgy and Materials",
+    "department": "Industrial Research and Development Division",
+    "institution_type": "industry",
+    "expertise_tags": [
+      "energy",
+      "environment",
+      "industrial emissions control",
+      "waste heat recovery",
+      "slag and byproduct reuse",
+      "process efficiency auditing"
+    ],
+    "contact_email": "rnd@bimm-bokaro.co.in"
+  },
+  {
+    "name": "Subarnarekha Environmental Solutions Pvt. Ltd.",
+    "department": "Environmental Monitoring Unit",
+    "institution_type": "industry",
+    "expertise_tags": [
+      "environment",
+      "water_resources",
+      "effluent treatment",
+      "air and water quality testing",
+      "environmental impact assessment",
+      "river pollution remediation"
+    ],
+    "contact_email": "monitoring@subarnarekha-env.co.in"
+  },
+  {
+    "name": "Deoghar College of Education and Pedagogy",
+    "department": "Department of Educational Technology",
+    "institution_type": "university",
+    "expertise_tags": [
+      "education",
+      "accessibility",
+      "teacher training and pedagogy",
+      "low-bandwidth digital learning",
+      "multilingual learning materials",
+      "school dropout intervention"
+    ],
+    "contact_email": "edtech@dcep-deoghar.ac.in"
+  },
+  {
+    "name": "Jamshedpur Institute of Urban Planning",
+    "department": "School of Urban Design and Settlement Studies",
+    "institution_type": "university",
+    "expertise_tags": [
+      "urban_development",
+      "public_administration",
+      "municipal solid waste systems",
+      "urban drainage and stormwater",
+      "informal settlement upgrading",
+      "town planning and zoning"
+    ],
+    "contact_email": "urbandesign@jiup.ac.in"
+  },
+  {
+    "name": "Palamu Agri-Tech Innovations Pvt. Ltd.",
+    "department": "Precision Farming Division",
+    "institution_type": "industry",
+    "expertise_tags": [
+      "agriculture",
+      "rural_livelihoods",
+      "drip and micro-irrigation",
+      "crop advisory and pest forecasting",
+      "post-harvest storage and cold chain",
+      "farm mechanisation for small holdings"
+    ],
+    "contact_email": "field@palamuagritech.co.in"
+  },
+  {
+    "name": "Santhal Pargana Institute of Public Health, Dumka",
+    "department": "Department of Epidemiology",
+    "institution_type": "university",
+    "expertise_tags": [
+      "healthcare",
+      "public_administration",
+      "disease surveillance",
+      "health data systems",
+      "nutrition and anaemia programmes",
+      "tribal health access studies"
+    ],
+    "contact_email": "epidemiology@spiph-dumka.ac.in"
+  },
+  {
+    "name": "Ramgarh Renewable Energy Corporation",
+    "department": "Solar and Biomass Division",
+    "institution_type": "industry",
+    "expertise_tags": [
+      "energy",
+      "rural_livelihoods",
+      "decentralised solar microgrids",
+      "biomass and biogas systems",
+      "rural electrification",
+      "solar pump deployment"
+    ],
+    "contact_email": "projects@ramgarh-renewables.co.in"
+  },
+  {
+    "name": "Koel River Institute of Governance and Policy, Gumla",
+    "department": "Centre for Public Administration",
+    "institution_type": "university",
+    "expertise_tags": [
+      "public_administration",
+      "education",
+      "panchayat capacity building",
+      "public service delivery audit",
+      "grievance redressal systems",
+      "policy evaluation"
+    ],
+    "contact_email": "cpa@krigp-gumla.ac.in"
+  },
+  {
+    "name": "Giridih Assistive Technology Labs Pvt. Ltd.",
+    "department": "Accessibility Engineering Group",
+    "institution_type": "industry",
+    "expertise_tags": [
+      "accessibility",
+      "healthcare",
+      "low-cost mobility aids",
+      "assistive devices for visual impairment",
+      "barrier-free built environment",
+      "rehabilitation engineering"
+    ],
+    "contact_email": "labs@giridih-assistive.co.in"
+  },
+  {
+    "name": "Chaibasa Institute of Mining and Environmental Reclamation",
+    "department": "Department of Land Restoration",
+    "institution_type": "university",
+    "expertise_tags": [
+      "environment",
+      "energy",
+      "mine spoil reclamation",
+      "overburden dump stabilisation",
+      "acid mine drainage treatment",
+      "afforestation of degraded land"
+    ],
+    "contact_email": "reclamation@cimer-chaibasa.ac.in"
+  },
+  {
+    "name": "Khunti Centre for Tribal Livelihoods and Craft",
+    "department": "Department of Livelihood Studies",
+    "institution_type": "university",
+    "expertise_tags": [
+      "rural_livelihoods",
+      "education",
+      "agriculture",
+      "non-timber forest produce value chains",
+      "artisan and handicraft cooperatives",
+      "self-help group enterprise support",
+      "agroforestry and lac cultivation"
+    ],
+    "contact_email": "livelihoods@kctlc-khunti.ac.in"
+  },
+  {
+    "name": "Sahibganj Water and Sanitation Engineering Works",
+    "department": "Municipal Water Systems Division",
+    "institution_type": "industry",
+    "expertise_tags": [
+      "water_resources",
+      "urban_development",
+      "piped water supply networks",
+      "leak detection and non-revenue water",
+      "sewage and septage management",
+      "community sanitation infrastructure"
+    ],
+    "contact_email": "works@sahibganj-watsan.co.in"
+  },
+  {
+    "name": "Dhanbad Institute of Smart Infrastructure",
+    "department": "Department of Civil and Transport Systems",
+    "institution_type": "university",
+    "expertise_tags": [
+      "urban_development",
+      "accessibility",
+      "road safety and traffic engineering",
+      "bridge and culvert assessment",
+      "public transport planning",
+      "universal design in public spaces"
+    ],
+    "contact_email": "civil@disi-dhanbad.ac.in"
+  },
+  {
+    "name": "Simdega Digital Inclusion Foundation",
+    "department": "Rural Connectivity Programme",
+    "institution_type": "industry",
+    "expertise_tags": [
+      "education",
+      "accessibility",
+      "public_administration",
+      "digital literacy training",
+      "last-mile internet connectivity",
+      "e-governance service kiosks",
+      "assistive interfaces for low-literacy users"
+    ],
+    "contact_email": "programme@simdega-digital.org.in"
+  }
+]

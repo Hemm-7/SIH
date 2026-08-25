@@ -1,0 +1,242 @@
+{
+  "app": {
+    "name": "Societal Innovation Portal",
+    "tagline": "Local problems, routed to the people who can solve them."
+  },
+  "nav": {
+    "home": "Home",
+    "challenges": "Challenges",
+    "submit": "Raise a problem",
+    "institutions": "Institution portal",
+    "dashboard": "Dashboard",
+    "language": "Language"
+  },
+  "home": {
+    "heading": "Tell us what needs fixing where you live.",
+    "body": "Describe the problem in your own words. It is categorised automatically and sent to the university or industry partner whose expertise actually fits — and you can follow what happens next.",
+    "cta": "Raise a problem"
+  },
+  "challenge": {
+    "status": {
+      "submitted": "Submitted",
+      "ai_matched": "Matched to expertise",
+      "claimed": "Claimed by an institution",
+      "in_progress": "Being worked on",
+      "resolved": "Resolved"
+    },
+    "domain": {
+      "education": "Education",
+      "agriculture": "Agriculture",
+      "healthcare": "Healthcare",
+      "water_resources": "Water",
+      "environment": "Environment",
+      "energy": "Energy",
+      "urban_development": "Urban development",
+      "accessibility": "Accessibility",
+      "public_administration": "Public administration",
+      "rural_livelihoods": "Rural livelihoods"
+    },
+    "reportCount_one": "{{count}} person reported this",
+    "reportCount_other": "{{count}} people reported this",
+    "categorising": "Sorting by subject…",
+    "awaitingCategorisation": "This report is still being sorted by subject. Matches will appear once that is done.",
+    "loadMore": "Show more challenges",
+    "viewToggle": "Switch between list and map",
+    "viewList": "List",
+    "viewMap": "Map"
+  },
+  "match": {
+    "why": "Why this match",
+    "confidence": "Confidence",
+    "tier": {
+      "strong": "Strong match",
+      "likely": "Likely match",
+      "possible": "Possible match"
+    },
+    "theProblem": "The problem",
+    "honestFallback": "Matched by subject only — no specific area of expertise lined up exactly, but the general field is a fit.",
+    "showMore_one": "Show {{count}} more matched institution",
+    "showMore_other": "Show {{count}} more matched institutions"
+  },
+  "empty": {
+    "challenges": "No problems have been raised yet. Yours would be the first.",
+    "matches": "No institution has been matched yet — matching runs as soon as a problem is categorised.",
+    "queue": "Nothing is waiting on you right now. New matches will appear here."
+  },
+  "error": {
+    "generic": "Something went wrong at our end. Try again in a moment.",
+    "offline": "You appear to be offline. Your work is kept until the connection returns.",
+    "notFound": "That page doesn't exist.",
+    "backHome": "Back to home"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again"
+  },
+  "submit": {
+    "heading": "Tell us what needs fixing",
+    "intro": "Describe it in your own words. There is no right way to write this — plain language is best.",
+    "cta": "Send this problem",
+    "sending": "Sending…",
+    "description": {
+      "label": "What is the problem?",
+      "help": "Say what is wrong, how long it has been like this, and who it affects.",
+      "placeholder": "For example: the handpump near our tola has been dry for three weeks, so women walk to the next village for drinking water.",
+      "count": "{{count}} characters",
+      "tooShort": "A few more words will help us route this to the right people."
+    },
+    "optional": {
+      "legend": "Optional — adds detail, never required"
+    },
+    "title": {
+      "label": "Short title",
+      "placeholder": "Leave blank and we will use your first line"
+    },
+    "location": {
+      "label": "Where is this?",
+      "placeholder": "Village, block or landmark",
+      "useCurrent": "Use my location"
+    },
+    "geo": {
+      "denied": "No location taken. Typing the place name works just as well.",
+      "unsupported": "This device cannot share location. Please type the place name."
+    },
+    "photo": {
+      "label": "Photos",
+      "add": "Add a photo",
+      "help": "Up to {{max}}, under 5 MB each. Helpful, but not needed.",
+      "tooBig_one": "{{count}} photo was over 5 MB and was not added.",
+      "tooBig_other": "{{count}} photos were over 5 MB and were not added.",
+      "remove": "Remove {{name}}"
+    },
+    "stage": {
+      "saved": "Received",
+      "savedDetail": "Your report is saved and cannot be lost now.",
+      "categorised": "Sorted by subject",
+      "categorisedDetail": "Working out which field this belongs to.",
+      "matched": "Sent to institutions",
+      "matchedDetail": "Finding the partners with matching expertise.",
+      "matchedCount_one": "{{count}} institution notified",
+      "matchedCount_other": "{{count}} institutions notified"
+    },
+    "done": {
+      "heading": "Your problem has been sent",
+      "body": "It is now on the public record and has gone to the institutions below. You can follow its progress on the challenges page.",
+      "sentTo": "Sent to these institutions",
+      "matchNote": "Institutions were suggested automatically from what they specialise in. Each can accept or pass.",
+      "another": "Report another problem"
+    },
+    "auth": {
+      "heading": "Sign in to send this",
+      "body": "We ask for an account so you can follow what happens to your report, and so institutions can reach you if they need more detail.",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign in",
+      "signUp": "Create account"
+    },
+    "error": {
+      "photo": "A photo could not be uploaded: {{message}}",
+      "categorisePartial": "Your report is saved. We could not sort it by subject just now — it will be picked up shortly.",
+      "matchPartial": "Your report is saved and sorted. Matching to institutions did not finish — it will be retried shortly."
+    }
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "createAccount": "Create account",
+    "signInIntro": "Use the email and password you signed up with.",
+    "signUpIntro": "You only need an email and a password.",
+    "name": "Your name",
+    "namePlaceholder": "Optional",
+    "email": "Email",
+    "password": "Password",
+    "passwordHelp": "At least 6 characters.",
+    "signUpMaybeConfirm": "Account created. If this project requires email confirmation, check your inbox before signing in.",
+    "haveAccount": "Already have an account?",
+    "noAccount": "No account yet?",
+    "why": {
+      "heading": "Why an account is needed",
+      "follow": "So you can see what happened to the problem you reported, instead of it disappearing.",
+      "contact": "So an institution can reach you if they need one more detail before starting work.",
+      "duplicate": "So repeated reports of the same problem can be counted together and taken more seriously.",
+      "institutionNote": "University and industry accounts are set up by the department — you cannot pick that role here."
+    },
+    "wrongRole": {
+      "heading": "This page is for institutions",
+      "body": "This area is for university and industry partners. Your account is registered as {{role}}.",
+      "none": "a citizen account"
+    }
+  },
+  "pipeline": {
+    "working": "working",
+    "done": "done",
+    "failed": "failed",
+    "waiting": "waiting"
+  },
+  "institution": {
+    "type": {
+      "university": "University",
+      "industry": "Industry"
+    },
+    "portalHeading": "Matched to your expertise",
+    "portalIntro": "Challenges the classifier has routed to you, ranked by how well they fit — claim one to take ownership of it.",
+    "notLinked": "Your account is registered as an institution, but is not yet linked to a specific institution record. Contact the Department of Higher & Technical Education to complete setup.",
+    "queue": {
+      "waiting_one": "Waiting for your decision ({{count}})",
+      "waiting_other": "Waiting for your decision ({{count}})",
+      "waitingEmpty": "Nothing is waiting on you right now. New matches will appear here as soon as the classifier finds one.",
+      "claimed_one": "Claimed by you ({{count}})",
+      "claimed_other": "Claimed by you ({{count}})",
+      "claimedOn": "claimed {{date}}"
+    },
+    "claim": {
+      "cta": "Claim this challenge",
+      "error": "Something went wrong at our end. Try again in a moment.",
+      "notClaimed": "This could not be claimed — it may already be taken, or something changed. Refresh and try again."
+    }
+  },
+  "map": {
+    "noLocatedChallenges": "No problems with a location yet — once one is submitted with a place, it will appear here.",
+    "linkedReports_one": "{{count}} report linked here — show it",
+    "linkedReports_other": "{{count}} reports linked here — show each",
+    "canonicalReport": "first report"
+  },
+  "dashboard": {
+    "heading": "Pipeline dashboard",
+    "intro": "Every number below is read directly from the live database — nothing here is estimated or illustrative.",
+    "kpi": {
+      "totalChallenges": "Challenges submitted",
+      "institutionsEngaged": "Institutions engaged",
+      "matchesClaimed": "Matches claimed",
+      "duplicateClusters": "Duplicate clusters",
+      "ofTotal": "of {{total}}"
+    },
+    "domain": {
+      "heading": "Challenges by subject",
+      "uncategorised": "Not yet categorised",
+      "count": "Challenges"
+    },
+    "funnel": {
+      "heading": "Status funnel"
+    },
+    "participation": {
+      "heading": "Institutional participation",
+      "matched": "Matched",
+      "claimed": "Claimed"
+    },
+    "duplicates": {
+      "heading": "Duplicate clusters recognised",
+      "none": "No duplicate reports have been recognised yet.",
+      "summary": "{{count}} report(s) were folded into an existing problem instead of counted separately.",
+      "reportCount_one": "{{count}} report",
+      "reportCount_other": "{{count}} reports"
+    },
+    "example": {
+      "heading": "A real match, explained",
+      "intro": "The strongest real match currently on record — shown as an example of how a match is explained, not as a typical case."
+    },
+    "latest": {
+      "heading": "Most recent activity"
+    }
+  }
+}
