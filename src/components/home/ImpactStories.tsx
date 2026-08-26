@@ -2,11 +2,47 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useImpactStories } from "@/hooks/useHomepageData";
 
 const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
+const DOMAIN_LABEL: Record<string, string> = {
+  education: "Education",
+  agriculture: "Agriculture",
+  healthcare: "Healthcare",
+  water_resources: "Water Resources",
+  environment: "Environment",
+  energy: "Energy",
+  urban_development: "Urban Development",
+  accessibility: "Accessibility",
+  public_administration: "Public Administration",
+  rural_livelihoods: "Rural Livelihoods",
+};
+
+/*
+ * PHASE 1 (fabricated-content remediation): this section was a single
+ * invented case study presented as audited fact — "CASE STUDY ARCHIVE:
+ * PALAMU-2025-W1", "48,000 villagers with safe water access", fluoride
+ * "reduced from 5.2 ppm to 0.8 ppm", a named professor ("Prof. R. Sengupta"),
+ * a funding scheme, and an "Audited by Public Health Engineering Dept (PHED)"
+ * sign-off. None of it happened and none of it exists in the schema — there
+ * is no case-study table, no measurement table, and no audit record.
+ *
+ * It now renders the real challenges that actually reached `resolved`, with
+ * the citizen-confirmed ones first. The invented outcome metrics are gone
+ * entirely rather than replaced: the honest "impact" facts we hold are who
+ * reported it, who claimed it, and whether the original reporter confirmed
+ * the fix — so that is what is shown. If nothing is resolved yet, the whole
+ * section hides instead of inventing a success.
+ */
 export function ImpactStories() {
+  const stories = useImpactStories(2);
+
+  if (!stories || stories.length === 0) return null;
+
+  const lead = stories[0];
+
   return (
     <section className="py-24 sm:py-32 bg-[#2C2925] text-[#ECE7DC] relative w-full overflow-hidden border-b-2 border-[#2C2925] font-sans">
       
@@ -30,7 +66,7 @@ export function ImpactStories() {
             className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#DDD8CD] transform-gpu will-change-transform"
           >
             <Award className="h-4 w-4 text-[#ECE7DC]" />
-            <span>SECTION VIII · VERIFIED FIELD IMPACT CASE INVESTIGATION</span>
+            <span>SECTION VIII · RESOLVED &amp; CITIZEN-CONFIRMED</span>
           </motion.div>
 
           <motion.h2
@@ -52,7 +88,9 @@ export function ImpactStories() {
             transition={{ duration: 0.5, delay: 0.12, ease: SMOOTH_EASE }}
             className="text-sm sm:text-base text-[#DDD8CD] leading-relaxed max-w-3xl mx-auto transform-gpu will-change-transform"
           >
-            Audited field documentation of how the collaboration portal converted an acute citizen drinking water crisis in Palamu into an accredited university R&amp;D deployment.
+            Problems that a citizen reported here, an institution took ownership of,
+            and reached resolution — shown exactly as the database records them,
+            including whether the original reporter confirmed the fix themselves.
           </motion.p>
         </div>
 
@@ -79,38 +117,47 @@ export function ImpactStories() {
               <div className="relative z-10 space-y-4">
                 <span className="px-3.5 py-1 rounded-sm bg-white/10 text-[#ECE7DC] text-xs font-bold border border-white/20 inline-flex items-center gap-1.5 uppercase tracking-wider shadow-xs">
                   <CheckCircle2 className="h-4 w-4 text-[#ECE7DC]" />
-                  CASE STUDY ARCHIVE: PALAMU-2025-W1
+                  {lead.confirmedAt ? "Confirmed by the citizen who reported it" : "Marked resolved by the institution"}
                 </span>
 
                 <div className="space-y-1.5">
-                  <div className="text-xs text-[#C5BEB3] uppercase font-bold tracking-wider">Palamu &amp; Garhwa Basin</div>
+                  {lead.locationText ? (
+                    <div className="text-xs text-[#C5BEB3] uppercase font-bold tracking-wider">{lead.locationText}</div>
+                  ) : null}
                   <h3
                     className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-[#ECE7DC]"
                     style={{ fontFamily: TIMES_SERIF }}
                   >
-                    Solar Nano-Adsorption Fluoride Filter
+                    {lead.title}
                   </h3>
                 </div>
               </div>
 
+              {/* The invented "48,000 villagers" / "0.8 ppm" outcome metrics
+                  were removed rather than replaced — no measurement or
+                  beneficiary data exists. These are the real facts on record. */}
               <div className="relative z-10 grid grid-cols-2 gap-5 pt-9 border-t border-white/15 mt-9">
                 <div className="space-y-1">
                   <div
-                    className="text-4xl sm:text-5xl font-extrabold text-[#ECE7DC]"
+                    className="text-3xl sm:text-4xl font-extrabold text-[#ECE7DC]"
                     style={{ fontFamily: TIMES_SERIF }}
                   >
-                    48,000
+                    {lead.domain ? DOMAIN_LABEL[lead.domain] ?? lead.domain : "Uncategorised"}
                   </div>
-                  <div className="text-xs text-[#C5BEB3] font-bold">Villagers with safe water access</div>
+                  <div className="text-xs text-[#C5BEB3] font-bold">Subject area assigned by the classifier</div>
                 </div>
                 <div className="space-y-1">
                   <div
-                    className="text-4xl sm:text-5xl font-extrabold text-[#ECE7DC]"
+                    className="text-3xl sm:text-4xl font-extrabold text-[#ECE7DC]"
                     style={{ fontFamily: TIMES_SERIF }}
                   >
-                    0.8 ppm
+                    {lead.confirmedAt ? "Confirmed" : "Resolved"}
                   </div>
-                  <div className="text-xs text-[#C5BEB3] font-bold">Fluoride reduced from 5.2 ppm</div>
+                  <div className="text-xs text-[#C5BEB3] font-bold">
+                    {lead.confirmedAt
+                      ? `Reporter confirmed on ${new Date(lead.confirmedAt).toLocaleDateString()}`
+                      : "Awaiting the reporter's own confirmation"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -122,40 +169,55 @@ export function ImpactStories() {
                   <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC]" />
                   01 / The Ground Challenge
                 </div>
+                {/* The citizen's own words, exactly as submitted. */}
                 <p className="text-[#DDD8CD] text-sm sm:text-base leading-relaxed">
-                  In April 2025, village Jal Sahiyyas in Chainpur block, Palamu logged reports of severe bone deformities in schoolchildren due to 5.2 ppm natural fluoride in 32 community borewells.
+                  {lead.description}
                 </p>
+                <div className="text-xs text-[#C5BEB3] font-semibold pt-1">
+                  Reported {new Date(lead.createdAt).toLocaleDateString()} ·{" "}
+                  {lead.reportCount} {lead.reportCount === 1 ? "citizen report" : "citizen reports"}
+                </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="text-xs font-bold uppercase text-[#ECE7DC] tracking-wider flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC]" />
-                  02 / The Research &amp; Student Squad
+                  02 / Who took it on
                 </div>
                 <div className="p-4 rounded-sm bg-white/10 border border-white/15 text-xs sm:text-sm text-[#ECE7DC] space-y-1">
-                  <div className="font-bold">
-                    BIT Mesra Dept of Chemical Eng + 4 NEP-2020 Students + District Jal Nigam
-                  </div>
-                  <div className="text-[#C5BEB3] text-xs font-semibold">
-                    Guided by Prof. R. Sengupta • Funded via State DST Innovation Scheme
-                  </div>
+                  {lead.claimedInstitutionName ? (
+                    <>
+                      <div className="font-bold">{lead.claimedInstitutionName}</div>
+                      {lead.claimedInstitutionDepartment ? (
+                        <div className="text-[#C5BEB3] text-xs font-semibold">{lead.claimedInstitutionDepartment}</div>
+                      ) : null}
+                    </>
+                  ) : (
+                    <div className="text-[#C5BEB3] text-xs font-semibold">
+                      No institution formally claimed this one — it reached resolved without a recorded claim.
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="text-xs font-bold uppercase text-[#ECE7DC] tracking-wider flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC]" />
-                  03 / The Verified Resolution
+                  03 / How it ended
                 </div>
                 <p className="text-[#DDD8CD] text-sm sm:text-base leading-relaxed">
-                  A solar-powered continuous nano-alumina adsorption unit with GSM telemetry was designed, bench-tested, and deployed across 48 habitations. Real-time water tests confirm fluoride levels below 0.8 ppm (WHO safe standard).
+                  {lead.confirmedAt
+                    ? "The institution marked this resolved, and the citizen who originally reported it independently confirmed the fix actually happened — the two are recorded separately on purpose, so an institution cannot sign off its own work."
+                    : "An institution has marked this resolved. It is still waiting on the original reporter to confirm the fix independently, and is deliberately not counted as confirmed until they do."}
                 </p>
               </div>
 
               <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/15">
                 <div className="text-xs sm:text-sm text-[#C5BEB3] font-medium flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-[#ECE7DC]" />
-                  Audited by Public Health Engineering Dept (PHED)
+                  {/* Was "Audited by Public Health Engineering Dept (PHED)" — no
+                      such audit exists. */}
+                  Read directly from the live database
                 </div>
 
                 <Button

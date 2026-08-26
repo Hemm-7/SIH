@@ -19,54 +19,63 @@ const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 export function CoreConceptEcosystem() {
   const [activeStakeholder, setActiveStakeholder] = useState<number>(0);
 
+  /*
+   * PHASE 1 (fabricated-content remediation): this section describes the
+   * INTENDED collaboration model, which is a legitimate explainer — but it
+   * carried a `metrics` figure on every card ("1,200+ Village Panchayats",
+   * "42+ Research Labs Active", "₹12.4 Cr Grant Pipeline", "48 Incubated
+   * Prototypes", "24 Districts Coordinated") that read as achieved results
+   * and had no backing anywhere in the schema. A role is not a countable
+   * thing here, so the field is removed entirely rather than given a
+   * substitute number.
+   *
+   * Descriptions also named real organisations — BIT Mesra, IIT-ISM Dhanbad,
+   * BAU Ranchi, Tata Steel Foundation, Coal India — as active participants.
+   * None are on this platform, so they are described by role instead of by
+   * name.
+   */
   const stakeholders = [
     {
       role: "Gram Sabhas & Citizens",
       tag: "Problem Origin & Field Intake",
       icon: HeartHandshake,
-      description: "Self-Help Groups (Mahila Kisan Samitis, Village Jal Samitis) identify local pain points and operate deployed systems.",
-      action: "Daily operations, ground telemetry feedback & grassroots maintenance",
-      metrics: "1,200+ Village Panchayats",
+      description: "Local self-help groups and village committees identify the problems that matter where they live, and operate what gets deployed.",
+      action: "Reporting problems, ground feedback & day-to-day upkeep",
     },
     {
       role: "Student Innovators",
       tag: "NEP-2020 Capstone Cohorts",
       icon: GraduationCap,
-      description: "Engineering and postgraduate students earn mandatory multidisciplinary degree credits by building field prototypes.",
-      action: "Hardware MVPs, IoT telemetry & village pilot deployment",
-      metrics: "6-8 Capstone Credits",
+      description: "Engineering and postgraduate students take on real local problems as multidisciplinary degree work rather than invented coursework.",
+      action: "Prototypes, field testing & village pilot deployment",
     },
     {
       role: "University Researchers",
       tag: "Faculty & Laboratory Directors",
       icon: Microscope,
-      description: "Specialized professors at BIT Mesra, IIT-ISM Dhanbad, and BAU Ranchi guide scientific feasibility and testing.",
+      description: "Faculty at partner universities guide scientific feasibility, testing and verification for challenges matched to their department's expertise.",
       action: "Material characterization & analytical verification",
-      metrics: "42+ Research Labs Active",
     },
     {
       role: "Startups & Incubators",
       tag: "Technology Incubation & Tooling",
       icon: Building2,
-      description: "Incubated teams build production-grade, low-cost iterations and provide continuous technical support.",
-      action: "Commercial tooling, IoT firmware & field manufacturing",
-      metrics: "48 Incubated Prototypes",
+      description: "Incubated teams turn working prototypes into production-grade, low-cost iterations and provide continuing technical support.",
+      action: "Commercial tooling, firmware & field manufacturing",
     },
     {
-      role: "Industry & CSR Allies",
-      tag: "Grant Capital & Scaling",
+      role: "Industry Partners",
+      tag: "Capital & Scaling",
       icon: Building2,
-      description: "Corporate CSR funds (Tata Steel Foundation, Coal India) finance prototype fabrication and field deployment.",
-      action: "CSR capital grants, mentorship & technology scale-up",
-      metrics: "₹12.4 Cr Grant Pipeline",
+      description: "Registered industry partners fund prototype fabrication and field deployment, and provide mentorship for scale-up.",
+      action: "Capital, mentorship & technology scale-up",
     },
     {
       role: "District Administration",
       tag: "Public Policy & Infrastructure",
       icon: Landmark,
-      description: "District Magistrates, Jal Nigam, and Agricultural Officers validate on-ground utility and oversee public rollout.",
-      action: "Administrative sign-off, permissions & public procurement",
-      metrics: "24 Districts Coordinated",
+      description: "District officials validate on-ground utility, give administrative sign-off, and oversee public rollout.",
+      action: "Sign-off, permissions & public procurement",
     },
   ];
 
@@ -163,15 +172,11 @@ export function CoreConceptEcosystem() {
                       </div>
 
                       <div className="min-w-0 flex-1">
+                        {/* The per-role `metrics` figure that sat on the right
+                            of this line was removed — see the note on the
+                            stakeholders array. */}
                         <div className="font-bold text-sm sm:text-base leading-tight flex items-center justify-between">
                           <span className={isSelected ? "text-white font-bold" : "text-[#2C2925]"}>{s.role}</span>
-                          <span
-                            className={`text-xs font-semibold ${
-                              isSelected ? "text-[#DDD8CD]" : "text-[#5C564E]"
-                            }`}
-                          >
-                            {s.metrics}
-                          </span>
                         </div>
                         <div
                           className={`text-xs truncate mt-0.5 ${
@@ -219,7 +224,7 @@ export function CoreConceptEcosystem() {
                     </div>
 
                     <Badge variant="outline" className="text-xs font-bold px-3 py-1 bg-[#FAF8F4] text-[#2C2925] border-[#2C2925]/30 shadow-2xs">
-                      {stakeholders[activeStakeholder].metrics}
+                      {stakeholders[activeStakeholder].tag}
                     </Badge>
                   </div>
 

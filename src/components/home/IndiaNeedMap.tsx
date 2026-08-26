@@ -15,127 +15,85 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useMappedChallenges } from "@/hooks/useHomepageData";
 
 const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
-interface DistrictMarker {
-  id: string;
-  name: string;
-  category: string;
-  categoryIcon: typeof Droplets;
-  title: string;
-  priority: "HIGH" | "MEDIUM" | "CRITICAL";
-  affectedPop: string;
-  summary: string;
-  matchedLab: string;
-  coords: { x: number; y: number };
-  districtCode: string;
-}
+const DOMAIN_ICON: Record<string, typeof Droplets> = {
+  water_resources: Droplets,
+  agriculture: Sprout,
+  rural_livelihoods: Sprout,
+  environment: Sprout,
+  healthcare: HeartPulse,
+  education: GraduationCap,
+  public_administration: GraduationCap,
+  energy: Zap,
+  urban_development: Car,
+  accessibility: Users,
+};
 
-const DISTRICT_MARKERS: DistrictMarker[] = [
-  {
-    id: "palamu",
-    name: "Palamu (Daltonganj)",
-    category: "Water",
-    categoryIcon: Droplets,
-    title: "Severe Groundwater Fluorosis & Community Nano-Filtration Requirement",
-    priority: "CRITICAL",
-    affectedPop: "48,000 villagers across 32 habitations",
-    summary: "High natural fluoride (up to 5.2 ppm) leaching into borewells during summer dry season.",
-    matchedLab: "BIT Mesra Chemical Eng & Separation Lab",
-    coords: { x: 28, y: 35 },
-    districtCode: "JH-PAL",
-  },
-  {
-    id: "khunti",
-    name: "Khunti (Torpa)",
-    category: "Agriculture",
-    categoryIcon: Sprout,
-    title: "Off-Grid Solar Thermal Cold Chain for Tomato & Lac Tribal SHGs",
-    priority: "HIGH",
-    affectedPop: "2,400 tribal farmer families",
-    summary: "Tribal women SHGs losing 40% of perishable harvests at weekly Haat without cold storage.",
-    matchedLab: "Birsa Agricultural University (BAU) Ranchi",
-    coords: { x: 48, y: 62 },
-    districtCode: "JH-KHU",
-  },
-  {
-    id: "dhanbad",
-    name: "Dhanbad (Jharia)",
-    category: "Clean Energy & Recycling",
-    categoryIcon: Zap,
-    title: "Coal Mine Overburden Slag Repurposing into Low-Carbon Eco-Bricks",
-    priority: "HIGH",
-    affectedPop: "25,000 residents in coal belt",
-    summary: "Open cast overburden dumps generating airborne PM10 particulate dust requiring geopolymerization.",
-    matchedLab: "IIT (ISM) Dhanbad CRF Division",
-    coords: { x: 72, y: 44 },
-    districtCode: "JH-DHN",
-  },
-  {
-    id: "dumka",
-    name: "Dumka (Santhal Parganas)",
-    category: "Education & Access",
-    categoryIcon: GraduationCap,
-    title: "Santhali Ol Chiki Voice AI for Digital Public Welfare Delivery",
-    priority: "MEDIUM",
-    affectedPop: "12,000 native speakers",
-    summary: "Language barrier excluding indigenous citizens from direct benefit transfer portals.",
-    matchedLab: "Dept of CSE, BIT Mesra",
-    coords: { x: 80, y: 26 },
-    districtCode: "JH-DUM",
-  },
-  {
-    id: "latehar",
-    name: "Latehar & Netarhat",
-    category: "Healthcare",
-    categoryIcon: HeartPulse,
-    title: "Emergency Antivenom & Maternal Drone Drop Corridors",
-    priority: "CRITICAL",
-    affectedPop: "8,500 cutoff habitations",
-    summary: "Monsoon isolation cutting off hill hamlets from primary health centers during acute emergencies.",
-    matchedLab: "AIIMS Deoghar • RIMS Telemedicine Cell",
-    coords: { x: 36, y: 48 },
-    districtCode: "JH-LAT",
-  },
-  {
-    id: "jamshedpur",
-    name: "East Singhbhum (Jamshedpur)",
-    category: "Clean Energy & Recycling",
-    categoryIcon: Zap,
-    title: "Subarnarekha River Heavy-Metal Adsorption Biochar Systems",
-    priority: "HIGH",
-    affectedPop: "35,000 riparian inhabitants",
-    summary: "Industrial runoff in downstream stretches requiring indigenous biochar filtration matrices.",
-    matchedLab: "NIT Jamshedpur Metallurgical Dept",
-    coords: { x: 68, y: 78 },
-    districtCode: "JH-E-SIN",
-  },
-];
+const DOMAIN_LABEL: Record<string, string> = {
+  education: "Education",
+  agriculture: "Agriculture",
+  healthcare: "Healthcare",
+  water_resources: "Water",
+  environment: "Environment",
+  energy: "Energy",
+  urban_development: "Urban Development",
+  accessibility: "Accessibility",
+  public_administration: "Public Administration",
+  rural_livelihoods: "Rural Livelihoods",
+};
 
+const STATUS_LABEL: Record<string, string> = {
+  submitted: "Submitted",
+  ai_matched: "Matched to expertise",
+  claimed: "Claimed by an institution",
+  in_progress: "Being worked on",
+  resolved: "Resolved",
+};
+
+/** Filter chips are keyed to real `challenge_domain` values. */
 const CATEGORIES = [
   { label: "All Sectors", icon: Compass, key: "all" },
-  { label: "Water", icon: Droplets, key: "Water" },
-  { label: "Agriculture", icon: Sprout, key: "Agriculture" },
-  { label: "Healthcare", icon: HeartPulse, key: "Healthcare" },
-  { label: "Education", icon: GraduationCap, key: "Education & Access" },
-  { label: "Clean Energy", icon: Zap, key: "Clean Energy & Recycling" },
-  { label: "Mobility", icon: Car, key: "Mobility" },
+  { label: "Water", icon: Droplets, key: "water_resources" },
+  { label: "Agriculture", icon: Sprout, key: "agriculture" },
+  { label: "Healthcare", icon: HeartPulse, key: "healthcare" },
+  { label: "Education", icon: GraduationCap, key: "education" },
+  { label: "Energy", icon: Zap, key: "energy" },
+  { label: "Accessibility", icon: Users, key: "accessibility" },
 ];
 
+/*
+ * PHASE 1 (fabricated-content remediation): the six district markers here
+ * were invented — invented problems, invented affected populations ("48,000
+ * villagers across 32 habitations", "35,000 riparian inhabitants"), invented
+ * CRITICAL/HIGH priorities, invented district codes, and matched labs naming
+ * real institutions (BIT Mesra, BAU Ranchi, IIT-ISM Dhanbad, NIT Jamshedpur,
+ * AIIMS Deoghar) that are not on this platform. Marker positions were
+ * hand-placed percentages.
+ *
+ * Markers now come from real `challenges` rows that carry real coordinates,
+ * projected from their actual lat/lon onto this panel. The panel has no
+ * geographic outline behind it, so the projection is strictly more faithful
+ * than the hand-placed dots it replaces. Affected-population and priority
+ * have no backing column and are gone rather than substituted; the real
+ * report count and lifecycle status are shown instead.
+ */
 export function IndiaNeedMap() {
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeMarkerId, setActiveMarkerId] = useState<string>("palamu");
+  const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
+  const mapped = useMappedChallenges(40);
+
+  if (!mapped || mapped.length === 0) return null;
 
   const filteredMarkers =
-    selectedCategory === "all"
-      ? DISTRICT_MARKERS
-      : DISTRICT_MARKERS.filter((m) => m.category === selectedCategory);
+    selectedCategory === "all" ? mapped : mapped.filter((m) => m.domain === selectedCategory);
 
   const activeMarker =
-    DISTRICT_MARKERS.find((m) => m.id === activeMarkerId) || DISTRICT_MARKERS[0];
-  const ActiveCatIcon = activeMarker.categoryIcon;
+    mapped.find((m) => m.id === activeMarkerId) ?? filteredMarkers[0] ?? mapped[0];
+  const ActiveCatIcon = (activeMarker.domain ? DOMAIN_ICON[activeMarker.domain] : undefined) ?? Compass;
 
   return (
     <section className="py-24 sm:py-32 bg-[#2C2925] text-[#ECE7DC] relative w-full overflow-hidden border-b-2 border-[#2C2925] font-sans">
@@ -161,7 +119,7 @@ export function IndiaNeedMap() {
           >
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#DDD8CD]">
               <Radio className="h-4 w-4 text-[#ECE7DC] animate-pulse" />
-              <span>SECTION IV · REGIONAL TELEMETRY &amp; DISPATCH MAP</span>
+              <span>SECTION IV · WHERE REPORTS ARE COMING FROM</span>
             </div>
             <h2
               className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight uppercase text-[#ECE7DC] leading-[0.92]"
@@ -171,7 +129,9 @@ export function IndiaNeedMap() {
               <span className="text-[#C5BEB3] italic font-normal">JHARKHAND NEED YOU?</span>
             </h2>
             <p className="text-sm sm:text-base text-[#DDD8CD] leading-relaxed">
-              Interactive 24-district telemetry map. Click any active node to inspect on-ground community challenges and matched research laboratories.
+              Every node is a real problem someone reported, placed at the
+              coordinates it was submitted with. Click one to see the report and
+              the institution the classifier matched it to.
             </p>
           </motion.div>
         </div>
@@ -217,7 +177,7 @@ export function IndiaNeedMap() {
             <div className="relative w-full h-[400px] rounded-sm bg-[#221F1C] border border-white/15 overflow-hidden">
               <div className="absolute top-3.5 left-3.5 text-[11px] font-mono text-[#C5BEB3] font-bold flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC] animate-ping" />
-                LAT 23.6102° N, LON 85.2799° E • JHARKHAND GAZETTE MAP
+                LAT 23.6102° N, LON 85.2799° E • JHARKHAND
               </div>
               <div className="absolute bottom-3.5 right-3.5 text-[11px] font-mono font-bold text-[#ECE7DC] flex items-center gap-1.5 bg-black/50 px-2.5 py-1 rounded-sm border border-white/10">
                 <span className="h-2 w-2 rounded-full bg-[#ECE7DC] animate-ping" />
@@ -231,7 +191,7 @@ export function IndiaNeedMap() {
                   <motion.div
                     key={marker.id}
                     className="absolute cursor-pointer"
-                    style={{ left: `${marker.coords.x}%`, top: `${marker.coords.y}%` }}
+                    style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
                     whileHover={{ scale: 1.25 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setActiveMarkerId(marker.id)}
@@ -260,11 +220,13 @@ export function IndiaNeedMap() {
                             : "bg-[#1E1C1A] text-white border-white/30 hover:border-white"
                         }`}
                       >
-                        {marker.districtCode.split("-")[1]}
+                        {/* Real report count on this node, in place of the
+                            invented district code. */}
+                        {marker.reportCount}
                       </div>
 
                       <span className="absolute top-9 px-2.5 py-0.5 rounded-sm bg-[#1E1C1A] text-[#ECE7DC] text-[10px] font-mono font-bold whitespace-nowrap shadow-md pointer-events-none uppercase border border-white/20">
-                        {marker.name.split(" ")[0]}
+                        {marker.locationText ? marker.locationText.split(" ")[0] : "Unnamed"}
                       </span>
                     </div>
                   </motion.div>
@@ -302,22 +264,23 @@ export function IndiaNeedMap() {
                   <div className="flex items-center gap-2.5">
                     <span className="px-3 py-1 rounded-sm bg-white/10 text-[#ECE7DC] border border-white/20 font-mono text-xs font-bold flex items-center gap-1.5 uppercase">
                       <ActiveCatIcon className="h-4 w-4 text-[#ECE7DC]" />
-                      {activeMarker.category}
-                    </span>
-                    <span className="font-mono text-xs text-[#C5BEB3]">
-                      {activeMarker.districtCode}
+                      {activeMarker.domain ? DOMAIN_LABEL[activeMarker.domain] ?? activeMarker.domain : "Uncategorised"}
                     </span>
                   </div>
 
+                  {/* Was an invented CRITICAL/HIGH/MEDIUM priority. There is no
+                      priority column; the real lifecycle status is shown. */}
                   <span className="px-3 py-0.5 rounded-sm font-mono text-[11px] font-bold bg-white/10 text-[#ECE7DC] border border-white/25 uppercase">
-                    {activeMarker.priority} PRIORITY
+                    {STATUS_LABEL[activeMarker.status] ?? activeMarker.status}
                   </span>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs font-bold text-[#DDD8CD] uppercase tracking-wider flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4 text-[#ECE7DC]" /> {activeMarker.name}
-                  </div>
+                  {activeMarker.locationText ? (
+                    <div className="text-xs font-bold text-[#DDD8CD] uppercase tracking-wider flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4 text-[#ECE7DC]" /> {activeMarker.locationText}
+                    </div>
+                  ) : null}
                   <h3
                     className="text-2xl sm:text-3xl font-bold text-[#ECE7DC] leading-snug"
                     style={{ fontFamily: TIMES_SERIF }}
@@ -327,20 +290,25 @@ export function IndiaNeedMap() {
                 </div>
 
                 <p className="text-xs sm:text-sm text-[#DDD8CD] leading-relaxed">
-                  {activeMarker.summary}
+                  {activeMarker.description}
                 </p>
 
+                {/* "Affected Population" had no backing column and is replaced
+                    by the real citizen report count; the matched lab is now the
+                    institution that actually matched this row. */}
                 <div className="p-4 rounded-sm bg-white/10 border border-white/15 space-y-2.5">
                   <div className="flex items-center justify-between text-xs sm:text-sm font-mono">
-                    <span className="text-[#C5BEB3]">Affected Population:</span>
+                    <span className="text-[#C5BEB3]">Citizen reports:</span>
                     <span className="font-bold text-[#ECE7DC] flex items-center gap-1.5">
                       <Users className="h-4 w-4 text-[#ECE7DC]" />
-                      {activeMarker.affectedPop}
+                      {activeMarker.reportCount}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs sm:text-sm font-mono border-t border-white/15 pt-2">
-                    <span className="text-[#C5BEB3]">Matched Research Lab:</span>
-                    <span className="font-bold text-[#ECE7DC] truncate max-w-[220px]">{activeMarker.matchedLab}</span>
+                    <span className="text-[#C5BEB3]">Top matched institution:</span>
+                    <span className="font-bold text-[#ECE7DC] truncate max-w-[220px]">
+                      {activeMarker.topInstitutionName ?? "Not matched yet"}
+                    </span>
                   </div>
                 </div>
 

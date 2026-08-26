@@ -18,7 +18,10 @@ export function FooterSection() {
               SIH26043 · JHARKHAND
             </div>
             <p className="text-xs sm:text-sm text-[#DDD8CD] leading-relaxed max-w-lg">
-              Connecting citizen grassroots challenges across all 24 Jharkhand districts with accredited student capstone research cohorts, university laboratories, and industry partners under NEP-2020.
+              {/* Was "across all 24 Jharkhand districts" — a coverage claim
+                  nothing backs. Reworded to state the intent without asserting
+                  statewide coverage that does not exist yet. */}
+              Connecting citizen grassroots challenges in Jharkhand with student capstone research cohorts, university laboratories, and industry partners under NEP-2020.
             </p>
             <div className="text-xs sm:text-sm font-bold text-[#ECE7DC] uppercase tracking-wider">
               Dept. of Higher &amp; Technical Education, Govt. of Jharkhand
@@ -114,7 +117,9 @@ export function FooterSection() {
             © 2026 Government of Jharkhand · Societal Innovation Collaboration Portal. All rights reserved.
           </div>
           <div className="flex items-center gap-3 text-[#ECE7DC] font-bold">
-            <span>PRESS REG. JH-2026-SIH</span>
+            {/* Was "PRESS REG. JH-2026-SIH" — an invented press registration
+                number for a platform that is not a registered publication. */}
+            <span>SIH 2026 · SIH26043</span>
             <span>•</span>
             <span>24 DISTRICTS SYNCHRONIZED</span>
           </div>

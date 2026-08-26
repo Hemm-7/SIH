@@ -10,57 +10,68 @@ import {
   Cpu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useHomepageStats, useMatchShowcase, type MatchTier } from "@/hooks/useHomepageData";
 
 const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
-const AI_DEMO_PROMPTS = [
-  {
-    id: "water",
-    icon: Droplets,
-    label: "Fluoride Nano-Adsorption",
-    userPrompt: "High fluoride contamination in Daltonganj village borewells is causing severe skeletal fluorosis among children.",
-    extractedDomain: "Water Resources · Geochemistry · Nano-Materials",
-    analysisTokens: ["Geochemical Leaching", "Nano-Alumina Adsorbent", "Continuous Solar Pumping", "GSM Telemetry", "Jal Samiti SOP"],
-    matchFit: 95,
-    matches: [
-      { name: "BIT Mesra • Dept. of Chemical Engineering", role: "Lead Research Laboratory", score: 98 },
-      { name: "IIT (ISM) Dhanbad • Central Research Facility", role: "Institute of National Importance", score: 94 },
-      { name: "District Jal Nigam & Public Health Eng Dept", role: "State Implementing Agency", score: 89 },
-      { name: "Student Water Chemistry & IoT Cohort", role: "NEP-2020 Student Cohort", score: 84 },
-    ],
-  },
-  {
-    id: "agri",
-    icon: Sprout,
-    label: "Irrigation Telemetry",
-    userPrompt: "Farmers in this region struggle to predict irrigation requirements and lose 40% tomato harvest to summer heat.",
-    extractedDomain: "Agriculture · IoT · Weather · Remote Sensing",
-    analysisTokens: ["Soil Moisture Dynamics", "IoT Telemetry", "Weather Forecasting", "Phase Change Thermal Storage", "Gram Panchayat SHG"],
-    matchFit: 92,
-    matches: [
-      { name: "Birsa Agricultural University (BAU), Ranchi", role: "Agricultural University", score: 96 },
-      { name: "BIT Mesra • Solar Thermal & Refrigeration Lab", role: "IoT Research Lab", score: 92 },
-      { name: "AgriTech Innovation Team • IIT ISM Foundation", role: "AgriTech Incubator", score: 87 },
-      { name: "NEP-2020 Student Multidisciplinary Squad", role: "Capstone Research Team", score: 83 },
-    ],
-  },
-  {
-    id: "mining",
-    icon: Zap,
-    label: "Slag Geopolymer Eco-Bricks",
-    userPrompt: "Massive open cast coal mine overburden dumps in Dhanbad causing particulate air pollution and requiring sustainable reuse.",
-    extractedDomain: "Clean Mining · Material Science · Geopolymers",
-    analysisTokens: ["Silica Sand Extraction", "Geopolymerization", "Zero-Carbon Curing", "Structural Compressive Strength"],
-    matchFit: 91,
-    matches: [
-      { name: "IIT (ISM) Dhanbad • Dept. of Mining Engineering", role: "Lead Academic Institute", score: 97 },
-      { name: "Coal India & Tata Steel CSR Division", role: "Industry Funding Partner", score: 93 },
-      { name: "NIT Jamshedpur • Civil Structural Lab", role: "Testing & Certification", score: 88 },
-      { name: "Local Rural Masonry SHG Co-operative", role: "Community Production", score: 81 },
-    ],
-  },
-];
+/*
+ * PHASE 1 (fabricated-content remediation): this section was a scripted demo.
+ * Three invented problems were paired with invented collaborators — BIT
+ * Mesra, IIT (ISM) Dhanbad, BAU Ranchi, NIT Jamshedpur, "Coal India & Tata
+ * Steel CSR Division" — each carrying an invented percentage score (98/94/
+ * 89/84 …) and an invented "95% Match Fit". None of those institutions are on
+ * this platform and none of those matches existed.
+ *
+ * It now runs on real `challenge_matches` rows: real citizen problem text,
+ * the real institutions the classifier actually matched, and the real reason
+ * strings it wrote. This is the project's signature "explainable matching"
+ * claim, so demonstrating it with real data rather than a script is the whole
+ * point.
+ *
+ * Scores are shown as qualitative tiers, never as raw percentages —
+ * contracts.md is explicit about this: zero-shot splits probability mass
+ * across all candidate labels, so a correct top match commonly lands near
+ * 0.30-0.40 and rendering that as "34%" misrepresents the model as unsure.
+ */
+
+const DOMAIN_ICON: Record<string, typeof Droplets> = {
+  water_resources: Droplets,
+  agriculture: Sprout,
+  rural_livelihoods: Sprout,
+  environment: Sprout,
+  energy: Zap,
+  urban_development: Zap,
+  education: Users,
+  healthcare: Users,
+  accessibility: Users,
+  public_administration: Users,
+};
+
+const DOMAIN_LABEL: Record<string, string> = {
+  education: "Education",
+  agriculture: "Agriculture",
+  healthcare: "Healthcare",
+  water_resources: "Water Resources",
+  environment: "Environment",
+  energy: "Energy",
+  urban_development: "Urban Development",
+  accessibility: "Accessibility",
+  public_administration: "Public Administration",
+  rural_livelihoods: "Rural Livelihoods",
+};
+
+const TIER_LABEL: Record<MatchTier, string> = {
+  strong: "Strong match",
+  likely: "Likely match",
+  possible: "Possible match",
+};
+
+/** Short, human label for a scenario button, derived from the real row. */
+function shortLabel(title: string): string {
+  const clean = title.trim();
+  return clean.length > 34 ? `${clean.slice(0, 34).trimEnd()}…` : clean;
+}
 
 interface AiMatchingSectionProps {
   onOpenAgent: (initialQuery?: string) => void;
@@ -68,7 +79,15 @@ interface AiMatchingSectionProps {
 
 export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
   const [activePromptIndex, setActivePromptIndex] = useState(0);
-  const activeScenario = AI_DEMO_PROMPTS[activePromptIndex];
+  const showcase = useMatchShowcase(3);
+  const stats = useHomepageStats();
+
+  // No scripted fallback: if there are no real matches to show, the section
+  // does not render at all.
+  if (!showcase || showcase.length === 0) return null;
+
+  const activeScenario = showcase[Math.min(activePromptIndex, showcase.length - 1)];
+  const topMatch = activeScenario.matches[0];
 
   return (
     <section className="py-24 sm:py-32 bg-[#2C2925] text-[#ECE7DC] relative w-full overflow-hidden border-b-2 border-[#2C2925] font-sans">
@@ -128,8 +147,8 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
           transition={{ duration: 0.45, delay: 0.08, ease: SMOOTH_EASE }}
           className="flex flex-wrap items-center justify-center gap-2.5 transform-gpu will-change-transform"
         >
-          {AI_DEMO_PROMPTS.map((p, idx) => {
-            const PIcon = p.icon;
+          {showcase.map((p, idx) => {
+            const PIcon = (p.domain ? DOMAIN_ICON[p.domain] : undefined) ?? Cpu;
             const isSelected = activePromptIndex === idx;
             return (
               <motion.button
@@ -144,7 +163,7 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
                 }`}
               >
                 <PIcon className="h-4 w-4" />
-                <span>Scenario: {p.label}</span>
+                <span>{shortLabel(p.title)}</span>
               </motion.button>
             );
           })}
@@ -185,7 +204,7 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
                   <span>Citizen Input</span>
                 </div>
                 <p className="text-base sm:text-lg font-semibold text-[#ECE7DC] leading-relaxed">
-                  &ldquo;{activeScenario.userPrompt}&rdquo;
+                  &ldquo;{activeScenario.description}&rdquo;
                 </p>
               </motion.div>
 
@@ -205,27 +224,42 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
                 </div>
 
                 <div className="text-xs sm:text-sm font-bold text-[#ECE7DC]">
-                  {activeScenario.extractedDomain}
+                  {activeScenario.domain ? DOMAIN_LABEL[activeScenario.domain] ?? activeScenario.domain : "Awaiting categorisation"}
                 </div>
 
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {activeScenario.analysisTokens.map((token, i) => (
-                    <motion.span
-                      key={i}
-                      whileHover={{ scale: 1.08 }}
-                      className="px-2.5 py-1 rounded-sm bg-white/10 border border-white/20 text-xs font-semibold text-[#ECE7DC] shadow-xs cursor-default"
-                    >
-                      + {token}
-                    </motion.span>
-                  ))}
-                </div>
+                {/* Real expertise terms lifted from the real match_reason
+                    strings the matcher wrote for this challenge. When the
+                    matcher found no specialisation overlap it says so in
+                    plain words instead of listing terms — that honest
+                    fallback is surfaced here rather than hidden. */}
+                {activeScenario.reasonTerms.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {activeScenario.reasonTerms.map((token) => (
+                      <motion.span
+                        key={token}
+                        whileHover={{ scale: 1.08 }}
+                        className="px-2.5 py-1 rounded-sm bg-white/10 border border-white/20 text-xs font-semibold text-[#ECE7DC] shadow-xs cursor-default"
+                      >
+                        + {token}
+                      </motion.span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-[#C5BEB3] pt-1 leading-relaxed">
+                    Matched on subject area alone — the classifier found no direct
+                    specialisation overlap and says so rather than inventing a reason.
+                  </p>
+                )}
               </motion.div>
             </div>
 
             {/* Middle Column: Animated Match Fit Score Gauge (2 Cols) */}
             <div className="lg:col-span-2 flex flex-col items-center justify-center space-y-2 py-4">
+              {/* Was a fabricated "95%" gauge. Now the real top match's
+                  qualitative tier — never the raw score as a percentage,
+                  per contracts.md. */}
               <motion.div
-                key={activeScenario.matchFit}
+                key={activeScenario.id}
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.4, ease: SMOOTH_EASE }}
@@ -233,16 +267,16 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
               >
                 <span className="absolute h-24 w-24 rounded-full bg-white/10 animate-ping pointer-events-none" />
                 <div
-                  className="text-5xl sm:text-6xl font-extrabold text-[#ECE7DC] tracking-tight relative z-10"
+                  className="text-2xl sm:text-3xl font-extrabold text-[#ECE7DC] tracking-tight relative z-10 text-center leading-tight"
                   style={{ fontFamily: TIMES_SERIF }}
                 >
-                  {activeScenario.matchFit}%
+                  {TIER_LABEL[topMatch.tier]}
                 </div>
               </motion.div>
 
               <div className="text-xs font-bold uppercase text-[#C5BEB3] text-center tracking-wider flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC] animate-pulse" />
-                Match Fit Score
+                Top Match Strength
               </div>
             </div>
 
@@ -250,12 +284,12 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
             <div className="lg:col-span-5 space-y-2.5">
               <div className="text-xs sm:text-sm uppercase font-bold text-[#ECE7DC] px-1 pb-1 flex items-center gap-2">
                 <Users className="h-4 w-4 text-[#ECE7DC]" />
-                03 / Matched Multidisciplinary Squad:
+                03 / Institutions actually matched:
               </div>
 
               {activeScenario.matches.map((match, i) => (
                 <motion.div
-                  key={match.name}
+                  key={`${match.institutionName}-${i}`}
                   initial={{ opacity: 0, x: 18 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: i * 0.06 }}
@@ -264,16 +298,17 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-bold text-sm sm:text-base text-[#ECE7DC] leading-tight">
-                      {match.name}
+                      {match.institutionName}
                     </div>
-                    <span className="text-xs sm:text-sm font-bold text-[#ECE7DC] bg-white/10 px-2 py-0.5 rounded-sm border border-white/20">
-                      {match.score}%
+                    {/* Qualitative tier, not a raw percentage — see contracts.md */}
+                    <span className="shrink-0 text-xs sm:text-sm font-bold text-[#ECE7DC] bg-white/10 px-2 py-0.5 rounded-sm border border-white/20">
+                      {TIER_LABEL[match.tier]}
                     </span>
                   </div>
 
-                  <div className="text-xs text-[#C5BEB3] font-medium">
-                    {match.role}
-                  </div>
+                  {match.department ? (
+                    <div className="text-xs text-[#C5BEB3] font-medium">{match.department}</div>
+                  ) : null}
                 </motion.div>
               ))}
             </div>
@@ -284,11 +319,15 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
           <div className="pt-5 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs sm:text-sm text-[#C5BEB3] font-medium flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#ECE7DC] animate-pulse" />
-              Over 312 university laboratories &amp; 14,000+ challenges synchronized in real-time.
+              {/* Was "Over 312 university laboratories & 14,000+ challenges
+                  synchronized in real-time" — both figures invented. */}
+              {stats
+                ? `${stats.partnerInstitutions} partner institutions · ${stats.aiMatchesMade} matches made across ${stats.challengesRaised} reported problems.`
+                : "Every match shown here is a real row from the database."}
             </div>
 
             <Button
-              onClick={() => onOpenAgent(activeScenario.userPrompt)}
+              onClick={() => onOpenAgent(activeScenario.description)}
               className="h-11 px-6 rounded-sm bg-[#ECE7DC] hover:bg-white text-[#2C2925] font-bold text-xs sm:text-sm gap-2 shadow-lg uppercase tracking-wider border border-white hover:scale-105 active:scale-95 transition-all group"
             >
               <span>Test with Your Own Problem (⌘K)</span>

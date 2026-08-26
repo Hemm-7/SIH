@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, PlusCircle, Sparkles, Compass, Radio, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFeaturedChallenges, useHomepageStats } from "@/hooks/useHomepageData";
 
 /* ═══════════════════════════════════════════════════════════════════
    TYPOGRAPHY CONSTANTS (TIMES NEW ROMAN / TIMES OF INDIA STYLE)
@@ -10,72 +11,48 @@ import { Button } from "@/components/ui/button";
 const TIMES_ROMAN_HEAD = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 const CONDENSED = "'Barlow Condensed', 'Arial Narrow', sans-serif";
 
-/* ═══════════════════════════════════════════════════════════════════
-   JHARKHAND NEWS DISPATCHES (ENLARGED · MOVING LEFT -> RIGHT)
-   ═══════════════════════════════════════════════════════════════════ */
-const JHARKHAND_NEWS_STREAM_1 = [
-  "WATER SCARCITY: SOLAR FILTRATION COVERS 48 HABITATIONS IN PALAMU & GARHWA",
-  "FARMERS ADOPT IOT SOIL SENSORS IN GUMLA DEVELOPED BY BIRSA AGRI UNIVERSITY",
-  "48 DEGREE COLLEGES ACROSS JHARKHAND SIGN NEP-2020 CAPSTONE CHARTER",
-  "SARANDA FOREST CONSERVATION NETWORK EXPANDS TO 120 TRIBAL HABITATIONS",
-  "SOHRAI & KHOVAR INDIGENOUS MURALS IN HAZARIBAGH SECURE EXPANDED GI PROTECTION",
-];
+/*
+ * PHASE 1 (fabricated-content remediation): this hero previously carried five
+ * hardcoded "news dispatch" tickers and four fake newspaper articles complete
+ * with invented bylines ("By Innovation Bureau, Ranchi", "By Agri-Tech
+ * Correspondent, Gumla") and invented statistics ("Over 48,000 residents",
+ * "reduced contaminant parts per million by 94%", "48 Degree Colleges",
+ * "14,286 CITIZEN CHALLENGES", "312 UNIVERSITY LABORATORIES"). None of those
+ * events happened, none of those figures exist, and no such correspondents
+ * filed anything — it read as real reporting.
+ *
+ * The broadsheet AESTHETIC is kept, because that is a legitimate design
+ * choice. The CONTENT is now real: tickers and columns are built from actual
+ * `challenges` rows, and the fabricated bylines are replaced with honest
+ * attribution to the citizen who filed the report.
+ */
 
-const JHARKHAND_NEWS_STREAM_2 = [
-  "GROUNDWATER RECHARGE PILOTS COMMISSIONED ACROSS RANCHI PLATEAU BASIN",
-  "TELEMEDICINE DIAGNOSTIC NODES CONNECT LATEHAR HEALTH CENTERS WITH RIMS",
-  "MINING OVERBURDEN AFFORESTATION BELTS ADD 4,500 HECTARES IN SINGHBHUM",
-  "TRIBAL LAC CULTIVATION & VALUE ADDITION CLUSTERS LAUNCHED IN KHUNTI",
-  "NETARHAT WATERSHED CONTOUR BUNDING SAVES 28% RUNOFF WATER IN MONSOON",
-];
+const DOMAIN_LABEL: Record<string, string> = {
+  education: "EDUCATION",
+  agriculture: "AGRICULTURE",
+  healthcare: "HEALTHCARE",
+  water_resources: "WATER",
+  environment: "ENVIRONMENT",
+  energy: "ENERGY",
+  urban_development: "URBAN DEVELOPMENT",
+  accessibility: "ACCESSIBILITY",
+  public_administration: "PUBLIC ADMINISTRATION",
+  rural_livelihoods: "RURAL LIVELIHOODS",
+};
 
-const JHARKHAND_NEWS_STREAM_3 = [
-  "14,286 CITIZEN CHALLENGES LOGGED ACROSS 24 DISTRICTS ON COLLABORATION PORTAL",
-  "312 UNIVERSITY LABORATORIES MATCHED WITH VILLAGE INFRASTRUCTURE PROJECTS",
-  "CLEAN PIPED DRINKING WATER DEPLOYMENT ACCELERATES UNDER STATE MISSION",
-  "DHANBAD SOLID WASTE TO BIO-ENERGY PILOT COMMISSIONS FIRST COMMUNITY DIGESTER",
-];
+const STATUS_LABEL: Record<string, string> = {
+  submitted: "SUBMITTED",
+  ai_matched: "MATCHED TO EXPERTISE",
+  claimed: "CLAIMED BY AN INSTITUTION",
+  in_progress: "BEING WORKED ON",
+  resolved: "RESOLVED",
+};
 
-const JHARKHAND_NEWS_STREAM_4 = [
-  "RANCHI • DHANBAD • BOKARO • JAMSHEDPUR • KHUNTI • DUMKA • GUMLA • SIMDEGA • PALAMU • LATEHAR • HAZARIBAGH",
-  "DECENTRALIZED RURAL WATER GRIDS • SOLAR MICRO-IRRIGATION • MEDICINAL PLANT CULTIVATION • GI ARTISAN GUILDS",
-  "DEPARTMENT OF HIGHER & TECHNICAL EDUCATION • GOVT OF JHARKHAND • SIH 2026 INNOVATION MISSION",
-];
-
-const JHARKHAND_NEWS_STREAM_5 = [
-  "COMMUNITY FOREST GOVERNANCE • NON-TIMBER PRODUCE VALUE ADDITION • WOMEN SHG AGRI ENTERPRISES",
-  "CAPSTONE STUDENT RESEARCH LABS EARNING ACADEMIC CREDITS UNDER NEP-2020 GRASSROOTS MANDATE",
-  "AI MATCHING PROTOCOL ROUTES REAL-TIME CITIZEN ISSUES TO QUALIFIED ENGINEERING HUBS",
-];
-
-/* ═════════════════════════════════════════════════════════════
-   PRINTED EDITORIAL COLUMNS (TIMES OF INDIA BROADSHEET FORMAT)
-   ═════════════════════════════════════════════════════════════ */
-const TOI_PRINTED_COLUMNS = [
-  {
-    kicker: "SPECIAL INVESTIGATION · WATER",
-    headline: "Solar Nano-Filtration Deployed Across 48 Palamu Habitations",
-    body: "Over 48,000 residents across Palamu, Garhwa, and Latehar have faced seasonal fluoride contamination in hard-rock aquifers. Collaborative pilot installations of solar-powered nano-filtration units designed by university researchers have reduced contaminant parts per million by 94% across 48 habitations.",
-    author: "By Innovation Bureau, Ranchi",
-  },
-  {
-    kicker: "AGRI-TECH & MONITORING",
-    headline: "Birsa Agri IoT Soil Sensors Cut Rural Irrigation Runoff by 28%",
-    body: "Smallholders in Gumla and Khunti testing micro-irrigation drip kits calibrated with local monsoon rainfall patterns report substantially higher rabi crop yields while conserving 28% water runoff on plateau agricultural terraces.",
-    author: "By Agri-Tech Correspondent, Gumla",
-  },
-  {
-    kicker: "EDUCATION & NEP-2020",
-    headline: "48 Degree Colleges Map Student Capstones to Village Needs",
-    body: "Under NEP-2020 guidelines, final-year engineering and science students across Jharkhand select verified citizen-submitted problem statements as accredited capstone coursework, connecting academic research labs directly to societal impact.",
-    author: "By Higher Education Desk, Dhanbad",
-  },
-  {
-    kicker: "HERITAGE & ECO-STEWARDSHIP",
-    headline: "Saranda Canopy & Sohrai Murals Enter Digital GI Protection",
-    body: "Autonomous indigenous monitoring teams deploy low-cost aerial drone surveys to safeguard sal forest biodiversity corridors while Hazaribagh artisan guilds secure expanded Geographical Indication certification for indigenous art.",
-    author: "By Heritage & Forest Bureau, Chaibasa",
-  },
+/* Shown only until the live rows arrive; every line is true with no numbers. */
+const FALLBACK_STREAM = [
+  "DEPARTMENT OF HIGHER & TECHNICAL EDUCATION · GOVT OF JHARKHAND",
+  "CITIZENS REPORT LOCAL PROBLEMS · AN AI CLASSIFIER ROUTES THEM TO MATCHING EXPERTISE",
+  "EVERY MATCH ON THIS PLATFORM CARRIES A WRITTEN REASON",
 ];
 
 interface HeroSectionProps {
@@ -83,6 +60,54 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ onOpenAgent }: HeroSectionProps) {
+  const stats = useHomepageStats();
+  const recent = useFeaturedChallenges(8);
+
+  /* Ticker lines built from real rows. Falls back to statements that are true
+     and carry no numbers, rather than to invented headlines. */
+  const streams = useMemo(() => {
+    if (!recent || recent.length === 0) return [FALLBACK_STREAM, FALLBACK_STREAM, FALLBACK_STREAM, FALLBACK_STREAM, FALLBACK_STREAM];
+
+    const titles = recent.map((c) => c.title.toUpperCase());
+    const placed = recent
+      .filter((c) => c.locationText)
+      .map((c) => `${c.locationText!.toUpperCase()} · ${c.domain ? DOMAIN_LABEL[c.domain] ?? c.domain : "UNCATEGORISED"}`);
+    const statuses = recent.map(
+      (c) => `${(c.locationText ?? "JHARKHAND").toUpperCase()}: ${STATUS_LABEL[c.status] ?? c.status.toUpperCase()}`,
+    );
+    const matched = recent
+      .filter((c) => c.topInstitutionName)
+      .map((c) => `${c.topInstitutionName!.toUpperCase()} — MATCHED TO A REPORT IN ${(c.locationText ?? "JHARKHAND").toUpperCase()}`);
+
+    const figures = stats
+      ? [
+          `${stats.challengesRaised} PROBLEMS REPORTED BY CITIZENS ON THIS PLATFORM`,
+          `${stats.aiMatchesMade} AI MATCHES MADE ACROSS ${stats.partnerInstitutions} PARTNER INSTITUTIONS`,
+          `${stats.confirmedResolutions} FIX CONFIRMED BY THE CITIZEN WHO REPORTED IT`,
+        ]
+      : FALLBACK_STREAM;
+
+    return [
+      titles.length ? titles : FALLBACK_STREAM,
+      placed.length ? placed : FALLBACK_STREAM,
+      figures,
+      statuses.length ? statuses : FALLBACK_STREAM,
+      matched.length ? matched : FALLBACK_STREAM,
+    ];
+  }, [recent, stats]);
+
+  /* The four broadsheet columns are now real reports, not invented articles. */
+  const columns = useMemo(
+    () =>
+      (recent ?? []).slice(0, 4).map((c) => ({
+        kicker: c.domain ? DOMAIN_LABEL[c.domain] ?? c.domain : "AWAITING CATEGORISATION",
+        headline: c.title,
+        body: c.description,
+        author: c.locationText ? `Reported by a citizen · ${c.locationText}` : "Reported by a citizen",
+      })),
+    [recent],
+  );
+
   // Keyboard shortcut (⌘J or Ctrl+J) for AI agent
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -166,7 +191,9 @@ export function HeroSection({ onOpenAgent }: HeroSectionProps) {
                 <div className="text-[#2C2925] font-extrabold flex items-center gap-1.5">
                   THE TIMES OF INNOVATION · JHARKHAND
                 </div>
-                <div className="text-[#5C564E] font-extrabold">VOL. CXXXVIII NO. 242 · ESTD. 2026</div>
+                {/* Was "VOL. CXXXVIII NO. 242" — an invented publication
+                    history for a platform that launched this year. */}
+                <div className="text-[#5C564E] font-extrabold">SIH 2026 · GOVT OF JHARKHAND</div>
               </div>
             </div>
 
@@ -177,7 +204,11 @@ export function HeroSection({ onOpenAgent }: HeroSectionProps) {
 
             <div className="text-right text-[11px] sm:text-[12.5px] uppercase font-bold tracking-wider" style={{ fontFamily: CONDENSED }}>
               <div className="text-[#2C2925] font-extrabold">RANCHI · WEDNESDAY, AUGUST 26, 2026</div>
-              <div className="text-[#5C564E] font-extrabold">PRICE ₹5.00 · 24 DISTRICTS EDITION</div>
+              {/* Was "PRICE ₹5.00 · 24 DISTRICTS EDITION" — this is not a
+                  newspaper for sale and coverage is not statewide. */}
+              <div className="text-[#5C564E] font-extrabold">
+                {stats ? `LIVE EDITION · ${stats.locationsReported} PLACES REPORTING` : "LIVE EDITION"}
+              </div>
             </div>
           </div>
 
@@ -195,31 +226,31 @@ export function HeroSection({ onOpenAgent }: HeroSectionProps) {
           {/* Dense Background News Streaming Tracks across the whole paper */}
           <div className="absolute inset-0 flex flex-col justify-around pointer-events-none opacity-[0.28] select-none z-[2] overflow-hidden">
             <NewsMarqueeTrack
-              items={JHARKHAND_NEWS_STREAM_1}
+              items={streams[0]}
               speed={42}
               fontSize="text-base sm:text-lg md:text-xl font-bold tracking-tight uppercase"
               separator=" ◆ "
             />
             <NewsMarqueeTrack
-              items={JHARKHAND_NEWS_STREAM_2}
+              items={streams[1]}
               speed={36}
               fontSize="text-sm sm:text-base md:text-lg font-bold tracking-wider uppercase"
               separator=" · "
             />
             <NewsMarqueeTrack
-              items={JHARKHAND_NEWS_STREAM_3}
+              items={streams[2]}
               speed={48}
               fontSize="text-sm sm:text-base md:text-lg font-bold italic"
               separator=" — "
             />
             <NewsMarqueeTrack
-              items={JHARKHAND_NEWS_STREAM_4}
+              items={streams[3]}
               speed={38}
               fontSize="text-xs sm:text-sm md:text-base font-bold uppercase tracking-widest"
               separator=" ◆ "
             />
             <NewsMarqueeTrack
-              items={JHARKHAND_NEWS_STREAM_5}
+              items={streams[4]}
               speed={52}
               fontSize="text-xs sm:text-sm md:text-base font-bold uppercase tracking-wider"
               separator=" · "
@@ -228,7 +259,7 @@ export function HeroSection({ onOpenAgent }: HeroSectionProps) {
 
           {/* 4-Column Printed Editorial Articles Array in Background */}
           <div className="absolute inset-0 grid grid-cols-2 md:grid-cols-4 gap-6 p-4 text-left opacity-[0.24] select-none pointer-events-none z-[2] overflow-hidden">
-            {TOI_PRINTED_COLUMNS.map((art, i) => (
+            {columns.map((art, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -329,7 +360,7 @@ export function HeroSection({ onOpenAgent }: HeroSectionProps) {
               >
                 <Link to="/challenges">
                   <Compass className="h-4 w-4 group-hover:rotate-45 transition-transform" />
-                  <span>Explore 14,286 Challenges</span>
+                  <span>{stats ? `Explore ${stats.challengesRaised} Challenges` : "Explore Challenges"}</span>
                 </Link>
               </Button>
 
@@ -363,11 +394,16 @@ export function HeroSection({ onOpenAgent }: HeroSectionProps) {
             style={{ fontFamily: CONDENSED }}
           >
             <span>TODAY&apos;S PROBLEMS. TOMORROW&apos;S SOLUTIONS.</span>
+            {/* Was "ALL 24 JHARKHAND DISTRICT PANCHAYATS SYNCHRONIZED" (a
+                coverage claim nothing backs) and "PRESS REG. JH-2026-SIH" (an
+                invented press registration number). */}
             <span className="hidden sm:inline text-[#2C2925] font-extrabold flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-[#2C2925] animate-pulse" />
-              ALL 24 JHARKHAND DISTRICT PANCHAYATS SYNCHRONIZED
+              {stats
+                ? `${stats.challengesRaised} REPORTS FROM ${stats.locationsReported} PLACES IN JHARKHAND`
+                : "REPORTS FROM ACROSS JHARKHAND"}
             </span>
-            <span>PRESS REG. JH-2026-SIH</span>
+            <span>DEPT. OF HIGHER &amp; TECHNICAL EDUCATION</span>
           </div>
         </motion.div>
 

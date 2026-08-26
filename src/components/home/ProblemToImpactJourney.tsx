@@ -21,7 +21,10 @@ const JOURNEY_STEPS = [
     step: "03",
     phase: "MATCH",
     title: "Specialized Lab Routing",
-    description: "AI matches the problem against 312 university laboratories with faculty expertise and past patent track records.",
+    // Was "against 312 university laboratories with faculty expertise and past
+    // patent track records" — neither the count nor the patent-record claim is
+    // backed by anything. Describes what the matcher actually does instead.
+    description: "A zero-shot classifier ranks registered university and industry partners by how well their stated expertise fits the problem, and records a written reason for each match.",
   },
   {
     step: "04",
@@ -73,7 +76,7 @@ export function ProblemToImpactJourney() {
             className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#2C2925] transform-gpu will-change-transform"
           >
             <GitCommit className="h-4 w-4 text-[#2C2925] animate-pulse" />
-            <span>SECTION VII · 7-STAGE GAZETTE INNOVATION LIFECYCLE</span>
+            <span>SECTION VII · 7-STAGE INNOVATION LIFECYCLE</span>
           </motion.div>
 
           <motion.h2

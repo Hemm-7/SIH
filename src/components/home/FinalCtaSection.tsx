@@ -2,11 +2,14 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, PlusCircle, PenTool, Compass, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useHomepageStats } from "@/hooks/useHomepageData";
 
 const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
 export function FinalCtaSection() {
+  const stats = useHomepageStats();
+
   return (
     <section className="py-28 sm:py-36 bg-[#ECE7DC] text-[#2C2925] relative w-full overflow-hidden border-b-2 border-[#2C2925] font-sans">
       
@@ -100,7 +103,14 @@ export function FinalCtaSection() {
           className="pt-6 flex items-center justify-center gap-2 text-xs font-mono text-[#5C564E] font-bold uppercase tracking-wider"
         >
           <Sparkles className="h-3.5 w-3.5 text-[#2C2925] animate-spin-slow" />
-          <span>Over 14,286 Active Problems · All 24 Jharkhand Districts</span>
+          {/* Was "Over 14,286 Active Problems · All 24 Jharkhand Districts" —
+              both figures invented. Now the real challenge count and the real
+              number of distinct places reported from. */}
+          <span>
+            {stats
+              ? `${stats.challengesRaised} problems reported · ${stats.locationsReported} places in Jharkhand`
+              : "Problems reported across Jharkhand"}
+          </span>
         </motion.div>
 
       </div>
