@@ -78,7 +78,18 @@ export function institutionParticipation(
 }
 
 export interface DuplicateClusterSummary {
+  /** Every cluster, including the single-report ones. */
   totalClusters: number;
+  /**
+   * Clusters that actually contain a duplicate (more than one report).
+   *
+   * BUG FIX: the "Duplicate clusters" KPI used to read `totalClusters`, which
+   * counts singletons too — so with 12 challenges and no duplicates detected
+   * it displayed "12", implying twelve duplicate groups existed, and directly
+   * contradicted the card below it that correctly said "No duplicate reports
+   * have been recognised yet". The KPI now reads this field instead.
+   */
+  duplicateClusters: number;
   challengesFolded: number; // non-canonical rows folded into a canonical one
   clusters: { canonicalTitle: string; memberCount: number }[];
 }
@@ -89,6 +100,7 @@ export function duplicateClusterSummary(challenges: Challenge[]): DuplicateClust
   const multi = clusters.filter((c) => c.members.length > 1);
   return {
     totalClusters: clusters.length,
+    duplicateClusters: multi.length,
     challengesFolded: multi.reduce((sum, c) => sum + c.members.length - 1, 0),
     clusters: multi
       .map((c) => ({ canonicalTitle: c.canonical.title, memberCount: c.members.length }))
@@ -117,7 +129,9 @@ export function dashboardKpis(
     institutionsTotal: institutions.length,
     matchesClaimed: matches.filter((m) => m.is_claimed).length,
     matchesTotal: matches.length,
-    duplicateClusters: duplicateClusterSummary(challenges).totalClusters,
+    // Only clusters that actually hold a duplicate — see the note on
+    // DuplicateClusterSummary.duplicateClusters.
+    duplicateClusters: duplicateClusterSummary(challenges).duplicateClusters,
   };
 }
 

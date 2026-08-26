@@ -229,8 +229,8 @@ export function StatsSection() {
         {/* ═════════════════════════════════════════════════════════════
             LATEST REAL REPORTS STRIP
             Was a "District Telemetry Nodes" strip listing five invented
-            projects with invented completion percentages (94% / 88% / 100%
-            / 91% / 96%). No telemetry, project, or percent-complete concept
+            projects, each with an invented completion percentage in the
+            nineties. No telemetry, project, or percent-complete concept
             exists in the schema, so the percentages are gone entirely rather
             than recomputed — this now lists real recent challenge rows with
             their real location and real lifecycle status.
