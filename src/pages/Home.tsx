@@ -21,14 +21,14 @@ export default function Home() {
   };
 
   return (
-    <div className="-mt-6 md:-mt-10 -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden bg-[#050707]">
-      {/* 1. HERO SECTION: "SOLVE WHAT MATTERS." + Human-Centered Editorial Canvas */}
+    <div className="w-full overflow-hidden bg-[#F4EFE6] text-[#141414]">
+      {/* 1. HERO SECTION: "BUILDING SOLUTIONS FOR A BETTER TOMORROW" Broadsheet */}
       <HeroSection onOpenAgent={handleOpenAgent} />
 
       {/* 2. SCALE: "THOUSANDS OF PROBLEMS. ONE CONNECTED ECOSYSTEM." */}
       <StatsSection />
 
-      {/* 3. EXPLORE PROBLEMS: "WHAT NEEDS SOLVING?" Dark Teal Panels */}
+      {/* 3. EXPLORE PROBLEMS: "WHAT NEEDS SOLVING?" Editorial Panels */}
       <FeaturedProblems />
 
       {/* 4. JHARKHAND MAP: "WHERE DOES JHARKHAND NEED YOU?" */}
@@ -37,7 +37,7 @@ export default function Home() {
       {/* 5. ECOSYSTEM: "EVERY PROBLEM NEEDS A DIFFERENT TEAM." */}
       <CoreConceptEcosystem />
 
-      {/* 6. AI MATCHING (DARK TEAL): "YOU BRING THE PROBLEM. WE FIND THE PEOPLE." */}
+      {/* 6. AI MATCHING: "YOU BRING THE PROBLEM. WE FIND THE PEOPLE." */}
       <AiMatchingSection onOpenAgent={handleOpenAgent} />
 
       {/* 7. FROM PROBLEM TO IMPACT: 7-Stage Innovation Flow */}
@@ -46,10 +46,10 @@ export default function Home() {
       {/* 8. IMPACT STORIES: "FROM PROBLEM TO IMPACT." */}
       <ImpactStories />
 
-      {/* 9. FINAL CTA (DARK TEAL): "WHAT WILL YOU SOLVE?" */}
+      {/* 9. FINAL CTA: "WHAT WILL YOU SOLVE?" */}
       <FinalCtaSection />
 
-      {/* 10. FOOTER: Minimal Dark Footer */}
+      {/* 10. FOOTER: Broadsheet Gazette Colophon */}
       <FooterSection />
 
       {/* Global AI Match Modal */}

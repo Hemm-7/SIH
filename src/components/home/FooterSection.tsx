@@ -1,47 +1,54 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+
+const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 
 export function FooterSection() {
   return (
-    <footer className="bg-[#0D181A] text-[#F3F7F6] border-t border-white/[0.08] pt-16 pb-12">
-      <div className="container mx-auto px-4 max-w-7xl space-y-12">
+    <footer className="w-full bg-[#221F1C] text-[#ECE7DC] border-t-4 border-double border-white/20 pt-16 pb-12 select-none font-sans">
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 space-y-12">
+        
+        {/* Top Gazette Colophon Grid (Full Width) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Col 1 & 2: Brand Info */}
           <div className="lg:col-span-2 space-y-3">
-            <div className="font-display text-xl font-black tracking-tight text-[#F3F7F6] uppercase">
-              Societal Innovation
+            <div
+              className="text-2xl sm:text-3xl font-bold tracking-tight text-[#ECE7DC] uppercase"
+              style={{ fontFamily: TIMES_SERIF }}
+            >
+              SIH26043 · JHARKHAND
             </div>
-            <p className="text-xs text-[#9BAEAC] leading-relaxed max-w-sm">
-              Connecting citizen ground problems across all 24 Jharkhand districts with students, researchers, universities, and industry partners under NEP-2020.
+            <p className="text-xs sm:text-sm text-[#DDD8CD] leading-relaxed max-w-lg">
+              Connecting citizen grassroots challenges across all 24 Jharkhand districts with accredited student capstone research cohorts, university laboratories, and industry partners under NEP-2020.
             </p>
-            <div className="text-xs font-mono text-[#6F8381]">
+            <div className="text-xs sm:text-sm font-bold text-[#ECE7DC] uppercase tracking-wider">
               Dept. of Higher &amp; Technical Education, Govt. of Jharkhand
             </div>
           </div>
 
           {/* Col 3: Quick Navigation */}
           <div className="space-y-3">
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#F3F7F6]">
-              Platform
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#ECE7DC]">
+              Portal Navigation
             </div>
-            <ul className="space-y-2 text-xs text-[#9BAEAC]">
+            <ul className="space-y-2 text-xs sm:text-[13px] text-[#DDD8CD] font-semibold">
               <li>
-                <Link to="/challenges" className="hover:text-[#4FD1C5] transition-colors">
-                  Challenges
+                <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
+                  Challenges Grid
                 </Link>
               </li>
               <li>
-                <Link to="/submit" className="hover:text-[#4FD1C5] transition-colors">
+                <Link to="/submit" className="hover:text-white hover:underline transition-colors">
                   Submit a Problem
                 </Link>
               </li>
               <li>
-                <Link to="/institutions" className="hover:text-[#4FD1C5] transition-colors">
+                <Link to="/institutions" className="hover:text-white hover:underline transition-colors">
                   Institutions &amp; Labs
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="hover:text-[#4FD1C5] transition-colors">
-                  Impact &amp; Data
+                <Link to="/dashboard" className="hover:text-white hover:underline transition-colors">
+                  Impact &amp; Telemetry Data
                 </Link>
               </li>
             </ul>
@@ -49,28 +56,28 @@ export function FooterSection() {
 
           {/* Col 4: Sectors */}
           <div className="space-y-3">
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#F3F7F6]">
-              Domains
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#ECE7DC]">
+              Research Domains
             </div>
-            <ul className="space-y-2 text-xs text-[#9BAEAC]">
+            <ul className="space-y-2 text-xs sm:text-[13px] text-[#DDD8CD] font-semibold">
               <li>
-                <Link to="/challenges" className="hover:text-[#4FD1C5] transition-colors">
-                  Water Security
+                <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
+                  Water Security &amp; Hydro-GIS
                 </Link>
               </li>
               <li>
-                <Link to="/challenges" className="hover:text-[#4FD1C5] transition-colors">
-                  Decentralized Agriculture
+                <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
+                  Decentralized Agriculture &amp; IoT
                 </Link>
               </li>
               <li>
-                <Link to="/challenges" className="hover:text-[#4FD1C5] transition-colors">
-                  Indigenous NLP
+                <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
+                  Indigenous NLP (Ol Chiki)
                 </Link>
               </li>
               <li>
-                <Link to="/challenges" className="hover:text-[#4FD1C5] transition-colors">
-                  Clean Mining &amp; Recycling
+                <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
+                  Clean Mining &amp; Eco-Bricks
                 </Link>
               </li>
             </ul>
@@ -78,22 +85,22 @@ export function FooterSection() {
 
           {/* Col 5: Governance */}
           <div className="space-y-3">
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#F3F7F6]">
-              Initiative
+            <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#ECE7DC]">
+              Institutional Framework
             </div>
-            <ul className="space-y-2 text-xs text-[#9BAEAC]">
+            <ul className="space-y-2 text-xs sm:text-[13px] text-[#DDD8CD] font-semibold">
               <li>
-                <span className="hover:text-[#4FD1C5] transition-colors cursor-pointer">
+                <span className="hover:text-white transition-colors cursor-pointer">
                   NEP-2020 Capstone Guidelines
                 </span>
               </li>
               <li>
-                <span className="hover:text-[#4FD1C5] transition-colors cursor-pointer">
-                  State DST Innovation Scheme
+                <span className="hover:text-white transition-colors cursor-pointer">
+                  State DST Innovation Grant
                 </span>
               </li>
               <li>
-                <span className="hover:text-[#4FD1C5] transition-colors cursor-pointer">
+                <span className="hover:text-white transition-colors cursor-pointer">
                   Smart India Hackathon 2026
                 </span>
               </li>
@@ -101,15 +108,18 @@ export function FooterSection() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6F8381] font-mono">
+        {/* Bottom Bar (Full Width) */}
+        <div className="border-t-2 border-white/15 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-[#DDD8CD] font-semibold">
           <div>
-            © 2026 Societal Innovation Collaboration Portal — Jharkhand. SIH 2026.
+            © 2026 Government of Jharkhand · Societal Innovation Collaboration Portal. All rights reserved.
           </div>
-          <div>
-            Aligned with National Education Policy (NEP 2020)
+          <div className="flex items-center gap-3 text-[#ECE7DC] font-bold">
+            <span>PRESS REG. JH-2026-SIH</span>
+            <span>•</span>
+            <span>24 DISTRICTS SYNCHRONIZED</span>
           </div>
         </div>
+
       </div>
     </footer>
   );

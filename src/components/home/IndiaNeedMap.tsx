@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
@@ -10,10 +10,14 @@ import {
   Zap,
   Users,
   ArrowRight,
-  Layers
+  Compass,
+  Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+
+const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
+const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
 interface DistrictMarker {
   id: string;
@@ -98,25 +102,25 @@ const DISTRICT_MARKERS: DistrictMarker[] = [
   {
     id: "jamshedpur",
     name: "East Singhbhum (Jamshedpur)",
-    category: "Mobility",
-    categoryIcon: Car,
-    title: "Rural Bridge Structural Health Telemetry for Kolhan Rivers",
+    category: "Clean Energy & Recycling",
+    categoryIcon: Zap,
+    title: "Subarnarekha River Heavy-Metal Adsorption Biochar Systems",
     priority: "HIGH",
-    affectedPop: "35,000 commuters",
-    summary: "Flash monsoon surges damaging sub-surface causeways and isolating rural trade corridors.",
-    matchedLab: "NIT Jamshedpur Civil Engineering Lab",
-    coords: { x: 68, y: 74 },
-    districtCode: "JH-EAS",
+    affectedPop: "35,000 riparian inhabitants",
+    summary: "Industrial runoff in downstream stretches requiring indigenous biochar filtration matrices.",
+    matchedLab: "NIT Jamshedpur Metallurgical Dept",
+    coords: { x: 68, y: 78 },
+    districtCode: "JH-E-SIN",
   },
 ];
 
 const CATEGORIES = [
-  { label: "All Sectors", icon: Layers, key: "all" },
+  { label: "All Sectors", icon: Compass, key: "all" },
   { label: "Water", icon: Droplets, key: "Water" },
   { label: "Agriculture", icon: Sprout, key: "Agriculture" },
   { label: "Healthcare", icon: HeartPulse, key: "Healthcare" },
-  { label: "Education", icon: GraduationCap, key: "Education" },
-  { label: "Energy & Recycling", icon: Zap, key: "Clean Energy & Recycling" },
+  { label: "Education", icon: GraduationCap, key: "Education & Access" },
+  { label: "Clean Energy", icon: Zap, key: "Clean Energy & Recycling" },
   { label: "Mobility", icon: Car, key: "Mobility" },
 ];
 
@@ -134,29 +138,52 @@ export function IndiaNeedMap() {
   const ActiveCatIcon = activeMarker.categoryIcon;
 
   return (
-    <section className="py-24 bg-[#0D181A] text-[#F3F7F6] relative overflow-hidden border-b border-white/[0.08]">
-      {/* Background Matrix */}
-      <div className="absolute inset-0 framer-teal-grid opacity-30 pointer-events-none" />
+    <section className="py-24 sm:py-32 bg-[#2C2925] text-[#ECE7DC] relative w-full overflow-hidden border-b-2 border-[#2C2925] font-sans">
+      
+      {/* Paper texture overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1] opacity-25 mix-blend-screen"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper-grain)' opacity='0.12'/%3E%3C/svg%3E")`,
+        }}
+      />
 
-      <div className="container mx-auto px-4 max-w-7xl relative z-10 space-y-12">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/[0.08] pb-8">
-          <div className="space-y-2 max-w-2xl">
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#6F8381]">
-              Social Innovation Map
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 relative z-10 space-y-14">
+        
+        {/* Section Header (Full Width) with Smooth Scroll Reveal */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-2 border-white/20 pb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.08, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.5, ease: SMOOTH_EASE }}
+            className="space-y-3 max-w-3xl transform-gpu will-change-transform"
+          >
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#DDD8CD]">
+              <Radio className="h-4 w-4 text-[#ECE7DC] animate-pulse" />
+              <span>SECTION IV · REGIONAL TELEMETRY &amp; DISPATCH MAP</span>
             </div>
-            <h2 className="font-display text-4xl sm:text-6xl md:text-7xl font-black tracking-[-0.04em] uppercase text-[#F3F7F6] leading-[0.92]">
+            <h2
+              className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight uppercase text-[#ECE7DC] leading-[0.92]"
+              style={{ fontFamily: TIMES_SERIF }}
+            >
               WHERE DOES<br />
-              <span className="text-[#6F8381]">JHARKHAND NEED YOU?</span>
+              <span className="text-[#C5BEB3] italic font-normal">JHARKHAND NEED YOU?</span>
             </h2>
-            <p className="text-sm sm:text-base text-[#9BAEAC]">
-              Interactive district-level challenge map. Click any active node to inspect on-ground telemetry and matched university labs.
+            <p className="text-sm sm:text-base text-[#DDD8CD] leading-relaxed">
+              Interactive 24-district telemetry map. Click any active node to inspect on-ground community challenges and matched research laboratories.
             </p>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Sector Category Filters */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Sector Category Filters with Smooth Stagger */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
+          transition={{ duration: 0.45, delay: 0.08, ease: SMOOTH_EASE }}
+          className="flex flex-wrap items-center gap-2.5 transform-gpu will-change-transform"
+        >
           {CATEGORIES.map((cat) => {
             const CIcon = cat.icon;
             const isSelected = selectedCategory === cat.key;
@@ -164,32 +191,40 @@ export function IndiaNeedMap() {
               <button
                 key={cat.key}
                 onClick={() => setSelectedCategory(cat.key)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold flex items-center gap-2 transition-all border ${
+                className={`relative px-4 py-2.5 rounded-sm text-xs sm:text-[13px] font-bold flex items-center gap-2 transition-all border uppercase tracking-wider hover:scale-105 active:scale-95 z-10 ${
                   isSelected
-                    ? "bg-[#4FD1C5] border-[#4FD1C5] text-[#081113] font-bold shadow-lg shadow-teal-950/30"
-                    : "bg-[#142124] border-white/[0.08] text-[#9BAEAC] hover:text-white"
+                    ? "bg-[#ECE7DC] border-white text-[#2C2925] shadow-lg scale-105"
+                    : "bg-white/10 border-white/20 text-[#ECE7DC] hover:bg-white/20 hover:text-white"
                 }`}
               >
-                <CIcon className="h-3.5 w-3.5" />
+                <CIcon className="h-4 w-4" />
                 <span>{cat.label}</span>
               </button>
             );
           })}
-        </div>
+        </motion.div>
 
-        {/* Dark Teal Map Canvas & Inspector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* Broadsheet Map Canvas & Inspector with Smooth Scroll Entrance */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
           {/* Map Frame (7 Cols) */}
-          <div className="lg:col-span-7 rounded-3xl border border-white/[0.08] bg-[#142124] p-6 shadow-2xl relative min-h-[460px] flex flex-col justify-between overflow-hidden">
-            <div className="relative w-full h-[380px] rounded-2xl bg-[#081113] border border-white/[0.06] overflow-hidden framer-teal-grid">
-              <div className="absolute top-3 left-3 text-[10px] font-mono text-[#6F8381]">
-                LAT 23.6102° N, LON 85.2799° E • JHARKHAND SOCIAL IMPACT GRID
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
+            transition={{ duration: 0.5, ease: SMOOTH_EASE }}
+            className="lg:col-span-7 rounded-sm border-2 border-white/20 bg-[#383530] p-6 shadow-xl relative min-h-[480px] flex flex-col justify-between overflow-hidden transform-gpu will-change-transform"
+          >
+            <div className="relative w-full h-[400px] rounded-sm bg-[#221F1C] border border-white/15 overflow-hidden">
+              <div className="absolute top-3.5 left-3.5 text-[11px] font-mono text-[#C5BEB3] font-bold flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC] animate-ping" />
+                LAT 23.6102° N, LON 85.2799° E • JHARKHAND GAZETTE MAP
               </div>
-              <div className="absolute bottom-3 right-3 text-[10px] font-mono font-bold text-[#4FD1C5]">
-                ● 24 DISTRICTS ACTIVE
+              <div className="absolute bottom-3.5 right-3.5 text-[11px] font-mono font-bold text-[#ECE7DC] flex items-center gap-1.5 bg-black/50 px-2.5 py-1 rounded-sm border border-white/10">
+                <span className="h-2 w-2 rounded-full bg-[#ECE7DC] animate-ping" />
+                <span>● 24 DISTRICTS SYNCHRONIZED</span>
               </div>
 
-              {/* District Node Markers */}
+              {/* District Node Markers with Animated Multi-Ring Radar Telemetry */}
               {filteredMarkers.map((marker) => {
                 const isSelected = activeMarkerId === marker.id;
                 return (
@@ -197,21 +232,38 @@ export function IndiaNeedMap() {
                     key={marker.id}
                     className="absolute cursor-pointer"
                     style={{ left: `${marker.coords.x}%`, top: `${marker.coords.y}%` }}
-                    whileHover={{ scale: 1.15 }}
+                    whileHover={{ scale: 1.25 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => setActiveMarkerId(marker.id)}
                   >
                     <div className="relative -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+                      {/* Concentric Double Radar Ripple Effect on Active Marker */}
+                      {isSelected && (
+                        <>
+                          <motion.span
+                            className="absolute h-14 w-14 rounded-full bg-white/20 pointer-events-none"
+                            animate={{ scale: [1, 2], opacity: [0.8, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.8, ease: "easeOut" }}
+                          />
+                          <motion.span
+                            className="absolute h-10 w-10 rounded-full bg-white/30 pointer-events-none"
+                            animate={{ scale: [1, 1.6], opacity: [0.9, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.8, ease: "easeOut", delay: 0.4 }}
+                          />
+                        </>
+                      )}
+
                       <div
-                        className={`h-7 w-7 rounded-full border-2 flex items-center justify-center text-[10px] font-mono font-bold shadow-md transition-all ${
+                        className={`h-8 w-8 rounded-full border-2 flex items-center justify-center text-[11px] font-mono font-bold shadow-md transition-all ${
                           isSelected
-                            ? "bg-[#4FD1C5] text-[#081113] border-white ring-4 ring-[#4FD1C5]/30 scale-125"
-                            : "bg-[#19292B] text-white border-white/[0.2]"
+                            ? "bg-[#ECE7DC] text-[#2C2925] border-white ring-4 ring-white/30 scale-125 font-extrabold shadow-2xl"
+                            : "bg-[#1E1C1A] text-white border-white/30 hover:border-white"
                         }`}
                       >
                         {marker.districtCode.split("-")[1]}
                       </div>
 
-                      <span className="absolute top-8 px-2 py-0.5 rounded-md bg-black/90 border border-white/10 text-[10px] font-mono font-bold text-white whitespace-nowrap shadow-md pointer-events-none">
+                      <span className="absolute top-9 px-2.5 py-0.5 rounded-sm bg-[#1E1C1A] text-[#ECE7DC] text-[10px] font-mono font-bold whitespace-nowrap shadow-md pointer-events-none uppercase border border-white/20">
                         {marker.name.split(" ")[0]}
                       </span>
                     </div>
@@ -220,80 +272,92 @@ export function IndiaNeedMap() {
               })}
             </div>
 
-            <div className="pt-3 flex flex-wrap items-center justify-between text-[11px] text-[#6F8381] font-mono">
-              <span>Click district pins to inspect community challenge</span>
-              <span className="font-bold text-[#4FD1C5]">Direct Lab Routing</span>
+            <div className="pt-3.5 flex flex-wrap items-center justify-between text-xs font-mono font-semibold text-[#C5BEB3]">
+              <span>Click district pins to inspect telemetry and matched lab</span>
+              <span className="font-bold text-[#ECE7DC] flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC] animate-pulse" />
+                Direct Lab Routing Active
+              </span>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Inspector Card (5 Cols) */}
-          <div className="lg:col-span-5">
+          {/* Inspector Card (5 Cols) with Smooth Spring Entry */}
+          <motion.div
+            initial={{ opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
+            transition={{ duration: 0.5, delay: 0.1, ease: SMOOTH_EASE }}
+            className="lg:col-span-5 transform-gpu will-change-transform"
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeMarker.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-3xl border border-white/[0.08] bg-[#142124] p-8 space-y-6 shadow-xl"
+                initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -15, scale: 0.98 }}
+                transition={{ duration: 0.3, ease: SMOOTH_EASE }}
+                className="rounded-sm border-2 border-white/20 bg-[#383530] p-7 sm:p-8 space-y-5 shadow-2xl transition-shadow"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-full bg-white/[0.05] text-[#F3F7F6] border border-white/[0.08] font-mono text-[11px] font-bold flex items-center gap-1.5">
-                      <ActiveCatIcon className="h-3.5 w-3.5 text-[#4FD1C5]" />
+                <div className="flex items-center justify-between gap-2 border-b border-white/15 pb-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="px-3 py-1 rounded-sm bg-white/10 text-[#ECE7DC] border border-white/20 font-mono text-xs font-bold flex items-center gap-1.5 uppercase">
+                      <ActiveCatIcon className="h-4 w-4 text-[#ECE7DC]" />
                       {activeMarker.category}
                     </span>
-                    <span className="font-mono text-xs text-[#6F8381]">
+                    <span className="font-mono text-xs text-[#C5BEB3]">
                       {activeMarker.districtCode}
                     </span>
                   </div>
 
-                  <span className="px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold bg-white/[0.05] text-[#9BAEAC] border border-white/[0.08]">
+                  <span className="px-3 py-0.5 rounded-sm font-mono text-[11px] font-bold bg-white/10 text-[#ECE7DC] border border-white/25 uppercase">
                     {activeMarker.priority} PRIORITY
                   </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <div className="text-xs font-mono text-[#4FD1C5] font-bold uppercase flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5" /> {activeMarker.name}
+                <div className="space-y-2">
+                  <div className="text-xs font-bold text-[#DDD8CD] uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4 text-[#ECE7DC]" /> {activeMarker.name}
                   </div>
-                  <h3 className="font-display text-2xl font-bold text-[#F3F7F6] leading-snug">
+                  <h3
+                    className="text-2xl sm:text-3xl font-bold text-[#ECE7DC] leading-snug"
+                    style={{ fontFamily: TIMES_SERIF }}
+                  >
                     {activeMarker.title}
                   </h3>
                 </div>
 
-                <p className="text-sm text-[#9BAEAC] leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#DDD8CD] leading-relaxed">
                   {activeMarker.summary}
                 </p>
 
-                <div className="p-4 rounded-2xl bg-[#081113] border border-white/[0.06] space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#6F8381] font-mono">Affected Population:</span>
-                    <span className="font-bold text-[#F3F7F6] flex items-center gap-1 font-mono">
-                      <Users className="h-3.5 w-3.5 text-[#4FD1C5]" />
+                <div className="p-4 rounded-sm bg-white/10 border border-white/15 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-mono">
+                    <span className="text-[#C5BEB3]">Affected Population:</span>
+                    <span className="font-bold text-[#ECE7DC] flex items-center gap-1.5">
+                      <Users className="h-4 w-4 text-[#ECE7DC]" />
                       {activeMarker.affectedPop}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-xs border-t border-white/[0.06] pt-2">
-                    <span className="text-[#6F8381] font-mono">Matched Research Lab:</span>
-                    <span className="font-bold text-[#F3F7F6]">{activeMarker.matchedLab}</span>
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-mono border-t border-white/15 pt-2">
+                    <span className="text-[#C5BEB3]">Matched Research Lab:</span>
+                    <span className="font-bold text-[#ECE7DC] truncate max-w-[220px]">{activeMarker.matchedLab}</span>
                   </div>
                 </div>
 
                 <div className="pt-2">
                   <Button
                     asChild
-                    className="w-full h-12 rounded-xl bg-[#4FD1C5] hover:bg-[#72E2D6] text-[#081113] font-bold text-sm gap-2 border border-[#4FD1C5]"
+                    className="w-full h-12 rounded-sm bg-[#ECE7DC] hover:bg-white text-[#2C2925] font-mono font-bold text-xs sm:text-sm gap-2 uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-md border border-white group"
                   >
                     <Link to="/challenges">
                       <span>Collaborate on Challenge</span>
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRight className="h-4 w-4 text-[#2C2925] group-hover:translate-x-1.5 transition-transform" />
                     </Link>
                   </Button>
                 </div>
               </motion.div>
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

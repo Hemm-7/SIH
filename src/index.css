@@ -1,149 +1,83 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Dark + Teal Theme Default */
-    --background: 190 41% 5.3%; /* #081113 */
-    --foreground: 165 14% 96%; /* #F3F7F6 */
+    --background: 38 20% 89%; /* #ECE7DC */
+    --foreground: 30 8% 15%; /* #2C2925 */
 
-    --card: 188 29% 11%; /* #142124 */
-    --card-foreground: 165 14% 96%;
+    --card: 40 30% 97%; /* #FAF8F4 */
+    --card-foreground: 30 8% 15%;
 
-    --popover: 188 29% 11%;
-    --popover-foreground: 165 14% 96%;
+    --popover: 40 30% 97%;
+    --popover-foreground: 30 8% 15%;
 
-    --primary: 165 14% 96%; /* #F3F7F6 */
-    --primary-foreground: 190 41% 5.3%;
+    --primary: 30 8% 15%; /* #2C2925 */
+    --primary-foreground: 38 20% 89%;
 
-    --secondary: 189 34% 7.6%; /* #0D181A */
-    --secondary-foreground: 165 14% 96%;
+    --secondary: 38 15% 82%; /* #DDD8CD */
+    --secondary-foreground: 30 8% 15%;
 
-    --muted: 188 29% 13%;
-    --muted-foreground: 173 10% 64%; /* #9BAEAC */
+    --muted: 38 15% 82%;
+    --muted-foreground: 30 6% 35%;
 
-    /* Primary Accent Teal */
-    --accent: 174 58% 56%; /* #4FD1C5 */
-    --accent-foreground: 190 41% 5.3%;
+    --accent: 30 8% 15%;
+    --accent-foreground: 38 20% 89%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 30 8% 15%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 188 20% 18%;
-    --input: 188 20% 18%;
-    --ring: 174 58% 56%;
+    --border: 30 8% 15% / 0.18;
+    --input: 30 8% 15% / 0.18;
+    --ring: 30 8% 15%;
 
-    --radius: 0.875rem;
-
-    --status-submitted: 45 93% 47%;
-    --status-ai-matched: 174 58% 56%;
-    --status-claimed: 199 89% 48%;
-    --status-in-progress: 243 75% 65%;
-    --status-resolved: 160 84% 39%;
+    --radius: 0.25rem;
   }
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(44, 41, 37, 0.18);
   }
 
   body {
-    @apply bg-[#081113] text-[#F3F7F6] antialiased selection:bg-[#4FD1C5]/30 selection:text-[#72E2D6];
-    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-    background-color: #081113;
-    background-image: 
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79, 209, 197, 0.09), transparent),
-      radial-gradient(ellipse 60% 40% at 50% 120%, rgba(79, 209, 197, 0.05), transparent);
-    background-attachment: fixed;
+    @apply bg-[#ECE7DC] text-[#2C2925] antialiased selection:bg-black/10 selection:text-[#2C2925];
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #ECE7DC;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-[#4FD1C5] ring-offset-2 ring-offset-[#081113];
+    @apply outline-none ring-2 ring-[#2C2925] ring-offset-2 ring-offset-[#ECE7DC];
   }
 }
 
-/* Subtle Dark Teal Canvas Grid */
-.framer-teal-grid {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(79, 209, 197, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(79, 209, 197, 0.035) 1px, transparent 1px);
-}
-
-.framer-dot-matrix {
-  background-image: radial-gradient(rgba(79, 209, 197, 0.1) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Framer Dark Teal Surface Cards */
-.framer-surface-card {
-  background: #142124;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.framer-surface-card:hover {
-  border-color: rgba(79, 209, 197, 0.35);
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px -10px rgba(79, 209, 197, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* Button & Interactive Utility */
-.framer-btn-teal {
-  background: #4FD1C5;
-  color: #081113;
-  font-weight: 700;
-  border: 1px solid #4FD1C5;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.framer-btn-teal:hover {
-  background: #72E2D6;
-  border-color: #72E2D6;
-  transform: scale(1.02);
-  box-shadow: 0 0 25px rgba(79, 209, 197, 0.3);
-}
-
-.framer-btn-secondary {
-  background: rgba(255, 255, 255, 0.04);
-  color: #F3F7F6;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.framer-btn-secondary:hover {
-  background: rgba(79, 209, 197, 0.08);
-  border-color: rgba(79, 209, 197, 0.3);
-  color: #FFFFFF;
-}
-
-/* Dark Custom Scrollbars */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #081113;
+  background: #DDD8CD;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(79, 209, 197, 0.2);
+  background: rgba(44, 41, 37, 0.35);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4FD1C5;
+  background: #2C2925;
 }
 
-/* Leaflet Container Dark Inversion Support */
+/* Leaflet Container */
 .leaflet-container {
-  background: #081113 !important;
+  background: #DDD8CD !important;
   font: inherit;
-  border-radius: 1rem;
+  border-radius: 0.25rem;
 }

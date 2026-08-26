@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Sparkles,
@@ -6,30 +6,34 @@ import {
   Droplets,
   Sprout,
   Zap,
-  Users
+  Users,
+  Cpu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
+const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
 const AI_DEMO_PROMPTS = [
   {
     id: "water",
     icon: Droplets,
-    label: "Fluoride Filtration",
+    label: "Fluoride Nano-Adsorption",
     userPrompt: "High fluoride contamination in Daltonganj village borewells is causing severe skeletal fluorosis among children.",
     extractedDomain: "Water Resources · Geochemistry · Nano-Materials",
     analysisTokens: ["Geochemical Leaching", "Nano-Alumina Adsorbent", "Continuous Solar Pumping", "GSM Telemetry", "Jal Samiti SOP"],
     matchFit: 95,
     matches: [
-      { name: "BIT Mesra • Dept. of Chemical Engineering", role: "Research Laboratory", score: 98 },
+      { name: "BIT Mesra • Dept. of Chemical Engineering", role: "Lead Research Laboratory", score: 98 },
       { name: "IIT (ISM) Dhanbad • Central Research Facility", role: "Institute of National Importance", score: 94 },
-      { name: "District Jal Nigam & Public Health Eng Dept", role: "Government Agency", score: 89 },
-      { name: "Student Water Chemistry & IoT Cohort", role: "Student Innovation Team", score: 84 },
+      { name: "District Jal Nigam & Public Health Eng Dept", role: "State Implementing Agency", score: 89 },
+      { name: "Student Water Chemistry & IoT Cohort", role: "NEP-2020 Student Cohort", score: 84 },
     ],
   },
   {
     id: "agri",
     icon: Sprout,
-    label: "Irrigation Prediction",
+    label: "Irrigation Telemetry",
     userPrompt: "Farmers in this region struggle to predict irrigation requirements and lose 40% tomato harvest to summer heat.",
     extractedDomain: "Agriculture · IoT · Weather · Remote Sensing",
     analysisTokens: ["Soil Moisture Dynamics", "IoT Telemetry", "Weather Forecasting", "Phase Change Thermal Storage", "Gram Panchayat SHG"],
@@ -37,14 +41,14 @@ const AI_DEMO_PROMPTS = [
     matches: [
       { name: "Birsa Agricultural University (BAU), Ranchi", role: "Agricultural University", score: 96 },
       { name: "BIT Mesra • Solar Thermal & Refrigeration Lab", role: "IoT Research Lab", score: 92 },
-      { name: "AgriTech Innovation Team • IIT ISM Foundation", role: "AgriTech Startup", score: 87 },
-      { name: "NEP-2020 Student Multidisciplinary Squad", role: "Student Innovation Team", score: 83 },
+      { name: "AgriTech Innovation Team • IIT ISM Foundation", role: "AgriTech Incubator", score: 87 },
+      { name: "NEP-2020 Student Multidisciplinary Squad", role: "Capstone Research Team", score: 83 },
     ],
   },
   {
     id: "mining",
     icon: Zap,
-    label: "Mine Slag Eco-Bricks",
+    label: "Slag Geopolymer Eco-Bricks",
     userPrompt: "Massive open cast coal mine overburden dumps in Dhanbad causing particulate air pollution and requiring sustainable reuse.",
     extractedDomain: "Clean Mining · Material Science · Geopolymers",
     analysisTokens: ["Silica Sand Extraction", "Geopolymerization", "Zero-Carbon Curing", "Structural Compressive Strength"],
@@ -67,150 +71,231 @@ export function AiMatchingSection({ onOpenAgent }: AiMatchingSectionProps) {
   const activeScenario = AI_DEMO_PROMPTS[activePromptIndex];
 
   return (
-    <section className="py-28 bg-[#081113] text-[#F3F7F6] relative overflow-hidden border-b border-white/[0.08]">
-      {/* Background Subtle Dark Grid */}
-      <div className="absolute inset-0 framer-teal-grid opacity-40 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#4FD1C5]/5 rounded-full blur-[140px] pointer-events-none" />
+    <section className="py-24 sm:py-32 bg-[#2C2925] text-[#ECE7DC] relative w-full overflow-hidden border-b-2 border-[#2C2925] font-sans">
+      
+      {/* Texture overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1] opacity-25 mix-blend-screen"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper-grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper-grain)' opacity='0.12'/%3E%3C/svg%3E")`,
+        }}
+      />
 
-      <div className="container mx-auto px-4 max-w-7xl relative z-10 space-y-16">
-        {/* Section Header */}
-        <div className="text-center space-y-3 max-w-3xl mx-auto">
-          <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#4FD1C5]">
-            People-to-Problem Collaborative Matcher
-          </div>
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 relative z-10 space-y-16">
+        
+        {/* Section Header with Smooth Scroll Reveal */}
+        <div className="text-center space-y-3 max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.08, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.45, ease: SMOOTH_EASE }}
+            className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-[#DDD8CD] transform-gpu will-change-transform"
+          >
+            <Cpu className="h-4 w-4 text-[#ECE7DC] animate-pulse" />
+            <span>SECTION VI · ZERO-SHOT SEMANTIC MATCHING PROTOCOL</span>
+          </motion.div>
 
-          <h2 className="font-display text-5xl sm:text-7xl md:text-8xl font-black tracking-[-0.04em] uppercase text-white leading-[0.92]">
+          <motion.h2
+            initial={{ opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.08, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.5, delay: 0.08, ease: SMOOTH_EASE }}
+            className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight uppercase text-[#ECE7DC] leading-[0.92] transform-gpu will-change-transform"
+            style={{ fontFamily: TIMES_SERIF }}
+          >
             YOU BRING<br />
             THE PROBLEM.<br />
-            <span className="text-[#6F8381]">WE FIND THE PEOPLE.</span>
-          </h2>
+            <span className="text-[#C5BEB3] italic font-normal">WE FIND THE PEOPLE.</span>
+          </motion.h2>
 
-          <p className="text-base sm:text-lg text-[#9BAEAC] leading-relaxed font-normal pt-2">
-            Our zero-shot semantic matching engine connects citizen challenges directly with university laboratories, faculty mentors, and student thesis cohorts.
-          </p>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.08, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.5, delay: 0.12, ease: SMOOTH_EASE }}
+            className="text-sm sm:text-base text-[#DDD8CD] leading-relaxed max-w-3xl mx-auto transform-gpu will-change-transform"
+          >
+            Our zero-shot semantic matching engine connects grassroots civic challenges directly with qualified university laboratories, faculty mentors, and student thesis cohorts.
+          </motion.p>
         </div>
 
-        {/* Preset Selector Chips */}
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        {/* Preset Selector Chips with Smooth Fade */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
+          transition={{ duration: 0.45, delay: 0.08, ease: SMOOTH_EASE }}
+          className="flex flex-wrap items-center justify-center gap-2.5 transform-gpu will-change-transform"
+        >
           {AI_DEMO_PROMPTS.map((p, idx) => {
             const PIcon = p.icon;
             const isSelected = activePromptIndex === idx;
             return (
-              <button
+              <motion.button
                 key={p.id}
                 onClick={() => setActivePromptIndex(idx)}
-                className={`px-4 py-2 rounded-xl text-xs font-mono font-semibold flex items-center gap-2 transition-all border ${
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`px-4 py-2.5 rounded-sm text-xs sm:text-[13px] font-bold flex items-center gap-2 transition-all border uppercase tracking-wider ${
                   isSelected
-                    ? "bg-[#4FD1C5] border-[#4FD1C5] text-[#081113] font-bold shadow-lg shadow-teal-950/30"
-                    : "bg-[#142124] border-white/[0.08] text-[#9BAEAC] hover:text-white"
+                    ? "bg-[#ECE7DC] border-white text-[#2C2925] shadow-lg scale-105"
+                    : "bg-white/10 border-white/20 text-[#ECE7DC] hover:bg-white/20 hover:text-white"
                 }`}
               >
-                <PIcon className="h-3.5 w-3.5" />
+                <PIcon className="h-4 w-4" />
                 <span>Scenario: {p.label}</span>
-              </button>
+              </motion.button>
             );
           })}
-        </div>
+        </motion.div>
 
-        {/* Real Collaborative Matching Interface Layout */}
-        <div className="rounded-3xl border border-white/[0.08] bg-[#142124] p-6 sm:p-12 shadow-2xl relative space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* Real Collaborative Matching Interface Layout with Smooth Entrance */}
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
+          transition={{ duration: 0.5, delay: 0.1, ease: SMOOTH_EASE }}
+          className="rounded-sm border-2 border-white/20 bg-[#383530] p-7 sm:p-11 shadow-2xl relative space-y-7 overflow-hidden transform-gpu will-change-transform"
+        >
+          {/* Animated AI Scanning Light Bar */}
+          <motion.div
+            className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#ECE7DC] to-transparent pointer-events-none opacity-50"
+            animate={{ translateY: ["0px", "450px", "0px"] }}
+            transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
+            
             {/* Left Column: Problem & AI Analysis (5 Cols) */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-5 space-y-4">
               {/* Problem Block */}
-              <div className="rounded-2xl border border-white/[0.08] bg-[#081113] p-5 space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono text-[#6F8381]">
-                  <span className="uppercase font-bold text-white">01 / Community Voice</span>
+              <motion.div
+                key={`p-${activeScenario.id}`}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="rounded-sm border border-white/15 bg-white/5 p-5 sm:p-6 space-y-2 shadow-xs"
+              >
+                <div className="flex items-center justify-between text-xs text-[#C5BEB3] font-medium">
+                  <span className="uppercase font-bold text-[#ECE7DC] flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC] animate-ping" />
+                    01 / Community Problem Voice
+                  </span>
                   <span>Citizen Input</span>
                 </div>
-                <p className="text-base font-semibold text-white leading-relaxed">
-                  "{activeScenario.userPrompt}"
+                <p className="text-base sm:text-lg font-semibold text-[#ECE7DC] leading-relaxed">
+                  &ldquo;{activeScenario.userPrompt}&rdquo;
                 </p>
-              </div>
+              </motion.div>
 
               {/* AI Analysis Block */}
-              <div className="rounded-2xl border border-white/[0.08] bg-[#081113] p-5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono text-[#4FD1C5]">
+              <motion.div
+                key={`a-${activeScenario.id}`}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.08 }}
+                className="rounded-sm border border-white/15 bg-white/5 p-5 sm:p-6 space-y-2.5 shadow-xs"
+              >
+                <div className="flex items-center justify-between text-xs text-[#ECE7DC]">
                   <span className="font-bold uppercase flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5" /> 02 / Semantic Domain Mapping
+                    <Sparkles className="h-4 w-4 text-[#ECE7DC] animate-spin-slow" /> 02 / Semantic Domain Mapping
                   </span>
-                  <span>Zero-Shot NLP</span>
+                  <span className="text-[11px] font-mono bg-white/10 px-2 py-0.5 rounded-sm">Zero-Shot NLP</span>
                 </div>
 
-                <div className="text-sm font-semibold text-white">
+                <div className="text-xs sm:text-sm font-bold text-[#ECE7DC]">
                   {activeScenario.extractedDomain}
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 pt-1">
+                <div className="flex flex-wrap gap-2 pt-1">
                   {activeScenario.analysisTokens.map((token, i) => (
-                    <span
+                    <motion.span
                       key={i}
-                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[11px] font-mono text-[#9BAEAC]"
+                      whileHover={{ scale: 1.08 }}
+                      className="px-2.5 py-1 rounded-sm bg-white/10 border border-white/20 text-xs font-semibold text-[#ECE7DC] shadow-xs cursor-default"
                     >
                       + {token}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             </div>
 
-            {/* Middle Column: Match Fit Gauge (2 Cols) */}
+            {/* Middle Column: Animated Match Fit Score Gauge (2 Cols) */}
             <div className="lg:col-span-2 flex flex-col items-center justify-center space-y-2 py-4">
-              <div className="text-5xl sm:text-6xl font-black font-mono text-[#4FD1C5]">
-                {activeScenario.matchFit}%
-              </div>
-              <div className="text-xs font-mono uppercase text-[#9BAEAC] font-bold text-center">
-                Match Fit
+              <motion.div
+                key={activeScenario.matchFit}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4, ease: SMOOTH_EASE }}
+                className="relative flex items-center justify-center"
+              >
+                <span className="absolute h-24 w-24 rounded-full bg-white/10 animate-ping pointer-events-none" />
+                <div
+                  className="text-5xl sm:text-6xl font-extrabold text-[#ECE7DC] tracking-tight relative z-10"
+                  style={{ fontFamily: TIMES_SERIF }}
+                >
+                  {activeScenario.matchFit}%
+                </div>
+              </motion.div>
+
+              <div className="text-xs font-bold uppercase text-[#C5BEB3] text-center tracking-wider flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC] animate-pulse" />
+                Match Fit Score
               </div>
             </div>
 
             {/* Right Column: Matched Collaborators (5 Cols) */}
             <div className="lg:col-span-5 space-y-2.5">
-              <div className="text-xs font-mono uppercase font-bold text-[#6F8381] px-1 pb-1 flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-[#4FD1C5]" />
+              <div className="text-xs sm:text-sm uppercase font-bold text-[#ECE7DC] px-1 pb-1 flex items-center gap-2">
+                <Users className="h-4 w-4 text-[#ECE7DC]" />
                 03 / Matched Multidisciplinary Squad:
               </div>
 
               {activeScenario.matches.map((match, i) => (
                 <motion.div
                   key={match.name}
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 18 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.08 }}
-                  className="p-4 rounded-2xl bg-[#081113] border border-white/[0.08] hover:border-[#4FD1C5]/40 transition-all space-y-1"
+                  transition={{ duration: 0.3, delay: i * 0.06 }}
+                  whileHover={{ x: 4, scale: 1.01 }}
+                  className="p-3.5 rounded-sm bg-white/5 border border-white/15 hover:border-white/40 hover:bg-white/10 transition-all space-y-1 cursor-default shadow-xs"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-bold text-sm text-white leading-tight">
+                    <div className="font-bold text-sm sm:text-base text-[#ECE7DC] leading-tight">
                       {match.name}
                     </div>
-                    <span className="font-mono text-xs font-bold text-[#4FD1C5]">
+                    <span className="text-xs sm:text-sm font-bold text-[#ECE7DC] bg-white/10 px-2 py-0.5 rounded-sm border border-white/20">
                       {match.score}%
                     </span>
                   </div>
 
-                  <div className="text-xs font-mono text-[#6F8381]">
+                  <div className="text-xs text-[#C5BEB3] font-medium">
                     {match.role}
                   </div>
                 </motion.div>
               ))}
             </div>
+
           </div>
 
           {/* Bottom Action */}
-          <div className="pt-4 border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs text-[#6F8381] font-mono">
-              ⚡ Over 312 university laboratories &amp; 14,000+ challenges synchronized in real-time.
+          <div className="pt-5 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-xs sm:text-sm text-[#C5BEB3] font-medium flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#ECE7DC] animate-pulse" />
+              Over 312 university laboratories &amp; 14,000+ challenges synchronized in real-time.
             </div>
 
             <Button
               onClick={() => onOpenAgent(activeScenario.userPrompt)}
-              className="h-11 px-6 rounded-xl bg-[#4FD1C5] hover:bg-[#72E2D6] text-[#081113] font-bold text-xs gap-2 border border-[#4FD1C5]"
+              className="h-11 px-6 rounded-sm bg-[#ECE7DC] hover:bg-white text-[#2C2925] font-bold text-xs sm:text-sm gap-2 shadow-lg uppercase tracking-wider border border-white hover:scale-105 active:scale-95 transition-all group"
             >
               <span>Test with Your Own Problem (⌘K)</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 text-[#2C2925] group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
