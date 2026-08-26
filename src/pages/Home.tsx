@@ -1,20 +1,63 @@
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { HeroSection } from "@/components/home/HeroSection";
+import { StatsSection } from "@/components/home/StatsSection";
+import { FeaturedProblems } from "@/components/home/FeaturedProblems";
+import { IndiaNeedMap } from "@/components/home/IndiaNeedMap";
+import { CoreConceptEcosystem } from "@/components/home/CoreConceptEcosystem";
+import { AiMatchingSection } from "@/components/home/AiMatchingSection";
+import { ProblemToImpactJourney } from "@/components/home/ProblemToImpactJourney";
+import { ImpactStories } from "@/components/home/ImpactStories";
+import { FinalCtaSection } from "@/components/home/FinalCtaSection";
+import { FooterSection } from "@/components/home/FooterSection";
+import { FramerAiAgentModal } from "@/components/ai/FramerAiAgentModal";
 
 export default function Home() {
-  const { t } = useTranslation();
+  const [isAgentOpen, setIsAgentOpen] = useState(false);
+  const [initialAgentQuery, setInitialAgentQuery] = useState("");
+
+  const handleOpenAgent = (query?: string) => {
+    setInitialAgentQuery(query || "");
+    setIsAgentOpen(true);
+  };
 
   return (
-    <section className="mx-auto max-w-2xl py-12 text-center">
-      <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-        {t("home.heading")}
-      </h1>
-      <p className="mt-6 text-lg text-muted-foreground">{t("home.body")}</p>
-      <Button asChild size="lg" variant="accent" className="mt-8">
-        <Link to="/submit">{t("home.cta")}</Link>
-      </Button>
-    </section>
+    <div className="-mt-6 md:-mt-10 -mx-4 sm:-mx-6 lg:-mx-8 overflow-hidden bg-[#050707]">
+      {/* 1. HERO SECTION: "SOLVE WHAT MATTERS." + Human-Centered Editorial Canvas */}
+      <HeroSection onOpenAgent={handleOpenAgent} />
+
+      {/* 2. SCALE: "THOUSANDS OF PROBLEMS. ONE CONNECTED ECOSYSTEM." */}
+      <StatsSection />
+
+      {/* 3. EXPLORE PROBLEMS: "WHAT NEEDS SOLVING?" Dark Teal Panels */}
+      <FeaturedProblems />
+
+      {/* 4. JHARKHAND MAP: "WHERE DOES JHARKHAND NEED YOU?" */}
+      <IndiaNeedMap />
+
+      {/* 5. ECOSYSTEM: "EVERY PROBLEM NEEDS A DIFFERENT TEAM." */}
+      <CoreConceptEcosystem />
+
+      {/* 6. AI MATCHING (DARK TEAL): "YOU BRING THE PROBLEM. WE FIND THE PEOPLE." */}
+      <AiMatchingSection onOpenAgent={handleOpenAgent} />
+
+      {/* 7. FROM PROBLEM TO IMPACT: 7-Stage Innovation Flow */}
+      <ProblemToImpactJourney />
+
+      {/* 8. IMPACT STORIES: "FROM PROBLEM TO IMPACT." */}
+      <ImpactStories />
+
+      {/* 9. FINAL CTA (DARK TEAL): "WHAT WILL YOU SOLVE?" */}
+      <FinalCtaSection />
+
+      {/* 10. FOOTER: Minimal Dark Footer */}
+      <FooterSection />
+
+      {/* Global AI Match Modal */}
+      <FramerAiAgentModal
+        isOpen={isAgentOpen}
+        onClose={() => setIsAgentOpen(false)}
+        initialPrompt={initialAgentQuery}
+      />
+    </div>
   );
 }

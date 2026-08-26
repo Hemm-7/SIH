@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+﻿import type { Config } from "tailwindcss";
 import animate from "tailwindcss-animate";
 
 export default {
@@ -12,75 +12,78 @@ export default {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: "rgba(255, 255, 255, 0.08)",
+        input: "rgba(255, 255, 255, 0.08)",
+        ring: "#4FD1C5",
+        background: "#081113",
+        foreground: "#F3F7F6",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#F3F7F6",
+          foreground: "#081113",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#0D181A",
+          foreground: "#F3F7F6",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#EF4444",
+          foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#142124",
+          foreground: "#9BAEAC",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#4FD1C5",
+          foreground: "#081113",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "#142124",
+          foreground: "#F3F7F6",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#142124",
+          foreground: "#F3F7F6",
         },
-        // Challenge lifecycle. Keyed to public.challenge_status so a status value
-        // maps straight to a colour without a lookup table in every component.
+        // Dark + Teal Design System Tokens
+        tealTheme: {
+          bg: "#081113",
+          surface: "#0D181A",
+          card: "#142124",
+          elevated: "#19292B",
+          textPrimary: "#F3F7F6",
+          textSecondary: "#9BAEAC",
+          textMuted: "#6F8381",
+          teal: "#4FD1C5",
+          tealBright: "#72E2D6",
+          tealSoft: "#A8EEE7",
+          border: "rgba(255, 255, 255, 0.08)",
+          borderHover: "rgba(79, 209, 197, 0.3)",
+        },
         status: {
-          submitted: "hsl(var(--status-submitted))",
-          "ai-matched": "hsl(var(--status-ai-matched))",
-          claimed: "hsl(var(--status-claimed))",
-          "in-progress": "hsl(var(--status-in-progress))",
-          resolved: "hsl(var(--status-resolved))",
+          submitted: "#EAB308",
+          "ai-matched": "#4FD1C5",
+          claimed: "#38BDF8",
+          "in-progress": "#818CF8",
+          resolved: "#34D399",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xl: "0.875rem",
+        "2xl": "1.125rem",
+        "3xl": "1.5rem",
+        lg: "0.875rem",
+        md: "0.625rem",
+        sm: "0.375rem",
       },
       fontFamily: {
-        // design-brief.md: typography split by audience. Display face for
-        // judge-facing credibility, humanist body face for citizen-facing text,
-        // mono for IDs/scores/timestamps so dashboard data reads as auditable.
-        display: ["Barlow Semi Condensed", "system-ui", "sans-serif"],
+        display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+      letterSpacing: {
+        tightest: "-0.05em",
+        tighter: "-0.035em",
       },
     },
   },

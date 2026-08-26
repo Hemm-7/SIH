@@ -1,132 +1,149 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
- * PROVISIONAL PALETTE — structure is final, values are not.
- *
- * design-brief.md proposes a material identity rooted in Jharkhand's mineral
- * strata: dark slate/graphite grounding, warm rust/ochre for freshly-submitted
- * problems, cool verdigris for matched/resolved states. Seeded here so the token
- * layer exists and nothing has to be retrofitted later — deliberately NOT
- * shadcn's default zinc, and deliberately not the cream+serif+terracotta look the
- * brief rules out.
- *
- * The brief also requires a real brainstorm -> critique -> build pass before UI
- * work. That pass has NOT happened yet; it belongs to Tasks 2/3. Treat these hex
- * values as a starting position to critique, not a ratified palette.
- */
-
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 28% 17%;
+    /* Dark + Teal Theme Default */
+    --background: 190 41% 5.3%; /* #081113 */
+    --foreground: 165 14% 96%; /* #F3F7F6 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 28% 17%;
+    --card: 188 29% 11%; /* #142124 */
+    --card-foreground: 165 14% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 17%;
+    --popover: 188 29% 11%;
+    --popover-foreground: 165 14% 96%;
 
-    /* Graphite — institutional, data-forward register */
-    --primary: 215 25% 27%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 165 14% 96%; /* #F3F7F6 */
+    --primary-foreground: 190 41% 5.3%;
 
-    --secondary: 210 16% 93%;
-    --secondary-foreground: 215 25% 27%;
+    --secondary: 189 34% 7.6%; /* #0D181A */
+    --secondary-foreground: 165 14% 96%;
 
-    --muted: 210 16% 93%;
-    --muted-foreground: 215 14% 42%;
+    --muted: 188 29% 13%;
+    --muted-foreground: 173 10% 64%; /* #9BAEAC */
 
-    /* Verdigris — matched / resolved */
-    --accent: 174 45% 40%;
-    --accent-foreground: 0 0% 100%;
+    /* Primary Accent Teal */
+    --accent: 174 58% 56%; /* #4FD1C5 */
+    --accent-foreground: 190 41% 5.3%;
 
-    --destructive: 0 72% 45%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 18% 87%;
-    --input: 214 18% 87%;
-    --ring: 174 45% 40%;
+    --border: 188 20% 18%;
+    --input: 188 20% 18%;
+    --ring: 174 58% 56%;
 
-    --radius: 0.625rem;
+    --radius: 0.875rem;
 
-    /* Challenge lifecycle — the brief's "strata, not step badges" direction.
-       Ordered submitted -> resolved so the progression reads as a gradient. */
-    --status-submitted: 18 68% 48%; /* rust */
-    --status-ai-matched: 32 72% 48%; /* ochre */
-    --status-claimed: 190 42% 40%;
-    --status-in-progress: 182 44% 36%;
-    --status-resolved: 168 46% 34%; /* verdigris */
-  }
-
-  .dark {
-    --background: 215 28% 11%;
-    --foreground: 210 20% 96%;
-
-    --card: 215 26% 15%;
-    --card-foreground: 210 20% 96%;
-
-    --popover: 215 26% 15%;
-    --popover-foreground: 210 20% 96%;
-
-    --primary: 210 20% 96%;
-    --primary-foreground: 215 28% 17%;
-
-    --secondary: 215 20% 22%;
-    --secondary-foreground: 210 20% 96%;
-
-    --muted: 215 20% 22%;
-    --muted-foreground: 215 14% 65%;
-
-    --accent: 174 48% 46%;
-    --accent-foreground: 215 28% 11%;
-
-    --destructive: 0 62% 52%;
-    --destructive-foreground: 210 20% 96%;
-
-    --border: 215 20% 26%;
-    --input: 215 20% 26%;
-    --ring: 174 48% 46%;
-
-    --status-submitted: 18 72% 56%;
-    --status-ai-matched: 32 76% 56%;
-    --status-claimed: 190 46% 50%;
-    --status-in-progress: 182 48% 46%;
-    --status-resolved: 168 50% 44%;
+    --status-submitted: 45 93% 47%;
+    --status-ai-matched: 174 58% 56%;
+    --status-claimed: 199 89% 48%;
+    --status-in-progress: 243 75% 65%;
+    --status-resolved: 160 84% 39%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-[#081113] text-[#F3F7F6] antialiased selection:bg-[#4FD1C5]/30 selection:text-[#72E2D6];
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    background-color: #081113;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79, 209, 197, 0.09), transparent),
+      radial-gradient(ellipse 60% 40% at 50% 120%, rgba(79, 209, 197, 0.05), transparent);
+    background-attachment: fixed;
   }
 
-  /* design-brief.md quality floor: visible keyboard focus, always. */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-[#4FD1C5] ring-offset-2 ring-offset-[#081113];
   }
 }
 
-/* design-brief.md quality floor: respect reduced motion. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* Subtle Dark Teal Canvas Grid */
+.framer-teal-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(79, 209, 197, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(79, 209, 197, 0.035) 1px, transparent 1px);
 }
 
-/* Leaflet ships its own CSS; these keep it from fighting the token system. */
+.framer-dot-matrix {
+  background-image: radial-gradient(rgba(79, 209, 197, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Framer Dark Teal Surface Cards */
+.framer-surface-card {
+  background: #142124;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.framer-surface-card:hover {
+  border-color: rgba(79, 209, 197, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -10px rgba(79, 209, 197, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Button & Interactive Utility */
+.framer-btn-teal {
+  background: #4FD1C5;
+  color: #081113;
+  font-weight: 700;
+  border: 1px solid #4FD1C5;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.framer-btn-teal:hover {
+  background: #72E2D6;
+  border-color: #72E2D6;
+  transform: scale(1.02);
+  box-shadow: 0 0 25px rgba(79, 209, 197, 0.3);
+}
+
+.framer-btn-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: #F3F7F6;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.framer-btn-secondary:hover {
+  background: rgba(79, 209, 197, 0.08);
+  border-color: rgba(79, 209, 197, 0.3);
+  color: #FFFFFF;
+}
+
+/* Dark Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #081113;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 209, 197, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4FD1C5;
+}
+
+/* Leaflet Container Dark Inversion Support */
 .leaflet-container {
-  @apply bg-muted;
+  background: #081113 !important;
   font: inherit;
+  border-radius: 1rem;
 }
