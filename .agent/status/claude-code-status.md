@@ -2033,3 +2033,119 @@ results below rather than a rounded-up summary, per the request.
   Flow or stats-card fix beyond what already passed in their own status
   entries above — the commit bundles them because they were sitting
   uncommitted, not because they were re-verified just now.
+
+---
+
+## Phase 1 — Fabricated homepage content replaced with real queries — 2026-08-26
+
+STATUS: DONE for the two files the dispatch named, live-verified. A wider
+problem was found while verifying and is escalated, not silently fixed — see
+the BLOCKER section at the end of this entry.
+
+### Context: this had to be redone after a merge
+The teammate commit `1bbc403` (pulled and merged as `ea726f7` at the start of
+this pass) rebuilt the landing page and reverted the earlier honest-numbers
+fix to `StatsSection.tsx`, re-introducing the fabricated tiles and adding new
+ones ("+842 This Month", "₹14.2 Cr Deployed", a `districtFeeds` array with
+invented completion percentages, and a fake `GAZETTE REFERENCE: JH-2026-STAT-02`).
+Their visual direction was taken whole (resolved conflict to theirs,
+byte-identical to `origin/main`) rather than fought — Phase 1 then re-applied
+real data onto their new shell, so no design work was lost.
+
+### New file — src/hooks/useHomepageData.ts
+Deliberately a NEW file rather than an edit to Codex's `useAnimatedCounter.ts`:
+that hook is Codex's, already consumed elsewhere, and doesn't expose the
+counts the homepage needs (institutions, institution type split, claimed
+matches, distinct locations). Kept additive so the two can't collide.
+Exports `useHomepageStats()` (10 real counts + real location list) and
+`useFeaturedChallenges(limit)` (real challenge rows with a nested
+`challenge_matches -> institutions` join for the real top match). `null` is
+the "not loaded" signal throughout so the UI can render a neutral placeholder
+instead of a momentarily-wrong `0`.
+
+### StatsSection.tsx — every rendered number now real
+Five tiles previously read 14,286 / 4,821 / 312 / 186 / 24 with no backing
+column for any of them. Two of those concepts do not exist in the schema at
+all — there is no "accredited solutions" entity and no CSR/funding table — so
+per the instruction those tiles were given metrics that DO exist rather than a
+substitute number: AI matches made, and matches actually claimed.
+Also removed: the "+842 This Month" and "₹14.2 Cr Deployed" highlights, the
+"GAZETTE REFERENCE: JH-2026-STAT-02" chip (an official-looking government
+record identifier that does not exist), the "Real-Time District Sync Active"
+badge, the "THOUSANDS OF PROBLEMS." headline (a volume claim 12 rows
+contradict), and the district telemetry strip's invented completion
+percentages (94/88/100/91/96 — no telemetry or percent-complete concept
+exists, so the percentages are gone entirely rather than recomputed).
+The bottom band's "All 24 Jharkhand District Panchayats Synchronized" over a
+hardcoded district list now reads the real count of distinct places actually
+reported from, and lists those real places.
+
+### FeaturedProblems.tsx — real rows, reduced honestly
+Four hardcoded fake problems replaced with real `challenges` rows.
+**Ordering chosen: `created_at DESC` (most recent), not highest-match-score** —
+the section presents itself as a live queue ("LIVE CITIZEN INVESTIGATION
+QUEUE" / "WHAT NEEDS SOLVING?"), so recency is the honest ordering for that
+framing. Field mapping is real-column-only: `location_text` (line hidden
+entirely when null, no placeholder district), `report_count`, the real row
+count of that challenge's matches, and the real top-scoring matched
+institution + department. The invented technology tag lists have no
+per-challenge equivalent in the schema, so that row shows the challenge's real
+domain and real lifecycle status instead of substitute tags. Section returns
+`null` if the read fails or the table is empty — nothing invented to fill space.
+
+### LIVE VERIFICATION (not a compile check)
+Dev server restarted first (Global Rule #7), loaded `http://localhost:5173/`
+in a real browser and read the rendered text back:
+- Tiles rendered **12 / 38 / 18 / 3 / 1** with highlights "12 categorised by
+  AI", "35 awaiting a claim", "11 university · 7 industry", "of 38 matches
+  made", "of 2 marked resolved". All cross-checked against direct
+  `count=exact` REST queries: challenges 12, matches 38, institutions 18
+  (11 university / 7 industry), claimed 3, resolved 2, confirmed 1. Exact match.
+- Featured cards rendered real titles ("Sand mining is eating away the
+  riverbank near our farms", "MGNREGA wages unpaid for three months of work",
+  "Ration card application stuck for six months"), real districts (Sahibganj /
+  Simdega / Deoghar), real "1 citizen report • 3 matched institutions", and
+  real matched institutions (Deoghar College of Education and Pedagogy,
+  Khunti Centre for Tribal Livelihoods and Craft, Damodar Valley Institute of
+  Water Resources, Giridih Assistive Technology Labs Pvt. Ltd.).
+- CTA reads "VIEW ALL 12 CHALLENGES".
+- Bottom band reads "Problems reported from 11 places in Jharkhand" followed
+  by the 11 real location strings.
+- Latest-reports strip renders real location/domain/status triples.
+- Zero console errors, zero page errors.
+- `tsc --noEmit` clean, `npm run lint` 0 errors (same 5 pre-existing
+  warnings), `npm run build` clean.
+
+### Honest notes / things that are NOT perfect
+- The real numbers are small (12 challenges, 1 confirmed fix) because the real
+  dataset is small. Not padded. No database rows were touched to improve them.
+- Card #01 has no district line at all because that row's `location_text` is
+  genuinely null — handled by hiding the line, not by inventing a district.
+- Card #01's title is truncated mid-word in the database itself ("…has been
+  locke"). That is real source data, not a rendering bug, and I did not edit
+  the row to tidy it.
+- `report_count` is 1 on every current row, so the "N citizen reports" figure
+  is real but not yet interesting.
+
+### FILES CHANGED
+- src/hooks/useHomepageData.ts (NEW)
+- src/components/home/StatsSection.tsx
+- src/components/home/FeaturedProblems.tsx
+Committed as `c7040c7` (Phase 1 committed on its own, per the pass's
+commit-per-phase rule).
+
+### BLOCKER RAISED — scope is wider than the dispatch assumed
+Verifying the page surfaced that **8 of the 10 components actually rendered on
+`/` contain fabricated content**, not the 2 named: `HeroSection`,
+`IndiaNeedMap`, `CoreConceptEcosystem`, `AiMatchingSection`,
+`ProblemToImpactJourney`, `ImpactStories`, `FinalCtaSection`, `FooterSection`
+(plus 6 more fabricated-but-unrendered files). Some are mechanical swaps I can
+do immediately; several are entire narrative sections describing events that
+never happened, with no real equivalent to swap in, and several assert
+partnerships with named real institutions (BIT Mesra, IIT-ISM Dhanbad, BAU
+Ranchi, NIT Jamshedpur, AIIMS Deoghar) that are not in our `institutions`
+table. Making those honest means deleting, thinning, or relabelling whole
+sections — a product decision, not a bug fix. Written up in full with a
+per-component table in `.agent/inbox/claude.md`; NOT actioned, per Rule #4.
+Phases 2-5 not started, per the instruction to stop and report when Phase 1
+changes scope.

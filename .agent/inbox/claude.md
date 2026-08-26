@@ -259,3 +259,94 @@ IMPACT: Homepage centerpiece stays as the existing static
 example) until this is resolved. Tasks 1 (StrataDivider), 3 (palette
 migration), and 4 (asymmetric hero layout) do not depend on this and are
 proceeding.
+
+---
+
+## BLOCKER — Phase 1 scope: fabricated content is homepage-wide, not two files
+
+RAISED BY: Claude Code
+DATE: 2026-08-26
+PHASE: 1 (fabricated homepage content)
+STATUS: Phase 1 as literally scoped is DONE and committed (c7040c7). This
+blocker is about the part that turned out to be bigger than the brief.
+
+### What the task said vs what is actually there
+
+The dispatch named two offenders: `StatsSection.tsx` and the featured-problem
+cards. Both are fixed, live-verified, and committed — every number in them is
+now a real query result.
+
+While verifying, I checked the whole rendered page for the same class of
+problem. **8 of the 10 components actually rendered on `/` contain fabricated
+content**, not 2. The remediation rule ("never leave a placeholder number
+anywhere a user or judge will see") clearly applies to all of them, but
+fixing them is not a like-for-like data swap the way the first two were — see
+"why I stopped" below.
+
+### Inventory of what is still fabricated and still user-visible
+
+| Component | Fabricated content |
+|---|---|
+| `HeroSection.tsx` | Ticker headlines "14,286 CITIZEN CHALLENGES LOGGED ACROSS 24 DISTRICTS", "312 UNIVERSITY LABORATORIES MATCHED…"; an impact story citing "48,000 residents" and a "94%" contaminant reduction; "Explore 14,286 Challenges" CTA; "₹5…" figure; two GAZETTE seal/notice elements |
+| `IndiaNeedMap.tsx` | Per-district entries with invented matched labs (BIT Mesra, IIT-ISM Dhanbad, AIIMS, NIT Jamshedpur), "48,000" affected, a "98" score, "JHARKHAND GAZETTE MAP" |
+| `CoreConceptEcosystem.tsx` | Copy asserting "professors at BIT Mesra, IIT-ISM Dhanbad, and BAU Ranchi guide…"; "₹1…" figure; "24 Districts"; repeated "98" figures |
+| `AiMatchingSection.tsx` | Four fake problem→lab pairings with invented match scores (98/94/92/97); "Over 312 university laboratories & 14,000+ challenges synchronized in real-time" |
+| `ProblemToImpactJourney.tsx` | "AI matches the problem against 312 university laboratories"; "GAZETTE INNOVATION LIFECYCLE"; "98" |
+| `ImpactStories.tsx` | Whole case studies: "48,000", "98", "BIT Mesra Dept of Chemical Eng + 4 NEP-2020 Students + District Jal Nigam" |
+| `FinalCtaSection.tsx` | "Over 14,286 Active Problems · All 24 Jharkhand Districts" |
+| `FooterSection.tsx` | "24 Jharkhand …" coverage claim |
+
+Also fabricated but NOT currently rendered (dead files, lower priority, listed
+so they don't get wired up later by accident): `FramerStudioMockup.tsx`,
+`PartnerInstitutions.tsx`, `PeopleBehindSolutions.tsx`, `PipelineVisualizer.tsx`,
+`SectorBentoGrid.tsx`, `LiveMetricsTicker.tsx`.
+
+### Two distinct severities here, and the second one is the reason I stopped
+
+**(a) Mechanical — a real number exists, just swap it.** `FinalCtaSection`'s
+"14,286", `HeroSection`'s "Explore 14,286 Challenges", `AiMatchingSection`'s
+and `ProblemToImpactJourney`'s "312 university laboratories". These map
+cleanly onto counts I already expose in `useHomepageData.ts` (12 challenges,
+18 institutions). I can do these with no judgment call.
+
+**(b) Structural — there is no real equivalent to swap in.** `ImpactStories`,
+`IndiaNeedMap`, `AiMatchingSection`'s problem→lab pairings, `CoreConceptEcosystem`'s
+faculty copy, and the whole GAZETTE framing are not "a number in the wrong
+place" — they are entire narrative sections built on events that never
+happened. There is no resolved-case-study table, no per-district lab
+assignment, no funding figure anywhere in the schema. Making these honest
+means one of:
+  1. delete the section outright,
+  2. keep the layout but drive it from the thin real data we have (which for
+     several of them means a section with 1-2 items in it), or
+  3. keep it and label it unambiguously as an illustrative mock-up.
+
+That is a design and product decision about what the homepage is even for —
+it changes what a judge sees on the landing page. Rule #4 of this pass says
+to stop rather than guess on exactly that kind of call, so I have not touched
+any of them.
+
+### A second, separate concern worth a decision of its own
+
+Several of these name **real institutions** — BIT Mesra, IIT (ISM) Dhanbad,
+BAU Ranchi, NIT Jamshedpur, AIIMS Deoghar — as active partners, with
+attributed labs, match scores, and completed projects. None of them are in
+our `institutions` table and none have matched anything. That is a stronger
+claim than an inflated count: it asserts a partnership with a named real
+organisation that does not exist. I'd treat removing those names as
+non-optional regardless of which option above is chosen for the surrounding
+sections.
+
+### What I need
+
+A decision on (b): delete / drive-from-real-data / label-as-illustrative —
+and whether it should be applied uniformly or per-section. Given the answer I
+can execute the whole remaining list in one pass, including the mechanical (a)
+items.
+
+### What I am doing meanwhile
+
+Not proceeding to Phase 2 (UI consistency audit) yet, because the dispatch
+said to stop and report after Phase 1 if scope changed — it has. Phase 2 is
+read-only reporting and is unblocked if you'd rather I continue there while
+this decision is pending.
