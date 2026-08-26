@@ -1,28 +1,32 @@
-﻿import * as React from "react";
+import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#141414] focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-transparent bg-[#141414] text-[#F4EFE6] shadow-xs",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-[#141414]/20 bg-black/[0.04] text-[#141414] font-bold",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+          "border-[#141414] bg-[#141414] text-[#F4EFE6]",
+        outline: "border-[#141414]/30 text-[#141414] bg-white font-bold",
         accent:
-          "border-transparent bg-accent text-accent-foreground shadow-sm hover:bg-accent/80",
+          "border-[#141414] bg-[#141414] text-[#F4EFE6] font-bold",
         glow:
-          "border-accent/40 bg-accent/10 text-accent dark:bg-accent/20 shadow-[0_0_12px_rgba(20,184,166,0.35)]",
+          "border-[#141414]/30 bg-black/[0.05] text-[#141414] font-bold",
         neon:
-          "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.25)]",
+          "border-[#141414]/30 bg-black/[0.05] text-[#141414] font-bold",
         amber:
-          "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+          "border-[#141414]/30 bg-black/[0.05] text-[#141414] font-bold",
+        blue:
+          "border-[#141414]/30 bg-black/[0.05] text-[#141414] font-bold",
+        success:
+          "border-[#141414]/30 bg-black/[0.05] text-[#141414] font-bold",
       },
     },
     defaultVariants: {
