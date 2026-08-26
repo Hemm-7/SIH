@@ -11,10 +11,14 @@ import { MatchExplainer } from "@/components/challenges/MatchExplainer";
 import { PipelineStrata } from "@/components/challenges/PipelineStrata";
 import {
   dashboardKpis,
+  districtCounts,
   domainCounts,
   duplicateClusterSummary,
+  formatDuration,
   institutionParticipation,
+  resolutionProgress,
   statusFunnel,
+  timeToMatch,
 } from "@/components/dashboard/dashboardStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,6 +111,10 @@ export function ChallengeDashboard() {
   const funnel = useMemo(() => statusFunnel(challenges), [challenges]);
   const participation = useMemo(() => institutionParticipation(matches, institutions), [matches, institutions]);
   const duplicates = useMemo(() => duplicateClusterSummary(challenges), [challenges]);
+  // Tier 3 department aggregates.
+  const districts = useMemo(() => districtCounts(challenges), [challenges]);
+  const progress = useMemo(() => resolutionProgress(challenges), [challenges]);
+  const matchTiming = useMemo(() => timeToMatch(challenges, matches), [challenges, matches]);
 
   const institutionsById = useMemo(() => Object.fromEntries(institutions.map((i) => [i.id, i])), [institutions]);
   const exampleMatch = useMemo(
@@ -303,6 +311,75 @@ export function ChallengeDashboard() {
           </CardContent>
         </Card>
       ) : null}
+
+      {/* ── Tier 3: department aggregates ─────────────────────────────
+          Built for the Department of Higher & Technical Education view:
+          how much is still open, how fast the matcher responds, and where
+          reports are physically coming from. Every figure is computed from
+          the same rows the charts above use — see dashboardStats.ts. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("dashboard.department.heading")}</CardTitle>
+          <p className="text-sm text-foreground/70">{t("dashboard.department.intro")}</p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatTile
+              label={t("dashboard.department.unresolved")}
+              value={`${progress.unresolvedPercent.toFixed(0)}%`}
+              sublabel={t("dashboard.department.unresolvedDetail", {
+                unresolved: progress.unresolved,
+                total: progress.total,
+              })}
+            />
+            {/* Median first: on real data the mean is dragged up by a couple of
+                late matches, so leading with it would misrepresent the typical
+                case. Both are shown rather than picking the flattering one. */}
+            <StatTile
+              label={t("dashboard.department.medianMatch")}
+              value={matchTiming.medianMs === null ? "—" : formatDuration(matchTiming.medianMs)}
+              sublabel={
+                matchTiming.averageMs === null
+                  ? t("dashboard.department.noMatchTiming")
+                  : t("dashboard.department.averageDetail", {
+                      average: formatDuration(matchTiming.averageMs),
+                    })
+              }
+            />
+            <StatTile
+              label={t("dashboard.department.confirmed")}
+              value={progress.confirmed}
+              sublabel={t("dashboard.department.confirmedDetail", { resolved: progress.resolved })}
+            />
+          </div>
+
+          <div>
+            <p className="text-sm font-medium">{t("dashboard.department.byLocation")}</p>
+            {/* Deliberately "locations", not "districts": location_text is free
+                text a citizen typed, not a validated district list. Calling it
+                a district breakdown would overstate what the column is. */}
+            <p className="mt-1 text-xs text-foreground/70">{t("dashboard.department.byLocationNote")}</p>
+            <ul className="mt-3 divide-y divide-border border border-border">
+              {districts.map((d) => (
+                <li
+                  key={d.district ?? "__none__"}
+                  className="flex items-center justify-between gap-3 px-3 py-2 text-sm"
+                >
+                  <span className={d.district ? "" : "text-foreground/70 italic"}>
+                    {d.district ?? t("dashboard.department.noLocation")}
+                  </span>
+                  <span className="shrink-0 font-mono text-xs text-foreground/70">
+                    {t("dashboard.department.locationCount", {
+                      count: d.count,
+                      unresolved: d.unresolved,
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
 
       {latestChallenge ? (
         <Card>

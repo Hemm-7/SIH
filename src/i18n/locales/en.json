@@ -291,6 +291,22 @@
     },
     "latest": {
       "heading": "Most recent activity"
+    },
+    "department": {
+      "heading": "Department overview",
+      "intro": "Aggregates for the Department of Higher & Technical Education — how much is still open, how quickly matching responds, and where reports are coming from.",
+      "unresolved": "Still unresolved",
+      "unresolvedDetail": "{{unresolved}} of {{total}} challenges",
+      "medianMatch": "Typical time to match",
+      "averageDetail": "average {{average}} — a few late matches pull the average up",
+      "noMatchTiming": "No challenge has been matched yet",
+      "confirmed": "Citizen-confirmed fixes",
+      "confirmedDetail": "of {{resolved}} marked resolved",
+      "byLocation": "Reports by location",
+      "byLocationNote": "Grouped by the place each citizen typed when reporting. This is free text, not a validated district list.",
+      "noLocation": "No location given",
+      "locationCount": "{{count}} report · {{unresolved}} open",
+      "locationCount_other": "{{count}} reports · {{unresolved}} open"
     }
   }
 }

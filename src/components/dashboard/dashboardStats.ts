@@ -120,3 +120,132 @@ export function dashboardKpis(
     duplicateClusters: duplicateClusterSummary(challenges).totalClusters,
   };
 }
+
+/* ── Tier 3: department aggregates ──────────────────────────────────────
+ *
+ * Built for the Department of Higher & Technical Education persona: where
+ * problems are coming from, what subjects they fall under, how much is still
+ * open, and how quickly the matcher actually responds.
+ *
+ * Same rule as everything above — nothing here reads a column that does not
+ * exist. In particular there is NO district table: `challenges.location_text`
+ * is free text a citizen typed, so `districtCounts` groups by that string
+ * and says so in the UI rather than implying a validated district list.
+ */
+
+export interface DistrictCount {
+  /** The raw `location_text`, or null when the reporter gave no location. */
+  district: string | null;
+  count: number;
+  unresolved: number;
+}
+
+export function districtCounts(challenges: Challenge[]): DistrictCount[] {
+  const map = new Map<string, { count: number; unresolved: number }>();
+  for (const c of challenges) {
+    const key = (c.location_text ?? "").trim();
+    const entry = map.get(key) ?? { count: 0, unresolved: 0 };
+    entry.count += 1;
+    if (c.status !== "resolved") entry.unresolved += 1;
+    map.set(key, entry);
+  }
+  return [...map.entries()]
+    .map(([district, v]) => ({ district: district === "" ? null : district, ...v }))
+    .sort((a, b) => b.count - a.count || (a.district ?? "").localeCompare(b.district ?? ""));
+}
+
+export interface ResolutionProgress {
+  total: number;
+  resolved: number;
+  confirmed: number;
+  unresolved: number;
+  /** 0-100. Zero when there are no challenges at all, not NaN. */
+  unresolvedPercent: number;
+}
+
+export function resolutionProgress(challenges: Challenge[]): ResolutionProgress {
+  const total = challenges.length;
+  const resolved = challenges.filter((c) => c.status === "resolved").length;
+  const confirmed = challenges.filter((c) => c.resolved_confirmed_at != null).length;
+  const unresolved = total - resolved;
+  return {
+    total,
+    resolved,
+    confirmed,
+    unresolved,
+    unresolvedPercent: total === 0 ? 0 : (unresolved / total) * 100,
+  };
+}
+
+export interface TimeToMatch {
+  /** Challenges that actually have at least one match row. */
+  matchedCount: number;
+  totalCount: number;
+  averageMs: number | null;
+  medianMs: number | null;
+  fastestMs: number | null;
+  slowestMs: number | null;
+}
+
+/*
+ * Time from a challenge being created to its FIRST match row appearing.
+ *
+ * Median is reported alongside the average deliberately: on real data the two
+ * diverge by orders of magnitude (a handful of challenges were matched long
+ * after submission during testing, dragging the mean up), and quoting only
+ * the mean would misrepresent the typical case. Rows whose first match
+ * predates the challenge are impossible and are excluded rather than allowed
+ * to produce a negative duration.
+ */
+export function timeToMatch(challenges: Challenge[], matches: ChallengeMatch[]): TimeToMatch {
+  const firstMatchAt = new Map<string, number>();
+  for (const m of matches) {
+    const t = new Date(m.created_at).getTime();
+    if (!Number.isFinite(t)) continue;
+    const prev = firstMatchAt.get(m.challenge_id);
+    if (prev === undefined || t < prev) firstMatchAt.set(m.challenge_id, t);
+  }
+
+  const deltas: number[] = [];
+  for (const c of challenges) {
+    const matchedAt = firstMatchAt.get(c.id);
+    if (matchedAt === undefined) continue;
+    const createdAt = new Date(c.created_at).getTime();
+    if (!Number.isFinite(createdAt)) continue;
+    const delta = matchedAt - createdAt;
+    if (delta >= 0) deltas.push(delta);
+  }
+
+  if (deltas.length === 0) {
+    return {
+      matchedCount: 0,
+      totalCount: challenges.length,
+      averageMs: null,
+      medianMs: null,
+      fastestMs: null,
+      slowestMs: null,
+    };
+  }
+
+  const sorted = [...deltas].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return {
+    matchedCount: deltas.length,
+    totalCount: challenges.length,
+    averageMs: deltas.reduce((sum, d) => sum + d, 0) / deltas.length,
+    medianMs: sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid],
+    fastestMs: sorted[0],
+    slowestMs: sorted[sorted.length - 1],
+  };
+}
+
+/** Compact human duration: "2.4s", "6m", "1.3h", "2.1d". */
+export function formatDuration(ms: number): string {
+  const seconds = ms / 1000;
+  if (seconds < 60) return `${seconds < 10 ? seconds.toFixed(1) : Math.round(seconds)}s`;
+  const minutes = seconds / 60;
+  if (minutes < 60) return `${minutes < 10 ? minutes.toFixed(1) : Math.round(minutes)}m`;
+  const hours = minutes / 60;
+  if (hours < 24) return `${hours < 10 ? hours.toFixed(1) : Math.round(hours)}h`;
+  return `${(hours / 24).toFixed(1)}d`;
+}
