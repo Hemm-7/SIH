@@ -1964,3 +1964,72 @@ not to this task.
 None for Task 1. Task 2 remains blocked upstream on Codex's own quality
 judgment of Santhali `translateText()` output — nothing for this task to do
 until that changes.
+
+---
+
+## Re-verification of the Clusters tab, on request — 2026-08-26
+
+STATUS: Verified end-to-end, no problems found. Reporting the actual raw
+results below rather than a rounded-up summary, per the request.
+
+1. Dev server: was already running (restarted earlier this session per
+   Global Rule #7, PID reused across this check — not restarted again since
+   no code changed between the two checks).
+
+2. `/challenges` -> Clusters tab: **9 markers** rendered. Exact inline
+   styles read back from the DOM (not just visually eyeballed):
+   `#F43F5E, #10B981, #EC4899, #FACC15, #84CC16, #F97316, #EC4899, #EC4899, #84CC16`
+   — matches `domainColors.ts`'s fixed hex map, three domains repeat (two
+   pink/#EC4899 = accessibility, two lime/#84CC16 = agriculture), consistent
+   with 9 single-report clusters across 6-7 distinct domains in a 12-challenge
+   seed set. Zero `pageerror`, zero `console.error`, zero `requestfailed`
+   events captured over the whole run.
+
+3. Clicked 3 different markers (indices 0, 3, 5 of the 9), popups read back
+   verbatim from `.leaflet-popup-content`:
+   - Marker 0: **"1 report — Healthcare"**
+   - Marker 3: **"1 report — Education"**
+   - Marker 5: **"1 report — Energy"**
+   All three distinct, all match the marker's own fill colour's domain.
+   Screenshots saved: `verify2-clusters.png`, `verify2-popup0.png`,
+   `verify2-popup1.png`.
+
+4. `getChallengeClusters` — confirmed by grep, not assumed: defined once in
+   `src/lib/challengeClusters.ts:45`, imported by name in
+   `src/components/challenges/ClusterMap.tsx:6`, and actually invoked at
+   `ClusterMap.tsx:62` (`getChallengeClusters().then(...)` inside the mount
+   effect) — not merely present in the file tree unused. The only other hit
+   is a code comment in `Challenges.tsx` explaining the lazy-import, not a
+   second call site.
+
+5. `npm run build`: clean, `tsc -b && vite build` succeeded, `ClusterMap`
+   emitted as its own chunk (`ClusterMap-CS3B_Xzm.js`, 3.61 kB) separate from
+   `ChallengeMap-BkvCk81Z.js`. `npm run lint`: **0 errors**, same 5
+   pre-existing warnings as every prior check this session (FramerAiAgentModal
+   exhaustive-deps, badge.tsx/button.tsx/useAuth.tsx fast-refresh) — none of
+   them touch anything built for this task.
+
+6. Git: **was NOT committed until this check found it uncommitted.** Ran
+   `git status` first — working tree had 10 modified + 8 untracked files, all
+   from this session's last three dispatches (Resolution Confirmation Flow,
+   the stats-card fix, and the Clusters tab), none previously committed.
+   Reviewed the full file list and diff stat before staging (no secrets —
+   `confirm-resolution/index.ts`'s only `SERVICE_ROLE` reference is a
+   `Deno.env.get()` read, not a hardcoded key). Staged all of it and created
+   one commit, `7d81c75`, on `main`:
+   > Add resolution confirmation flow, cluster-density map, and honest homepage stats
+   `git status` afterward: working tree clean, branch is **1 commit ahead of
+   `origin/main` — not pushed.** Flagging that explicitly since it wasn't
+   asked for in this dispatch.
+
+### Honest gaps / things worth knowing, not swept under "complete"
+- The 9 current clusters are all single-report (`challengeCount: 1`) because
+  the 12-seed dataset doesn't currently have two same-domain reports within
+  500m of each other — the size-scaling logic (`sqrt(count)`, 22-56px range)
+  is implemented and typechecked but has **not been visually exercised
+  against a real count > 1** yet. If that matters before a demo, it would
+  need either real duplicate-adjacent seed data or a temporary test fixture.
+- This verification pass did not re-test the earlier Resolution Confirmation
+  Flow or stats-card fix beyond what already passed in their own status
+  entries above — the commit bundles them because they were sitting
+  uncommitted, not because they were re-verified just now.
