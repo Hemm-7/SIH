@@ -75,7 +75,8 @@
     "loadMore": "Show more challenges",
     "viewToggle": "Switch between list and map",
     "viewList": "List",
-    "viewMap": "Map"
+    "viewMap": "Map",
+    "viewClusters": "Clusters"
   },
   "match": {
     "why": "Why this match",
@@ -219,19 +220,38 @@
       "waitingEmpty": "Nothing is waiting on you right now. New matches will appear here as soon as the classifier finds one.",
       "claimed_one": "Claimed by you ({{count}})",
       "claimed_other": "Claimed by you ({{count}})",
-      "claimedOn": "claimed {{date}}"
+      "claimedOn": "claimed {{date}}",
+      "resolvedOn": "marked resolved {{date}}"
     },
     "claim": {
       "cta": "Claim this challenge",
       "error": "Something went wrong at our end. Try again in a moment.",
       "notClaimed": "This could not be claimed — it may already be taken, or something changed. Refresh and try again."
+    },
+    "resolve": {
+      "cta": "Mark resolved",
+      "error": "Something went wrong at our end. Try again in a moment.",
+      "notRecorded": "This could not be marked resolved — it may already be recorded, or something changed. Refresh and try again."
+    }
+  },
+  "resolution": {
+    "confirm": {
+      "question": "Did this actually get fixed?",
+      "body": "An institution has marked your report resolved. Confirming it helps everyone see which fixes really happened, not just which ones were claimed.",
+      "yes": "Yes, it's fixed",
+      "notYet": "Not yet",
+      "error": "Something went wrong at our end. Try again in a moment."
     }
   },
   "map": {
     "noLocatedChallenges": "No problems with a location yet — once one is submitted with a place, it will appear here.",
     "linkedReports_one": "{{count}} report linked here — show it",
     "linkedReports_other": "{{count}} reports linked here — show each",
-    "canonicalReport": "first report"
+    "canonicalReport": "first report",
+    "cluster": {
+      "summary_one": "{{count}} report — {{category}}",
+      "summary_other": "{{count}} reports — {{category}}"
+    }
   },
   "dashboard": {
     "heading": "Pipeline dashboard",

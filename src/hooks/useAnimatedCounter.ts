@@ -5,26 +5,41 @@ import { supabase } from "@/integrations/supabase/client";
 export interface ChallengeMetrics {
   challengesRaised: number;
   institutionsMatched: number;
+  markedResolved: number;
+  confirmedResolutions: number;
   resolutionRate: number;
+  confirmedResolutionRate: number;
 }
 
 export async function loadChallengeMetrics(): Promise<ChallengeMetrics> {
-  const [{ count: challengeCount, error: challengeError }, { count: matchCount, error: matchError }, { count: resolvedCount, error: resolvedError }] =
+  const [
+    { count: challengeCount, error: challengeError },
+    { count: matchCount, error: matchError },
+    { count: resolvedCount, error: resolvedError },
+    { count: confirmedCount, error: confirmedError },
+  ] =
     await Promise.all([
       supabase.from("challenges").select("id", { count: "exact", head: true }),
       supabase.from("challenge_matches").select("id", { count: "exact", head: true }),
       supabase.from("challenges").select("id", { count: "exact", head: true }).eq("status", "resolved"),
+      supabase.from("challenges").select("id", { count: "exact", head: true }).not("resolved_confirmed_at", "is", null),
     ]);
 
   if (challengeError) throw new Error(`Failed to load challenge count: ${challengeError.message}`);
   if (matchError) throw new Error(`Failed to load institution match count: ${matchError.message}`);
   if (resolvedError) throw new Error(`Failed to load resolution count: ${resolvedError.message}`);
+  if (confirmedError) throw new Error(`Failed to load confirmed resolution count: ${confirmedError.message}`);
 
   const total = challengeCount ?? 0;
+  const markedResolved = resolvedCount ?? 0;
+  const confirmedResolutions = confirmedCount ?? 0;
   return {
     challengesRaised: total,
     institutionsMatched: matchCount ?? 0,
-    resolutionRate: total === 0 ? 0 : ((resolvedCount ?? 0) / total) * 100,
+    markedResolved,
+    confirmedResolutions,
+    resolutionRate: total === 0 ? 0 : (markedResolved / total) * 100,
+    confirmedResolutionRate: total === 0 ? 0 : (confirmedResolutions / total) * 100,
   };
 }
 
@@ -61,7 +76,10 @@ export function useLiveChallengeMetrics() {
   const [metrics, setMetrics] = useState<ChallengeMetrics>({
     challengesRaised: 0,
     institutionsMatched: 0,
+    markedResolved: 0,
+    confirmedResolutions: 0,
     resolutionRate: 0,
+    confirmedResolutionRate: 0,
   });
 
   useEffect(() => {
@@ -79,6 +97,9 @@ export function useLiveChallengeMetrics() {
   return {
     challengesRaised: useAnimatedCounter(metrics.challengesRaised),
     institutionsMatched: useAnimatedCounter(metrics.institutionsMatched),
+    markedResolved: useAnimatedCounter(metrics.markedResolved),
+    confirmedResolutions: useAnimatedCounter(metrics.confirmedResolutions),
     resolutionRate: useAnimatedCounter(metrics.resolutionRate),
+    confirmedResolutionRate: useAnimatedCounter(metrics.confirmedResolutionRate),
   };
 }

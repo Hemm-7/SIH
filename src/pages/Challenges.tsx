@@ -1,4 +1,4 @@
-import { List, Map as MapIcon } from "lucide-react";
+import { List, Map as MapIcon, LayoutGrid } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -14,8 +14,14 @@ import { cn } from "@/lib/utils";
 const ChallengeMap = lazy(() =>
   import("@/components/challenges/ChallengeMap").then((m) => ({ default: m.ChallengeMap })),
 );
+// Separate lazy chunk, same reasoning: a visitor who never opens the cluster
+// view shouldn't pay for Codex's getChallengeClusters() query or a second
+// Leaflet mount either.
+const ClusterMap = lazy(() =>
+  import("@/components/challenges/ClusterMap").then((m) => ({ default: m.ClusterMap })),
+);
 
-type View = "list" | "map";
+type View = "list" | "map" | "clusters";
 
 /*
  * design-brief.md pass for Task 4:
@@ -69,6 +75,17 @@ export default function Challenges() {
           >
             <MapIcon /> {t("challenge.viewMap")}
           </Button>
+          <Button
+            type="button"
+            role="tab"
+            aria-selected={view === "clusters"}
+            variant="ghost"
+            size="sm"
+            className={cn(view === "clusters" && "bg-secondary text-secondary-foreground")}
+            onClick={() => setView("clusters")}
+          >
+            <LayoutGrid /> {t("challenge.viewClusters")}
+          </Button>
         </div>
       </div>
 
@@ -77,7 +94,7 @@ export default function Challenges() {
           <ChallengeFeed />
         ) : (
           <Suspense fallback={<Skeleton className="h-[420px] w-full rounded-none" />}>
-            <ChallengeMap />
+            {view === "map" ? <ChallengeMap /> : <ClusterMap />}
           </Suspense>
         )}
       </div>

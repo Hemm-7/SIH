@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ClaimButton } from "@/components/institutions/ClaimButton";
+import { MarkResolvedButton } from "@/components/institutions/MarkResolvedButton";
 import { MatchExplainer } from "@/components/challenges/MatchExplainer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ interface MatchRow {
   match_reason: string;
   is_claimed: boolean;
   claimed_at: string | null;
+  marked_resolved_at: string | null;
   created_at: string;
   challenges: {
     id: string;
@@ -93,7 +95,9 @@ export function InstitutionQueue() {
 
       const { data: matchRows, error: matchErr } = await supabase
         .from("challenge_matches")
-        .select("id, match_score, match_reason, is_claimed, claimed_at, created_at, challenges(id, title, description, domain, status, location_text, created_at)")
+        .select(
+          "id, match_score, match_reason, is_claimed, claimed_at, marked_resolved_at, created_at, challenges(id, title, description, domain, status, location_text, created_at)",
+        )
         .eq("institution_id", inst.id)
         .order("match_score", { ascending: false });
 
@@ -114,6 +118,23 @@ export function InstitutionQueue() {
   function markClaimed(matchId: string, claimedAt: string) {
     setMatches((prev) =>
       prev.map((m) => (m.id === matchId ? { ...m, is_claimed: true, claimed_at: claimedAt } : m)),
+    );
+  }
+
+  function markResolved(matchId: string, resolvedAt: string) {
+    setMatches((prev) =>
+      prev.map((m) =>
+        m.id === matchId
+          ? {
+              ...m,
+              marked_resolved_at: resolvedAt,
+              // Local mirror of the SECURITY DEFINER trigger's effect —
+              // avoids a refetch just to reflect a status change this same
+              // action just caused.
+              challenges: m.challenges ? { ...m.challenges, status: "resolved" } : m.challenges,
+            }
+          : m,
+      ),
     );
   }
 
@@ -218,18 +239,37 @@ export function InstitutionQueue() {
             {t("institution.queue.claimed", { count: claimed.length })}
           </h2>
           <ul className="mt-4 space-y-2">
-            {claimed.map((m) =>
-              m.challenges ? (
-                <li key={m.id} className="flex flex-wrap items-baseline justify-between gap-2 rounded-none border border-border p-3">
-                  <span className="font-medium">{m.challenges.title}</span>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {t("institution.queue.claimedOn", {
-                      date: m.claimed_at ? new Date(m.claimed_at).toLocaleDateString(i18n.language) : "",
-                    })}
-                  </span>
+            {claimed.map((m) => {
+              if (!m.challenges) return null;
+              // "in_progress" isn't set anywhere in this MVP yet (see
+              // .agent/inbox — status only ever reaches 'claimed' or
+              // 'resolved' currently), included here so this action keeps
+              // working the moment something does start setting it.
+              const canMarkResolved =
+                !m.marked_resolved_at && ["claimed", "in_progress"].includes(m.challenges.status);
+
+              return (
+                <li key={m.id} className="space-y-2 border border-border p-3">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="font-medium">{m.challenges.title}</span>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {t("institution.queue.claimedOn", {
+                        date: m.claimed_at ? new Date(m.claimed_at).toLocaleDateString(i18n.language) : "",
+                      })}
+                    </span>
+                  </div>
+                  {m.marked_resolved_at ? (
+                    <p className="font-mono text-xs uppercase tracking-wide text-accent">
+                      {t("institution.queue.resolvedOn", {
+                        date: new Date(m.marked_resolved_at).toLocaleDateString(i18n.language),
+                      })}
+                    </p>
+                  ) : canMarkResolved ? (
+                    <MarkResolvedButton matchId={m.id} onResolved={(resolvedAt) => markResolved(m.id, resolvedAt)} />
+                  ) : null}
                 </li>
-              ) : null,
-            )}
+              );
+            })}
           </ul>
         </section>
       ) : null}

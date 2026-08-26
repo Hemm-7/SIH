@@ -1,43 +1,51 @@
 import { motion } from "framer-motion";
-import { ArrowRight, ShieldCheck, Database, Users, GraduationCap, Building2 } from "lucide-react";
+import { ArrowRight, ShieldCheck, Users, GraduationCap, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useLiveChallengeMetrics } from "@/hooks/useAnimatedCounter";
+
 export function StatsSection() {
+  // Every card here is now real, sourced from useLiveChallengeMetrics — no
+  // fabricated numbers left in this array. Two placeholder cards (the old
+  // "COMMUNITY & CSR ALLIES" 186 and "DISTRICTS SYNCHRONIZED" 24) had no
+  // matching column or query anywhere in the schema — no CSR/ally concept
+  // exists at all, and districts/panchayats are free-text (location_text),
+  // not a tracked entity that could be counted. Rather than leave a
+  // fabricated number in place, that slot is gone rather than faked. Only 4
+  // cards render now: 4 real metrics for 4 slots, none invented to fill a
+  // 5th. (The separate "Bottom Editorial Callout Band" below the grid still
+  // says "All 24 Jharkhand Districts Synchronized" — that's a different,
+  // pre-existing fabrication outside this pass's scope; flagged, not fixed.)
+  const { confirmedResolutions, markedResolved, institutionsMatched, challengesRaised } = useLiveChallengeMetrics();
+
   const stats = [
     {
       num: "01",
-      icon: Database,
-      value: "14,286",
-      label: "PROBLEMS IDENTIFIED",
-      description: "Directly verified by citizens, village panchayats & district administrative teams across 24 districts.",
+      icon: ShieldCheck,
+      value: String(Math.round(confirmedResolutions)),
+      label: "CONFIRMED RESOLUTIONS",
+      description: "Reported problems the ORIGINAL CITIZEN has confirmed were actually fixed — not just marked resolved by an institution.",
     },
     {
       num: "02",
-      icon: GraduationCap,
-      value: "4,821",
-      label: "ACCREDITED SOLUTIONS",
-      description: "Formulated through NEP-2020 student capstone research & funded faculty innovation labs.",
+      icon: Building2,
+      value: String(Math.round(markedResolved)),
+      label: "MARKED RESOLVED BY INSTITUTIONS",
+      description: "Claimed challenges an institution has marked complete — see Confirmed Resolutions for the citizen's own independent verification of the same work.",
     },
     {
       num: "03",
-      icon: Building2,
-      value: "312",
-      label: "RESEARCH INSTITUTIONS",
-      description: "State universities, national engineering institutions, agricultural centers & medical hubs.",
+      icon: GraduationCap,
+      value: String(Math.round(institutionsMatched)),
+      label: "INSTITUTION MATCHES MADE",
+      description: "Real matches the AI classifier has created between a citizen's report and a university or industry partner whose expertise fits.",
     },
     {
       num: "04",
       icon: Users,
-      value: "186",
-      label: "COMMUNITY & CSR ALLIES",
-      description: "Providing capital, field testing sites, and direct technology transfer to rural blocks.",
-    },
-    {
-      num: "05",
-      icon: ShieldCheck,
-      value: "24",
-      label: "DISTRICTS SYNCHRONIZED",
-      description: "State-wide decentralized network connecting grassroots challenges with scientific expertise.",
+      value: String(Math.round(challengesRaised)),
+      label: "CHALLENGES RAISED",
+      description: "Every local problem a citizen has submitted through this platform, counted directly from the database.",
     },
   ];
 
@@ -76,8 +84,10 @@ export function StatsSection() {
           </div>
         </div>
 
-        {/* 5 High-Contrast Broadsheet Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+        {/* 4 High-Contrast Broadsheet Stat Cards — was 5; the 5th had no real
+            backing data and was removed rather than filled with a fabricated
+            number (see comment above the stats array). */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {stats.map((stat, idx) => (
             <motion.div
               key={idx}
@@ -121,7 +131,7 @@ export function StatsSection() {
               className="font-bold text-lg sm:text-xl text-[#141414]"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              All 24 Jharkhand Districts Synchronized &amp; Active
+              Built to Serve Every District in Jharkhand
             </div>
             <div className="text-[10.5px] text-[#635E56] font-mono tracking-wider">
               Palamu • Ranchi • Dhanbad • Khunti • Dumka • Latehar • Jamshedpur • Bokaro • Gumla • Simdega

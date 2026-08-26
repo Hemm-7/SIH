@@ -1,10 +1,13 @@
 import { MapPin, Users } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { lifecycleStages, lifecycleStateOf } from "@/components/challenges/challengeLifecycle";
+import { ConfirmResolutionPrompt } from "@/components/challenges/ConfirmResolutionPrompt";
 import { MatchExplainer } from "@/components/challenges/MatchExplainer";
 import { PipelineStrata } from "@/components/challenges/PipelineStrata";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 import { asInstitutionType, asStringArray } from "@/lib/db-narrow";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -31,8 +34,16 @@ export function ChallengeCard({
   institutionsById: Record<string, InstitutionSummary>;
 }) {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const photos = asStringArray(challenge.photo_urls);
   const [topMatch, ...restMatches] = matches;
+
+  // Local, optimistic mirror of resolved_confirmed_at so the prompt
+  // disappears the instant confirm-resolution succeeds, without waiting on
+  // the parent feed to refetch.
+  const [confirmedAt, setConfirmedAt] = useState(challenge.resolved_confirmed_at);
+  const isOwnReport = user?.id === challenge.submitted_by;
+  const awaitingConfirmation = isOwnReport && challenge.status === "resolved" && !confirmedAt;
 
   return (
     <Card>
@@ -90,6 +101,13 @@ export function ChallengeCard({
           stages={lifecycleStages(t)}
           stateOf={lifecycleStateOf(challenge.status)}
         />
+
+        {/* The reporter's own confirmation — distinct from the institution's
+            resolved marking above. Only the citizen who raised this exact
+            report ever sees this, and only until they've answered once. */}
+        {awaitingConfirmation ? (
+          <ConfirmResolutionPrompt challengeId={challenge.id} onConfirmed={setConfirmedAt} />
+        ) : null}
 
         {/* Explainable matching — the project's signature element, never reduced
             to a caption even when space is tight. */}

@@ -31,6 +31,24 @@ INTEGRATION NOTES: Deployed to `fhjxngqfredhsszwqmuf`. Regression results, re-re
 The response retains the contracted `duplicateOf` and `clusterSize` fields while adding the candidate/term diagnostics requested for debugging.
 BLOCKERS: None.
 
+## Challenge Cluster Utility
+
+STATUS: COMPLETE
+WHAT I BUILT: Added a read-only geographic/category clustering utility that reuses detect-duplicates’ 500 m Haversine threshold. It filters to active statuses (`submitted`, `ai_matched`, `claimed`, `in_progress`), partitions by domain, builds transitive connected components, and returns arithmetic centroids.
+FILES CHANGED: src/lib/challengeClusters.ts; .agent/status/codex-status.md
+INTEGRATION NOTES: Exact export signature: `getChallengeClusters(): Promise<ChallengeCluster[]>`. `ChallengeCluster` is `{ centroid: { lat: number; lng: number }; challengeCount: number; category: ChallengeDomain }`. Uses the existing anon Supabase client and public-read RLS; no writes or edge-function changes.
+BLOCKERS: `translateText(text, targetLang)` was not shipped. Hugging Face’s `ai4bharat/IndicTrans3-beta` advertises Santali support but labels it preliminary/low-resource with potentially variable quality, which is not reliable enough for citizen-facing translations. Source: https://huggingface.co/ai4bharat/IndicTrans3-beta
+
+## Resolution Confirmation
+
+STATUS: COMPLETE
+WHAT I BUILT: Added citizen confirmation fields and a reporter-only `confirm-resolution` function. Confirmation requires an authenticated user matching `challenges.submitted_by` (the contract’s original-reporter field), requires current status `resolved`, writes both confirmation fields, and verifies the persisted row before returning success. Repeated confirmation is idempotent; later lifecycle statuses cannot be clobbered.
+FILES CHANGED: supabase/migrations/20260826100000_add_resolution_confirmation.sql; supabase/functions/confirm-resolution/index.ts; src/hooks/useAnimatedCounter.ts; src/integrations/supabase/types.ts; .agent/status/codex-status.md
+INTEGRATION NOTES: Migration path is `supabase/migrations/20260826100000_add_resolution_confirmation.sql`; it adds nullable `resolved_confirmed_at` and `resolved_confirmed_by` (FK to `profiles.user_id`) plus an index. Exact Edge Function name is `confirm-resolution`; request is `{ challengeId }`. Deployed to `fhjxngqfredhsszwqmuf`. End-to-end verification used a temporary resolved challenge owned by the authenticated citizen: the function returned success, and a separate database re-read confirmed `status: resolved`, populated `resolved_confirmed_at`, and `resolved_confirmed_by` equal to the reporter; the fixture was deleted afterward.
+
+`loadChallengeMetrics` and `useLiveChallengeMetrics` now expose `markedResolved`, `confirmedResolutions`, `resolutionRate`, and `confirmedResolutionRate` separately. Live public-read verification returned `challengesRaised: 12`, `markedResolved: 0`, and `confirmedResolutions: 0`; no claim is conflated.
+BLOCKERS: None.
+
 ## Strata Visual System Utilities — Round 2
 
 STATUS: READY
@@ -76,3 +94,11 @@ WHAT I BUILT: Added a build-time image-to-ASCII renderer and a public-read live 
 FILES CHANGED: scripts/image-to-ascii.py; src/lib/tickerData.ts; .agent/status/codex-status.md
 INTEGRATION NOTES: Claude Code can run `python scripts/image-to-ascii.py <image> --width 72 --density 1.1 --glitch 0.04` during asset generation, or write with `--output`. Pillow is the only build-time prerequisite (`python -m pip install Pillow`). Import `loadTickerLabels` and pass its result directly to `<Ticker labels={labels} />`. Both Supabase queries use the existing anon client and public-read RLS; a live anon query returned 12 challenge rows and 3 claimed-match rows, including recent public institution names.
 BLOCKERS: None.
+
+## Challenge Cluster Utility
+
+STATUS: COMPLETE
+WHAT I BUILT: Added a read-only geographic/category clustering utility that reuses detect-duplicates' 500 m Haversine threshold. It filters to active statuses (`submitted`, `ai_matched`, `claimed`, `in_progress`), partitions by domain, builds transitive connected components, and returns arithmetic centroids.
+FILES CHANGED: src/lib/challengeClusters.ts; .agent/status/codex-status.md
+INTEGRATION NOTES: Exact export signature: `getChallengeClusters(): Promise<ChallengeCluster[]>`. `ChallengeCluster` is `{ centroid: { lat: number; lng: number }; challengeCount: number; category: ChallengeDomain }`. Uses the existing anon Supabase client and public-read RLS; no writes or edge-function changes.
+BLOCKERS: `translateText(text, targetLang)` was not shipped. Hugging Face's `ai4bharat/IndicTrans3-beta` advertises Santali support but labels it preliminary/low-resource with potentially variable quality, which is not reliable enough for citizen-facing translations: https://huggingface.co/ai4bharat/IndicTrans3-beta

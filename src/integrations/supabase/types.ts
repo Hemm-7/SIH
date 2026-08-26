@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.17"
   }
   graphql_public: {
     Tables: {
@@ -47,6 +47,7 @@ export type Database = {
           id: string
           institution_id: string
           is_claimed: boolean
+          marked_resolved_at: string | null
           match_reason: string
           match_score: number
         }
@@ -57,6 +58,7 @@ export type Database = {
           id?: string
           institution_id: string
           is_claimed?: boolean
+          marked_resolved_at?: string | null
           match_reason: string
           match_score: number
         }
@@ -67,6 +69,7 @@ export type Database = {
           id?: string
           institution_id?: string
           is_claimed?: boolean
+          marked_resolved_at?: string | null
           match_reason?: string
           match_score?: number
         }
@@ -100,6 +103,8 @@ export type Database = {
           lon: number | null
           photo_urls: Json | null
           report_count: number
+          resolved_confirmed_at: string | null
+          resolved_confirmed_by: string | null
           status: Database["public"]["Enums"]["challenge_status"]
           submitted_by: string | null
           title: string
@@ -117,6 +122,8 @@ export type Database = {
           lon?: number | null
           photo_urls?: Json | null
           report_count?: number
+          resolved_confirmed_at?: string | null
+          resolved_confirmed_by?: string | null
           status?: Database["public"]["Enums"]["challenge_status"]
           submitted_by?: string | null
           title: string
@@ -134,6 +141,8 @@ export type Database = {
           lon?: number | null
           photo_urls?: Json | null
           report_count?: number
+          resolved_confirmed_at?: string | null
+          resolved_confirmed_by?: string | null
           status?: Database["public"]["Enums"]["challenge_status"]
           submitted_by?: string | null
           title?: string
@@ -146,6 +155,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "challenges"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenges_resolved_confirmed_by_fkey"
+            columns: ["resolved_confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "challenges_submitted_by_fkey"

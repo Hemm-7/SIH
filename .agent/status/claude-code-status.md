@@ -1751,3 +1751,216 @@ this positional adapter is ratified as the permanent seam.
 4. (CLOSED) InstitutionPortal verified signed in as university.test —
    renders correctly under the new palette with real data (Ranchi Institute
    of Rural Technology, 0 waiting / 2 claimed), no page errors.
+
+---
+
+## Resolution Confirmation Flow — 3 tasks, all end-to-end verified — 2026-08-26
+
+STATUS: DONE. Waited for and confirmed Codex's confirm-resolution
+function + migration (20260826100000_add_resolution_confirmation.sql) were
+COMPLETE and deployed before starting, per instruction — verified live via a
+direct anon-key read of `challenges.resolved_confirmed_at` on
+fhjxngqfredhsszwqmuf, not just by trusting Codex's status entry.
+
+### Pre-existing gap found before Task 1 could be built
+Institution admins have NO UPDATE grant on `public.challenges` (only admins
+do — confirmed by reading the RLS policies directly). "Mark Resolved"
+therefore could not be a client-side `challenges.status` write. This is the
+same shape as the existing claim→'claimed' transition
+(20260825160000_advance_status_on_claim.sql), so a new migration was
+required, not optional. Per Global Rule #14 and this project's standing
+practice, presented the exact SQL and got explicit confirmation before
+applying it to the shared live database — did not proceed on my own
+reasoning alone.
+
+### New migration — supabase/migrations/20260826110000_advance_status_on_resolve.sql
+Applied via `supabase db push` (confirmed) after sign-off. Adds
+`challenge_matches.marked_resolved_at` (nullable, writable by the
+institution admin under the EXISTING "Institution admins can claim their
+own matches" UPDATE policy — column-agnostic, no RLS change needed) plus a
+SECURITY DEFINER trigger `advance_challenge_on_resolve` that flips
+`challenges.status` to 'resolved' only from 'claimed' or 'in_progress'.
+Deliberately distinct from Codex's `resolved_confirmed_at`/
+`resolved_confirmed_by`: this is the INSTITUTION's claim the work is done;
+Codex's columns are the CITIZEN's independent confirmation. Never conflated
+— two different tables of truth, on purpose.
+Regenerated types.ts afterward — caught and fixed a real corruption first:
+`supabase gen types` piped its own "Initialising login role..." /
+update-nag banner into the redirected file, which would have failed the
+build silently if not caught. Verified clean after stripping it (tsc
+--noEmit passed after the fix, not before).
+
+### Task 1 — src/components/institutions/MarkResolvedButton.tsx (NEW)
+Same RLS-blocked-write discipline as ClaimButton: `.is("marked_resolved_at",
+null).select()`, row-count is the success signal, never `!error`. Wired into
+`InstitutionQueue.tsx`'s "claimed" section — each claimed row now shows
+either the button (challenge still claimed/in_progress) or a
+"MARKED RESOLVED {{date}}" label (already resolved by this institution).
+LIVE-VERIFIED with a real button click, not just an API call: signed in as
+university.test, clicked "Mark resolved" on the real MGNREGA claim, UI
+flipped instantly to "MARKED RESOLVED 8/26/2026", re-read confirmed
+`challenges.status` = 'resolved' server-side via the trigger.
+
+### Task 2 — src/components/challenges/ConfirmResolutionPrompt.tsx (NEW)
+Placed inline on ChallengeCard (public feed / map popups wherever it
+renders) rather than a new page or a notification system — the dispatch
+said "your call," and both alternatives would have been real scope creep:
+Global Rule #12 explicitly freezes a notification system as ROADMAP ONLY,
+and there is no "my reports" page to build a dashboard variant on top of.
+Gated in ChallengeCard via `useAuth()`: only renders when
+`user.id === challenge.submitted_by && status === 'resolved' &&
+!resolved_confirmed_at`. Calls Codex's `confirm-resolution` function.
+"Not yet" only dismisses locally for the session (no reject/deferred write
+exists on Codex's side to persist to) — the prompt will reappear on reload,
+which is honest given only a confirm endpoint exists.
+LIVE-VERIFIED with a real click: signed in as citizen.test (the real
+`submitted_by` on two now-resolved challenges), the prompt appeared on both,
+clicked "Yes, it's fixed" on one, it disappeared immediately, and a
+service-role re-read confirmed `resolved_confirmed_at` and
+`resolved_confirmed_by` (matching the citizen's real user id) both
+persisted — the actual edge function ran, not a local-only UI change.
+
+### Task 3 — src/components/home/StatsSection.tsx (headline stat replaced)
+### WHERE CONFIRMED-RESOLUTION NOW DISPLAYS
+Homepage, "THOUSANDS OF PROBLEMS" stats row, card 01 (the headline/first
+position). Was a fabricated "14,286 PROBLEMS IDENTIFIED" (Database icon);
+now `useLiveChallengeMetrics().confirmedResolutions`, animated, labeled
+"CONFIRMED RESOLUTIONS" with a ShieldCheck icon, description explicitly
+distinguishing it from an institution's own resolved-marking. Read 0 before
+any citizen had confirmed; read 1 immediately after the live Task 2 click
+above, WITHOUT a page reload triggering a refetch of the underlying data —
+i.e. verified the number is actually wired to the real count, not cached or
+hardcoded.
+Card 5's icon was ShieldCheck too (now duplicated with the new card 1) —
+swapped to MapPin; unused `Database` import removed.
+
+### KNOWN ISSUE, NOT FIXED, FLAGGED AGAIN
+Cards 02-05 in this same StatsSection ("4,821 ACCREDITED SOLUTIONS", "312
+RESEARCH INSTITUTIONS", "186 COMMUNITY & CSR ALLIES", "₹12.4 Cr" elsewhere
+in LiveMetricsTicker.tsx) remain fabricated placeholder numbers with no
+backing column — flagged once already after the merge, still not addressed
+because it was out of scope for this dispatch (which asked specifically for
+the confirmed-resolution headline, not a full stats audit). Also still
+true: `LiveMetricsTicker.tsx` exists in the tree but is not imported/
+rendered anywhere — dead code, separate from this task.
+
+### Checks
+- `tsc --noEmit` clean (after fixing the leaked-CLI-output corruption above)
+- `npm run lint` 0 errors (5 pre-existing/unrelated warnings — 2 are
+  Hemm-7's own code from the last merge, not introduced by this task)
+- `npm run build` clean
+- Dev server restarted before verification (Global Rule #7)
+- Live Playwright click-throughs for both Task 1 and Task 2, with a
+  service-role database re-read after each per Global Rule #15 — not just
+  a UI-state check
+
+### FILES CHANGED
+- supabase/migrations/20260826110000_advance_status_on_resolve.sql (NEW)
+- src/integrations/supabase/types.ts (regenerated)
+- src/components/institutions/MarkResolvedButton.tsx (NEW)
+- src/components/institutions/InstitutionQueue.tsx
+- src/components/challenges/ConfirmResolutionPrompt.tsx (NEW)
+- src/components/challenges/ChallengeCard.tsx
+- src/components/home/StatsSection.tsx
+- src/i18n/locales/en.json + hi.json (institution.resolve.*,
+  institution.queue.resolvedOn, resolution.confirm.*, both locales, parity
+  kept)
+
+### BLOCKERS / OPEN
+None. All three tasks complete and live-verified. Real test-account state
+now reflects genuine actions (not reverted, since these are real accounts
+performing real real flows, not throwaway fixtures — consistent with how
+Task 5/7 verification worked earlier in this project): the MGNREGA
+challenge is fully resolved-and-confirmed; the handpump challenge is
+resolved but still awaiting the citizen's confirmation (left as a real,
+honest pending state, not force-completed).
+
+---
+
+## Challenges Map: cluster-density view + Santhali toggle check — 2026-08-26
+
+STATUS: Task 1 DONE and live-verified. Task 2 correctly NOT built — see below.
+Waited for Codex's `getChallengeClusters()` (STATUS COMPLETE in codex-status.md)
+before starting, and separately checked Codex's `translateText()` entry, which
+reports STATUS: not shipped, not READY/COMPLETE.
+
+### Task 1 — cluster-density map view
+
+Deliberately a *third* view, not a modification of the existing per-report
+map. `ChallengeMap.tsx` already plots individual reports (using its own local
+`clusterChallenges.ts`, which merges literal `duplicate_of` links) and colours
+by lifecycle *status* via `strataColorForStatus`. Codex's
+`getChallengeClusters()` answers a different question — active reports
+grouped by *subject* + 500m proximity, independent of duplicate-detection —
+so it got its own component rather than being folded into the existing one,
+to avoid conflating two different clustering concepts under one marker set.
+
+- `src/lib/domainColors.ts` (NEW) — 10-colour categorical hex map, one per
+  `challenge_domain`, chosen to be spread across the hue wheel and visually
+  distinct from `strataColorForStatus`'s 5 lifecycle colours (so a viewer
+  never has to wonder which colour language a given map is using).
+- `src/components/challenges/ClusterMap.tsx` (NEW) — calls
+  `getChallengeClusters()` on mount, renders one Leaflet marker per cluster,
+  diameter scaled by `sqrt(challengeCount)` (capped 22–56px so one large
+  cluster can't swallow the tile layer), fill colour from `domainColor()`.
+  Clicking a marker opens a popup with the exact requested shape: count +
+  category, e.g. "1 report — Healthcare" (`map.cluster.summary_one/_other`,
+  pluralized like every other count string in this project).
+- `src/pages/Challenges.tsx` — extended `View` from `"list" | "map"` to add
+  `"clusters"`, added a third toggle button (List / Map / Clusters), and gave
+  `ClusterMap` its own `lazy()` import — same bandwidth reasoning as the
+  existing `ChallengeMap` lazy-load in this file's own comment: a visitor who
+  never opens the cluster view shouldn't pay for Codex's clustering query or
+  a second Leaflet mount.
+- `en.json` / `hi.json` — added `challenge.viewClusters` and
+  `map.cluster.summary_one/_other`, both locales, key parity kept.
+
+LIVE-VERIFIED via Playwright against the real dev server (restarted first,
+Global Rule #7): navigated to `/challenges`, clicked the new "Clusters" tab,
+9 real markers rendered (matching the current 12-challenge seed, several
+sharing a domain+location cluster), zero console/page errors. Clicked a
+marker — popup read exactly `"1 report — Healthcare"`, confirming the i18n
+plural key and Codex's real `category`/`challengeCount` fields are wired
+correctly, not placeholder text.
+
+### Task 2 — Santhali toggle: correctly NOT built, not merely stubbed
+
+Codex's own status entry for the Challenge Cluster Utility explicitly
+reports `translateText(text, targetLang)` as **not shipped**, with a stated
+reason: `ai4bharat/IndicTrans3-beta` labels Santali support
+preliminary/low-resource with variable quality, not reliable enough for
+citizen-facing translation. That is a real, considered blocker from Codex,
+not an oversight — nothing to route back.
+
+Per the dispatch's own instruction ("update status file with what's
+live/stubbed if translation isn't ready"): no third language toggle button,
+no dead Santhali i18n keys, and no partial/fake Santhali strings were added
+anywhere. Adding a visible toggle for a language with no real translation
+function behind it would be the same category of problem as the fabricated
+stat cards fixed earlier this session — a UI element promising something
+that isn't actually there. The existing English/Hindi toggle in the header
+is untouched. This is a clean no-op until `translateText()` ships and its
+quality is separately judged acceptable for citizen-facing copy — that
+judgment call belongs to whoever reviews `translateText()`'s actual output,
+not to this task.
+
+### Checks
+- `tsc --noEmit` clean
+- `npm run lint` — 0 errors, same 5 pre-existing warnings (none introduced)
+- `npm run build` clean; `ClusterMap` confirmed in its own separate chunk
+  (`ClusterMap-*.js`, 3.61 kB) distinct from `ChallengeMap-*.js`
+- Dev server killed and restarted before verification (Global Rule #7)
+- Live Playwright click-through against the running app, not just a
+  component-level check
+
+### FILES CHANGED
+- src/lib/domainColors.ts (NEW)
+- src/components/challenges/ClusterMap.tsx (NEW)
+- src/pages/Challenges.tsx
+- src/i18n/locales/en.json + hi.json (challenge.viewClusters,
+  map.cluster.summary_one/_other, both locales, parity kept)
+
+### BLOCKERS / OPEN
+None for Task 1. Task 2 remains blocked upstream on Codex's own quality
+judgment of Santhali `translateText()` output — nothing for this task to do
+until that changes.
