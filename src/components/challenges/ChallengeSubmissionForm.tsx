@@ -1,6 +1,7 @@
 import { Camera, Loader2, MapPin, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 
 import { AuthForm } from "@/components/auth/AuthForm";
 import { PipelineStrata, type Stage, type StageState } from "@/components/challenges/PipelineStrata";
@@ -42,10 +43,16 @@ interface MatchResult {
 export function ChallengeSubmissionForm() {
   const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
+  const prefill = location.state as {
+    prefillTitle?: string;
+    prefillDescription?: string;
+    prefillDistrict?: string;
+  } | null;
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [locationText, setLocationText] = useState("");
+  const [title, setTitle] = useState(prefill?.prefillTitle ?? "");
+  const [description, setDescription] = useState(prefill?.prefillDescription ?? "");
+  const [locationText, setLocationText] = useState(prefill?.prefillDistrict ?? "");
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [geoBusy, setGeoBusy] = useState(false);
   const [geoNote, setGeoNote] = useState<string | null>(null);

@@ -1,154 +1,149 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
- * FULL REPLACEMENT — Razorpay AI Builders reskin, committed. This overrides
- * the prior graphite/rust/ochre/verdigris "mineral strata" identity entirely;
- * it is not a blend of the two directions.
- *
- * Pure black ground, one aggressive electric blue as the entire brand accent
- * (CTA, focus ring, links, "matched" moments) — used hard, never softened to
- * a pastel tint. No toggleable light/dark split any more: black IS the one
- * committed look, so :root and .dark carry the same values.
- *
- * Judgment call: the OLD status system was five unrelated hues (rust, ochre,
- * two teals, verdigris) — kept literally, that reads as a second design
- * system pasted next to this one. Recast as a single-hue blue ramp instead:
- * lifecycle progression is now lightness/saturation increasing toward
- * "resolved," which lands on the platform's own hero blue. Still five
- * ordinally distinct states, no longer competing with the single-accent
- * mandate.
- *
- * --muted-foreground is intentionally low-contrast (decorative/secondary
- * copy only, by design). Anything a citizen must read to complete an action
- * — form labels, help text, errors — is NOT reskinned by this pass and must
- * not lean on this token; that's a deliberate follow-up when Auth/Submit get
- * their own checkpoint, not an oversight here.
- */
-
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 96%;
+    /* Dark + Teal Theme Default */
+    --background: 190 41% 5.3%; /* #081113 */
+    --foreground: 165 14% 96%; /* #F3F7F6 */
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 96%;
+    --card: 188 29% 11%; /* #142124 */
+    --card-foreground: 165 14% 96%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 188 29% 11%;
+    --popover-foreground: 165 14% 96%;
 
-    /* Neutral "default"-variant surface — off-white on black, not the hero
-       color. Electric blue is reserved for --accent so there is exactly one
-       aggressive color, not two competing for attention. */
-    --primary: 0 0% 92%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 165 14% 96%; /* #F3F7F6 */
+    --primary-foreground: 190 41% 5.3%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 75%;
+    --secondary: 189 34% 7.6%; /* #0D181A */
+    --secondary-foreground: 165 14% 96%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 188 29% 13%;
+    --muted-foreground: 173 10% 64%; /* #9BAEAC */
 
-    /* #0044FF — the single aggressive accent. CTA, focus ring, links, every
-       "matched" moment in the product. */
-    --accent: 224 100% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Primary Accent Teal */
+    --accent: 174 58% 56%; /* #4FD1C5 */
+    --accent-foreground: 190 41% 5.3%;
 
-    --destructive: 0 84% 55%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 224 100% 50%;
+    --border: 188 20% 18%;
+    --input: 188 20% 18%;
+    --ring: 174 58% 56%;
 
-    --radius: 0px;
+    --radius: 0.875rem;
 
-    /* Challenge lifecycle, recast as a blue ramp — see judgment-call note
-       above. "resolved" converges on the platform's own hero blue. */
-    --status-submitted: 224 25% 42%;
-    --status-ai-matched: 224 55% 52%;
-    --status-claimed: 224 75% 55%;
-    --status-in-progress: 224 90% 58%;
-    --status-resolved: 224 100% 50%;
-  }
-
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 96%;
-
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 96%;
-
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 96%;
-
-    --primary: 0 0% 92%;
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 75%;
-
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 55%;
-
-    --accent: 224 100% 50%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 224 100% 50%;
-
-    --status-submitted: 224 25% 42%;
-    --status-ai-matched: 224 55% 52%;
-    --status-claimed: 224 75% 55%;
-    --status-in-progress: 224 90% 58%;
-    --status-resolved: 224 100% 50%;
+    --status-submitted: 45 93% 47%;
+    --status-ai-matched: 174 58% 56%;
+    --status-claimed: 199 89% 48%;
+    --status-in-progress: 243 75% 65%;
+    --status-resolved: 160 84% 39%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-[#081113] text-[#F3F7F6] antialiased selection:bg-[#4FD1C5]/30 selection:text-[#72E2D6];
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    background-color: #081113;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79, 209, 197, 0.09), transparent),
+      radial-gradient(ellipse 60% 40% at 50% 120%, rgba(79, 209, 197, 0.05), transparent);
+    background-attachment: fixed;
   }
 
-  /* design-brief.md quality floor: visible keyboard focus, always. */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-[#4FD1C5] ring-offset-2 ring-offset-[#081113];
   }
 }
 
-/* design-brief.md quality floor: respect reduced motion.
- *
- * The *-delay resets are load-bearing, not boilerplate: the homepage's
- * staggered reveal drives visibility off transition-delay (up to ~1.5s).
- * Zeroing only transition-duration left that content sitting at opacity 0
- * for over a second under reduced motion — verified, then fixed here.
- * Reduced motion must land on the FINAL state immediately, not on a
- * silent timer. */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    transition-delay: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* Subtle Dark Teal Canvas Grid */
+.framer-teal-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(79, 209, 197, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(79, 209, 197, 0.035) 1px, transparent 1px);
 }
 
-/* Leaflet ships its own CSS; these keep it from fighting the token system. */
+.framer-dot-matrix {
+  background-image: radial-gradient(rgba(79, 209, 197, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Framer Dark Teal Surface Cards */
+.framer-surface-card {
+  background: #142124;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.framer-surface-card:hover {
+  border-color: rgba(79, 209, 197, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -10px rgba(79, 209, 197, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Button & Interactive Utility */
+.framer-btn-teal {
+  background: #4FD1C5;
+  color: #081113;
+  font-weight: 700;
+  border: 1px solid #4FD1C5;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.framer-btn-teal:hover {
+  background: #72E2D6;
+  border-color: #72E2D6;
+  transform: scale(1.02);
+  box-shadow: 0 0 25px rgba(79, 209, 197, 0.3);
+}
+
+.framer-btn-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: #F3F7F6;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.framer-btn-secondary:hover {
+  background: rgba(79, 209, 197, 0.08);
+  border-color: rgba(79, 209, 197, 0.3);
+  color: #FFFFFF;
+}
+
+/* Dark Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #081113;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 209, 197, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4FD1C5;
+}
+
+/* Leaflet Container Dark Inversion Support */
 .leaflet-container {
-  @apply bg-muted;
+  background: #081113 !important;
   font: inherit;
+  border-radius: 1rem;
 }
