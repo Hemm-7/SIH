@@ -2,67 +2,103 @@ import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Database, Users, GraduationCap, Building2, Sparkles, Radio } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useFeaturedChallenges, useHomepageStats } from "@/hooks/useHomepageData";
+
 /* ═══════════════════════════════════════════════════════════════════
    TYPOGRAPHY & PALETTE CONSTANTS (HARMONIOUS WARM CHARCOAL & STONE)
    ═══════════════════════════════════════════════════════════════════ */
 const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
+/* Shown while the live counts are still in flight. Deliberately not "0" —
+   a placeholder is honest about "not known yet", a zero is a wrong number. */
+const PENDING = "—";
+
+const DOMAIN_LABEL: Record<string, string> = {
+  education: "Education",
+  agriculture: "Agriculture",
+  healthcare: "Healthcare",
+  water_resources: "Water",
+  environment: "Environment",
+  energy: "Energy",
+  urban_development: "Urban development",
+  accessibility: "Accessibility",
+  public_administration: "Public administration",
+  rural_livelihoods: "Rural livelihoods",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  submitted: "Submitted",
+  ai_matched: "Matched to expertise",
+  claimed: "Claimed by an institution",
+  in_progress: "Being worked on",
+  resolved: "Resolved",
+};
+
 export function StatsSection() {
-  const stats = [
+  /*
+   * PHASE 1 (fabricated-content remediation): every number in this section
+   * is now a live count from the database via useHomepageStats(). The five
+   * tiles previously read 14,286 / 4,821 / 312 / 186 / 24 with none of them
+   * backed by any column, alongside "+842 This Month" and "₹14.2 Cr
+   * Deployed". Two of those concepts do not exist in the schema at all
+   * (there is no "accredited solutions" entity and no CSR/funding table),
+   * so those two tiles were replaced with metrics that DO exist rather than
+   * given a substitute number: institution matches actually made, and
+   * matches actually claimed by an institution.
+   *
+   * Numbers here are small because the real dataset is small. That is the
+   * point — they are not padded to look bigger.
+   */
+  const stats = useHomepageStats();
+  const recent = useFeaturedChallenges(5);
+
+  const tiles = [
     {
       num: "01",
       icon: Database,
-      value: "14,286",
-      label: "Problems Identified",
-      highlight: "+842 This Month",
-      description: "Directly verified by citizens, panchayat samitis & district administrative teams across all 24 districts.",
+      value: stats ? String(stats.challengesRaised) : PENDING,
+      label: "Problems Reported",
+      highlight: stats ? `${stats.categorisedCount} categorised by AI` : PENDING,
+      description: "Local problems submitted by citizens through this platform, counted directly from the challenges table.",
       tag: "Ground Truth Intake",
     },
     {
       num: "02",
       icon: GraduationCap,
-      value: "4,821",
-      label: "Accredited Solutions",
-      highlight: "NEP-2020 Validated",
-      description: "Formulated through accredited university student capstone research & faculty innovation laboratories.",
-      tag: "Academic R&D",
+      value: stats ? String(stats.aiMatchesMade) : PENDING,
+      label: "AI Institution Matches",
+      highlight: stats ? `${stats.unclaimedMatches} awaiting a claim` : PENDING,
+      description: "Matches the zero-shot classifier created between a reported problem and a partner whose expertise fits. Each carries a written reason.",
+      tag: "Explainable Matching",
     },
     {
       num: "03",
       icon: Building2,
-      value: "312",
-      label: "Research Institutions",
-      highlight: "State & National Hubs",
-      description: "BIT Mesra, BAU Ranchi, IIT-ISM Dhanbad, AIIMS Deoghar, NIT Jamshedpur & regional polytechnics.",
-      tag: "University Consortium",
+      value: stats ? String(stats.partnerInstitutions) : PENDING,
+      label: "Partner Institutions",
+      highlight: stats ? `${stats.universityCount} university · ${stats.industryCount} industry` : PENDING,
+      description: "University and industry partners registered on the platform and eligible to be matched to incoming problems.",
+      tag: "Partner Registry",
     },
     {
       num: "04",
       icon: Users,
-      value: "186",
-      label: "Community & CSR Allies",
-      highlight: "₹14.2 Cr Deployed",
-      description: "Providing catalytic pilot grants, field trial infrastructure, and rapid technology transfer to rural blocks.",
-      tag: "Implementation Partners",
+      value: stats ? String(stats.claimedByInstitution) : PENDING,
+      label: "Claimed By An Institution",
+      highlight: stats ? `of ${stats.aiMatchesMade} matches made` : PENDING,
+      description: "Matches where a partner has formally taken ownership of the problem and is accountable for the work.",
+      tag: "Ownership Taken",
     },
     {
       num: "05",
       icon: ShieldCheck,
-      value: "24",
-      label: "Districts Synchronized",
-      highlight: "100% State Coverage",
-      description: "Autonomous real-time sensor & telemetry nodes continuously relaying societal priority indexes.",
-      tag: "Statewide Network",
+      value: stats ? String(stats.confirmedResolutions) : PENDING,
+      label: "Citizen-Confirmed Fixes",
+      highlight: stats ? `of ${stats.markedResolved} marked resolved` : PENDING,
+      description: "Resolutions the original citizen reporter independently confirmed actually happened — not just an institution marking its own work done.",
+      tag: "Independently Verified",
     },
-  ];
-
-  const districtFeeds = [
-    { name: "Palamu", issue: "Fluoride Nano-Adsorption", status: "Active Deployment", pct: "94%" },
-    { name: "Gumla", issue: "IoT Soil Moisture Drip", status: "Field Trials", pct: "88%" },
-    { name: "Khunti", issue: "Lac Cluster Value Addition", status: "Operational", pct: "100%" },
-    { name: "Dhanbad", issue: "Slag Eco-Bricks", status: "Lab Accredited", pct: "91%" },
-    { name: "Latehar", issue: "Telemedicine RIMS Grid", status: "Live Triage", pct: "96%" },
   ];
 
   return (
@@ -94,17 +130,19 @@ export function StatsSection() {
                 <Radio className="h-3.5 w-3.5 text-[#ECE7DC] animate-pulse" />
                 SECTION II · STATE-WIDE SOCIAL IMPACT &amp; SCALE
               </span>
-              <span className="hidden sm:inline text-xs font-mono text-white/30">|</span>
-              <span className="hidden sm:inline text-xs font-sans text-[#DDD8CD] uppercase tracking-wider font-semibold">
-                GAZETTE REFERENCE: JH-2026-STAT-02
-              </span>
+              {/* The "GAZETTE REFERENCE: JH-2026-STAT-02" chip that sat here was
+                  removed in the Phase 1 pass: it presented an official-looking
+                  government record identifier that does not exist. */}
             </div>
 
             <h2
               className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight uppercase text-[#ECE7DC] leading-[0.94]"
               style={{ fontFamily: TIMES_SERIF }}
             >
-              THOUSANDS OF PROBLEMS.<br />
+              {/* Was "THOUSANDS OF PROBLEMS." — a count claim the real data does
+                  not support. Reworded to say the same thing without asserting
+                  a volume the database would contradict. */}
+              REAL PROBLEMS.<br />
               <span className="text-[#C5BEB3] italic font-normal">ONE UNITED SCIENTIFIC GRID.</span>
             </h2>
           </motion.div>
@@ -117,11 +155,16 @@ export function StatsSection() {
             className="lg:col-span-4 space-y-2 text-[#DDD8CD] text-sm sm:text-base leading-relaxed font-sans transform-gpu will-change-transform"
           >
             <p>
-              A high-precision open collaboration infrastructure converting ground-level civic challenges across all 24 Jharkhand districts into funded, deployable academic research.
+              An open collaboration infrastructure that routes ground-level civic
+              problems in Jharkhand to the university and industry partners whose
+              expertise actually fits them.
             </p>
             <div className="flex items-center gap-2 text-xs font-sans text-[#ECE7DC] font-bold uppercase tracking-wider">
               <Sparkles className="h-4 w-4 text-[#ECE7DC] animate-spin-slow" />
-              <span>Real-Time District Sync Active</span>
+              {/* Was "Real-Time District Sync Active" — there is no district
+                  telemetry or sync process. This states what is actually true
+                  of the figures on this page. */}
+              <span>Figures read live from the database</span>
             </div>
           </motion.div>
         </div>
@@ -130,7 +173,7 @@ export function StatsSection() {
             5 EDITORIAL BROADSHEET DOSSIER STAT TILES (SILKY SMOOTH CASCADE)
            ═════════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-          {stats.map((stat, idx) => {
+          {tiles.map((stat, idx) => {
             const SIcon = stat.icon;
             return (
               <motion.div
@@ -184,40 +227,52 @@ export function StatsSection() {
         </div>
 
         {/* ═════════════════════════════════════════════════════════════
-            REAL-TIME DISTRICT TELEMETRY STRIP (SILKY SMOOTH)
+            LATEST REAL REPORTS STRIP
+            Was a "District Telemetry Nodes" strip listing five invented
+            projects with invented completion percentages (94% / 88% / 100%
+            / 91% / 96%). No telemetry, project, or percent-complete concept
+            exists in the schema, so the percentages are gone entirely rather
+            than recomputed — this now lists real recent challenge rows with
+            their real location and real lifecycle status.
            ═════════════════════════════════════════════════════════════ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
-          transition={{ duration: 0.45, delay: 0.1, ease: SMOOTH_EASE }}
-          className="p-5 sm:p-6 rounded-sm bg-[#383530] border-2 border-white/20 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-5 font-sans transform-gpu will-change-transform"
-        >
-          <div className="flex items-center gap-3 text-xs sm:text-sm font-bold text-[#ECE7DC] uppercase tracking-wider shrink-0">
-            <div className="flex items-center gap-0.5 h-3">
-              <motion.span animate={{ height: ["3px", "10px", "3px"] }} transition={{ repeat: Infinity, duration: 0.7 }} className="w-0.5 bg-[#ECE7DC] rounded-full" />
-              <motion.span animate={{ height: ["6px", "12px", "4px"] }} transition={{ repeat: Infinity, duration: 0.5, delay: 0.2 }} className="w-0.5 bg-[#ECE7DC] rounded-full" />
-              <motion.span animate={{ height: ["4px", "8px", "3px"] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-0.5 bg-[#ECE7DC] rounded-full" />
+        {recent && recent.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
+            transition={{ duration: 0.45, delay: 0.1, ease: SMOOTH_EASE }}
+            className="p-5 sm:p-6 rounded-sm bg-[#383530] border-2 border-white/20 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-5 font-sans transform-gpu will-change-transform"
+          >
+            <div className="flex items-center gap-3 text-xs sm:text-sm font-bold text-[#ECE7DC] uppercase tracking-wider shrink-0">
+              <div className="flex items-center gap-0.5 h-3">
+                <motion.span animate={{ height: ["3px", "10px", "3px"] }} transition={{ repeat: Infinity, duration: 0.7 }} className="w-0.5 bg-[#ECE7DC] rounded-full" />
+                <motion.span animate={{ height: ["6px", "12px", "4px"] }} transition={{ repeat: Infinity, duration: 0.5, delay: 0.2 }} className="w-0.5 bg-[#ECE7DC] rounded-full" />
+                <motion.span animate={{ height: ["4px", "8px", "3px"] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-0.5 bg-[#ECE7DC] rounded-full" />
+              </div>
+              <span>Latest reports:</span>
             </div>
-            <span>District Telemetry Nodes:</span>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm">
-            {districtFeeds.map((feed, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.05, y: -2 }}
-                className="flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-sm border border-white/20 hover:border-white/40 hover:bg-white/15 transition-all shadow-xs cursor-default"
-              >
-                <span className="font-bold text-[#ECE7DC]">{feed.name}:</span>
-                <span className="text-[#DDD8CD]">{feed.issue}</span>
-                <span className="text-[#ECE7DC] font-bold bg-white/15 px-1.5 py-0.5 rounded-sm border border-white/25 text-xs">
-                  {feed.pct}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm">
+              {recent.map((row) => (
+                <motion.div
+                  key={row.id}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  className="flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-sm border border-white/20 hover:border-white/40 hover:bg-white/15 transition-all shadow-xs cursor-default"
+                >
+                  {row.locationText ? (
+                    <span className="font-bold text-[#ECE7DC]">{row.locationText}:</span>
+                  ) : null}
+                  <span className="text-[#DDD8CD]">
+                    {row.domain ? DOMAIN_LABEL[row.domain] ?? row.domain : "Awaiting categorisation"}
+                  </span>
+                  <span className="text-[#ECE7DC] font-bold bg-white/15 px-1.5 py-0.5 rounded-sm border border-white/25 text-xs">
+                    {STATUS_LABEL[row.status] ?? row.status}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
 
         {/* ═════════════════════════════════════════════════════════════
             BOTTOM EDITORIAL MEMORANDUM CALLOUT (SILKY SMOOTH)
@@ -229,16 +284,26 @@ export function StatsSection() {
           transition={{ duration: 0.45, delay: 0.12, ease: SMOOTH_EASE }}
           className="p-7 sm:p-9 rounded-sm bg-[#383530] border-2 border-white/20 flex flex-col sm:flex-row items-center justify-between gap-6 font-sans shadow-2xl transform-gpu will-change-transform"
         >
+          {/* Was "All 24 Jharkhand District Panchayats Synchronized" over a
+              hardcoded district list — a live-status claim about 24 districts
+              that nothing backs (districts are free-text `location_text`, not
+              a tracked or synchronised entity). Now states the real number of
+              distinct places people have actually reported from, and lists
+              those real places. */}
           <div className="space-y-1 text-center sm:text-left">
             <div
               className="font-bold text-2xl sm:text-3xl text-[#ECE7DC]"
               style={{ fontFamily: TIMES_SERIF }}
             >
-              All 24 Jharkhand District Panchayats Synchronized
+              {stats
+                ? `Problems reported from ${stats.locationsReported} ${stats.locationsReported === 1 ? "place" : "places"} in Jharkhand`
+                : "Problems reported from across Jharkhand"}
             </div>
-            <div className="text-xs sm:text-sm text-[#C5BEB3] font-medium">
-              Ranchi • Palamu • Dhanbad • Khunti • Dumka • Latehar • Jamshedpur • Bokaro • Gumla • Simdega
-            </div>
+            {stats && stats.locationNames.length > 0 ? (
+              <div className="text-xs sm:text-sm text-[#C5BEB3] font-medium">
+                {stats.locationNames.join(" • ")}
+              </div>
+            ) : null}
           </div>
 
           <Link

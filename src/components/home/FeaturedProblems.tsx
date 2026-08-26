@@ -14,62 +14,81 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useFeaturedChallenges, useHomepageStats } from "@/hooks/useHomepageData";
 
 const TIMES_SERIF = "'Times New Roman', Times, 'Playfair Display', Georgia, serif";
 const SMOOTH_EASE = [0.25, 0.1, 0.25, 1] as const;
 
-const FEATURED_CHALLENGES = [
-  {
-    num: "01",
-    domain: "Water Security",
-    domainIcon: Droplets,
-    title: "Unreliable water access & natural fluoride contamination affecting rural habitations.",
-    district: "Palamu & Garhwa",
-    affected: "2,400 people affected",
-    collaborators: "18 potential collaborators",
-    tags: ["IoT Telemetry", "GIS Hydrology", "Water Management", "Nano-Adsorption"],
-    matchedLab: "BIT Mesra • Advanced Separation Technologies Lab",
-    span: "lg:col-span-7",
-  },
-  {
-    num: "02",
-    domain: "Decentralized Agriculture",
-    domainIcon: Sprout,
-    title: "Unpredictable irrigation & lack of solar thermal cold storage reducing tribal farmers' harvest.",
-    district: "Khunti & Gumla",
-    affected: "1,800 people affected",
-    collaborators: "14 potential collaborators",
-    tags: ["AI Sensing", "IoT Soil", "Agriculture", "Thermal Storage"],
-    matchedLab: "Birsa Agricultural University (BAU) Ranchi",
-    span: "lg:col-span-5",
-  },
-  {
-    num: "03",
-    domain: "Indigenous NLP & Access",
-    domainIcon: Languages,
-    title: "Digital exclusion of Santhali Ol Chiki speakers in accessing public welfare schemes.",
-    district: "Dumka & Santhal Parganas",
-    affected: "12,000 people affected",
-    collaborators: "9 potential collaborators",
-    tags: ["NLP Models", "Speech Synthesis", "Ol Chiki OCR"],
-    matchedLab: "Dept of Computer Science & Eng, BIT Mesra",
-    span: "lg:col-span-5",
-  },
-  {
-    num: "04",
-    domain: "Clean Recycling & Materials",
-    domainIcon: Zap,
-    title: "Overburden slag dumps causing air pollution & requiring geopolymer eco-brick recycling.",
-    district: "Dhanbad & Bokaro",
-    affected: "25,000 people affected",
-    collaborators: "16 potential collaborators",
-    tags: ["Geopolymers", "Eco-Bricks", "Structural Testing"],
-    matchedLab: "IIT (ISM) Dhanbad • CRF Geotechnical Division",
-    span: "lg:col-span-7",
-  },
-];
+/*
+ * PHASE 1 (fabricated-content remediation): this section previously rendered
+ * four hardcoded "problems" that were never in the database — invented
+ * titles, invented "N people affected" and "N potential collaborators"
+ * figures, invented technology tag lists, and matched-lab lines naming real
+ * institutions (BIT Mesra, IIT-ISM Dhanbad, BAU Ranchi) that are not
+ * partners on this platform and had never matched anything. All of it is
+ * gone; nothing here is hardcoded any more.
+ *
+ * Cards come from real `challenges` rows ordered by `created_at DESC`.
+ * Recency was chosen over highest-match-score because the section presents
+ * itself as a live queue of what citizens have just reported ("LIVE CITIZEN
+ * INVESTIGATION QUEUE" / "WHAT NEEDS SOLVING?"), and recency is the honest
+ * ordering for that framing.
+ *
+ * Every per-card figure maps to a real column:
+ *   district    -> challenges.location_text   (line hidden entirely when null)
+ *   "N reports" -> challenges.report_count
+ *   "N matched" -> real row count of that challenge's challenge_matches
+ *   matched lab -> the real top-scoring matched institution + its department
+ * The invented technology tags have no per-challenge equivalent anywhere in
+ * the schema, so that row now shows the challenge's real domain and real
+ * lifecycle status instead of substitute tags.
+ */
+
+const DOMAIN_ICON: Record<string, typeof Droplets> = {
+  water_resources: Droplets,
+  agriculture: Sprout,
+  rural_livelihoods: Sprout,
+  environment: Sprout,
+  education: Languages,
+  public_administration: Languages,
+  energy: Zap,
+  healthcare: Users,
+  accessibility: Users,
+  urban_development: Building2,
+};
+
+const DOMAIN_LABEL: Record<string, string> = {
+  education: "Education",
+  agriculture: "Agriculture",
+  healthcare: "Healthcare",
+  water_resources: "Water",
+  environment: "Environment",
+  energy: "Energy",
+  urban_development: "Urban Development",
+  accessibility: "Accessibility",
+  public_administration: "Public Administration",
+  rural_livelihoods: "Rural Livelihoods",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  submitted: "Submitted",
+  ai_matched: "Matched to expertise",
+  claimed: "Claimed by an institution",
+  in_progress: "Being worked on",
+  resolved: "Resolved",
+};
+
+/** Preserves the original alternating 7/5 broadsheet rhythm. */
+const SPANS = ["lg:col-span-7", "lg:col-span-5", "lg:col-span-5", "lg:col-span-7"];
 
 export function FeaturedProblems() {
+  const stats = useHomepageStats();
+  const featured = useFeaturedChallenges(4);
+
+  // Nothing is invented to fill space: if the real read fails or the table is
+  // empty, the whole section is hidden rather than padded with examples.
+  if (!featured || featured.length === 0) return null;
+
   return (
     <section className="py-24 sm:py-32 bg-[#ECE7DC] text-[#2C2925] relative w-full overflow-hidden border-b-2 border-[#2C2925] font-sans">
       
@@ -124,7 +143,10 @@ export function FeaturedProblems() {
               className="h-11 px-6 rounded-sm font-sans font-bold border-2 border-[#2C2925] bg-[#FAF8F4] hover:bg-[#2C2925] hover:text-[#ECE7DC] text-[#2C2925] text-xs sm:text-sm gap-2 shrink-0 tracking-tight shadow-xs hover:scale-105 active:scale-95 transition-all uppercase group"
             >
               <Link to="/challenges">
-                <span>View All 14,286 Challenges</span>
+                {/* Was a hardcoded "View All 14,286 Challenges". Now the real
+                    total, and it simply says "View All Challenges" until the
+                    count has actually loaded. */}
+                <span>{stats ? `View All ${stats.challengesRaised} Challenges` : "View All Challenges"}</span>
                 <ArrowRight className="h-4 w-4 text-[#2C2925] group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
@@ -133,17 +155,17 @@ export function FeaturedProblems() {
 
         {/* Large Varied Staggered Broadsheet Panels (Smooth) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {FEATURED_CHALLENGES.map((challenge, idx) => {
-            const DIcon = challenge.domainIcon;
+          {featured.map((challenge, idx) => {
+            const DIcon = (challenge.domain ? DOMAIN_ICON[challenge.domain] : undefined) ?? FileText;
             return (
               <motion.div
-                key={challenge.num}
+                key={challenge.id}
                 initial={{ opacity: 0, y: 25, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: false, amount: 0.08, margin: "0px 0px -30px 0px" }}
                 transition={{ duration: 0.45, delay: idx * 0.07, ease: SMOOTH_EASE }}
                 whileHover={{ y: -6, scale: 1.015 }}
-                className={`relative overflow-hidden rounded-sm border-2 border-[#2C2925] bg-[#FAF8F4] p-7 sm:p-9 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group cursor-default font-sans transform-gpu will-change-transform ${challenge.span}`}
+                className={`relative overflow-hidden rounded-sm border-2 border-[#2C2925] bg-[#FAF8F4] p-7 sm:p-9 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group cursor-default font-sans transform-gpu will-change-transform ${SPANS[idx % SPANS.length]}`}
               >
                 {/* Subtle top card shimmer bar on hover */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#2C2925] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -153,57 +175,81 @@ export function FeaturedProblems() {
                   <div className="flex items-center justify-between border-b border-[#2C2925]/15 pb-3.5">
                     <span className="font-mono text-xl sm:text-2xl font-bold text-[#5C564E] group-hover:text-[#2C2925] transition-colors flex items-center gap-2">
                       <span className="h-2 w-2 rounded-full bg-[#2C2925] opacity-0 group-hover:opacity-100 transition-opacity" />
-                      DOSSIER #{challenge.num}
+                      DOSSIER #{String(idx + 1).padStart(2, "0")}
                     </span>
                     <Badge variant="secondary" className="font-sans font-bold text-xs py-1 px-3 border border-[#2C2925]/20 bg-black/[0.04] text-[#2C2925] group-hover:bg-[#2C2925] group-hover:text-[#ECE7DC] transition-all">
                       <DIcon className="h-3.5 w-3.5 mr-1 text-inherit" />
-                      {challenge.domain}
+                      {challenge.domain ? DOMAIN_LABEL[challenge.domain] ?? challenge.domain : "Awaiting categorisation"}
                     </Badge>
                   </div>
 
-                  {/* Title & Location */}
+                  {/* Title & Location — location line renders only when the row
+                      actually has a location_text; no placeholder district. */}
                   <div className="space-y-1.5">
-                    <div className="text-xs font-bold text-[#5C564E] uppercase tracking-wider flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-[#2C2925]" />
-                      <span>{challenge.district}</span>
-                    </div>
+                    {challenge.locationText ? (
+                      <div className="text-xs font-bold text-[#5C564E] uppercase tracking-wider flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-[#2C2925]" />
+                        <span>{challenge.locationText}</span>
+                      </div>
+                    ) : null}
                     <h3 className="text-xl sm:text-2xl font-bold text-[#2C2925] leading-snug group-hover:underline decoration-1 underline-offset-4 transition-all">
                       {challenge.title}
                     </h3>
                   </div>
 
-                  {/* Affected Count & Collaborators */}
+                  {/* Real report count and real matched-institution count */}
                   <div className="flex flex-wrap items-center gap-4 text-xs text-[#3D3831] font-semibold">
                     <div className="flex items-center gap-1.5">
                       <Users className="h-4 w-4 text-[#2C2925]" />
-                      <span>{challenge.affected}</span>
+                      <span>
+                        {challenge.reportCount} {challenge.reportCount === 1 ? "citizen report" : "citizen reports"}
+                      </span>
                     </div>
                     <span className="text-[#2C2925]/30">•</span>
                     <div className="text-[#2C2925] font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-                      {challenge.collaborators} →
+                      {challenge.matchCount} {challenge.matchCount === 1 ? "matched institution" : "matched institutions"} →
                     </div>
                   </div>
 
-                  {/* Tags with Spring Hover */}
+                  {/* Real domain + real lifecycle status, in place of the
+                      invented technology tag list. */}
                   <div className="flex flex-wrap gap-2 pt-1">
-                    {challenge.tags.map((tag, i) => (
-                      <motion.span
-                        key={i}
-                        whileHover={{ scale: 1.06, y: -2 }}
-                        className="px-2.5 py-1 rounded-sm bg-black/[0.03] text-xs font-semibold text-[#3D3831] border border-[#2C2925]/15 hover:border-[#2C2925] hover:text-[#2C2925] hover:bg-white shadow-2xs transition-all cursor-pointer"
-                      >
-                        {tag}
-                      </motion.span>
-                    ))}
+                    {[
+                      challenge.domain ? DOMAIN_LABEL[challenge.domain] ?? challenge.domain : null,
+                      STATUS_LABEL[challenge.status] ?? challenge.status,
+                    ]
+                      .filter((tag): tag is string => Boolean(tag))
+                      .map((tag) => (
+                        <motion.span
+                          key={tag}
+                          whileHover={{ scale: 1.06, y: -2 }}
+                          className="px-2.5 py-1 rounded-sm bg-black/[0.03] text-xs font-semibold text-[#3D3831] border border-[#2C2925]/15 hover:border-[#2C2925] hover:text-[#2C2925] hover:bg-white shadow-2xs transition-all cursor-pointer"
+                        >
+                          {tag}
+                        </motion.span>
+                      ))}
                   </div>
                 </div>
 
                 {/* Bottom Bar */}
                 <div className="pt-5 mt-5 border-t border-[#2C2925]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-[#3D3831] font-medium">
-                    <Building2 className="h-4 w-4 text-[#2C2925] shrink-0 group-hover:scale-110 transition-transform" />
-                    <span className="truncate max-w-md text-[#2C2925] font-bold">{challenge.matchedLab}</span>
-                  </div>
+                  {/* The real top-scoring matched institution for this exact
+                      challenge. Hidden entirely when nothing has matched yet,
+                      rather than naming a plausible-sounding lab. */}
+                  {challenge.topInstitutionName ? (
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-[#3D3831] font-medium">
+                      <Building2 className="h-4 w-4 text-[#2C2925] shrink-0 group-hover:scale-110 transition-transform" />
+                      <span className="truncate max-w-md text-[#2C2925] font-bold">
+                        {challenge.topInstitutionName}
+                        {challenge.topInstitutionDepartment ? ` • ${challenge.topInstitutionDepartment}` : ""}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-[#3D3831] font-medium">
+                      <Building2 className="h-4 w-4 text-[#2C2925] shrink-0" />
+                      <span className="text-[#5C564E]">No institution matched yet</span>
+                    </div>
+                  )}
 
                   <Button
                     asChild
