@@ -12,9 +12,41 @@
     "language": "Language"
   },
   "home": {
+    "eyebrow": "Department of Higher & Technical Education · Government of Jharkhand",
     "heading": "Tell us what needs fixing where you live.",
     "body": "Describe the problem in your own words. It is categorised automatically and sent to the university or industry partner whose expertise actually fits — and you can follow what happens next.",
-    "cta": "Raise a problem"
+    "cta": "Raise a problem",
+    "ctaSecondary": "See real matches",
+    "stats": {
+      "eyebrow": "Right now, on this platform",
+      "raised": "Challenges raised",
+      "matched": "Institution matches made",
+      "resolved": "Resolved"
+    },
+    "steps": {
+      "heading": "How a report gets to the right people",
+      "step1": {
+        "title": "You describe it",
+        "body": "Plain language, no form fields to guess right. A photo and location help but are never required."
+      },
+      "step2": {
+        "title": "It gets classified and matched",
+        "body": "An AI classifier reads the description, assigns a subject area, and ranks the university and industry partners whose expertise actually fits."
+      },
+      "step3": {
+        "title": "An institution claims it",
+        "body": "A matched partner takes ownership, and the report's status is tracked publicly through to resolution."
+      }
+    },
+    "demo": {
+      "eyebrow": "See it happen",
+      "heading": "From a citizen's problem to a matched institution",
+      "intro": "This is how it actually works, dramatized with an example — the same matching that runs on every real report you can see on the challenges page.",
+      "problem": "Canal silted up for two seasons — paddy crop at risk",
+      "institution": "Giridih Institute of Water & Soil Engineering",
+      "department": "Civil & Environmental Engineering",
+      "cta": "Browse real matches"
+    }
   },
   "challenge": {
     "status": {

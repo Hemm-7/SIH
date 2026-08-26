@@ -1307,3 +1307,447 @@ right now will show real, non-trivial values in submitted/ai_matched/
 claimed, reflecting genuine data and genuine (now-closed) status-advancement
 logic — this was the whole point of the fix, confirmed rather than assumed.
 ```
+
+---
+
+## Debate-room review — 3 items — 2026-08-25
+
+```
+STATUS: ALL 3 COMPLETE. Verification and cleanup only, as instructed — one
+        real defect found and fixed in item 2, no scope expansion.
+
+=== ITEM 1 — data hygiene + fresh real demo data ===
+
+Classified all 25 challenges before touching anything: 5 real (from actual
+categorize/match chain runs across earlier tasks), 20 synthetic (every
+duplicate-detection and RLS-adversarial fixture across three testing rounds
+— the culvert/medicine, motorbike/gate, market/junction rows and their
+repeats). Checked for cross-references before deleting, not assumed clean:
+  - 3 duplicate_of pointers exist among all 25 rows; all 3 point WITHIN the
+    synthetic set, none touch a real row.
+  - 0 challenge_matches rows reference any of the 20 synthetic ids.
+Deleted all 20 via service-role, confirmed by `Prefer: return=representation`
+(20 rows returned, not just HTTP 200) and a follow-up RE-READ: 5 real rows
+remained, 17 challenge_matches rows unaffected (none belonged to the 20).
+
+Created 6 fresh, realistic demo challenges spanning domains not yet
+represented (irrigation/agriculture, transformer/energy, market-road,
+ration-card, MGNREGA-wages, sand-mining), submitted as citizen.test through
+the REAL chain (insert -> categorize -> match) — all 6 succeeded, all 6
+landed at status=ai_matched (re-read confirmed, not assumed from responses).
+Classifier's real domain calls didn't always match my intended label (e.g.
+"ration card" -> accessibility, not public_administration; "MGNREGA wages"
+-> water_resources, not rural_livelihoods) — reported honestly as the real
+model output, NOT corrected after the fact to look tidier.
+
+Claimed 2 of the new matches for real, via the actual linked institution
+accounts (not fabricated): Ranchi (university.test) claimed its real
+MGNREGA-wages match; Palamu (industry.test) claimed its real irrigation
+match. Both re-read confirmed is_claimed=true AND the claim trigger fired
+(challenges.status -> claimed).
+
+FUNNEL BEFORE -> AFTER (real statusFunnel() query, not estimated):
+  BEFORE: submitted 25, ai_matched 0, claimed 0, in_progress 0, resolved 0
+  AFTER:  submitted 3,  ai_matched 5, claimed 3,  in_progress 0, resolved 0
+  (a 6th ai_matched row was added during item 3's verification below,
+  final combined total is submitted 3 / ai_matched 6 / claimed 3 — see
+  item 3)
+  domains: 7 real, distinct domains represented (was 5 domains + a 20-row
+  "uncategorised" bucket that no longer exists at all)
+  institutions engaged: 17 of 18 (was 12 of 18)
+  matches: 38 total, 3 claimed (was 17 total, 1 claimed)
+
+FILES CHANGED: none (data only, via service-role REST, no schema/code touched)
+BLOCKERS: none.
+
+=== ITEM 2 — match-institutions failure degradation ===
+
+Read the exact code path rather than guessing: `if (matErr || !mat?.success)
+{ setPhase("done"); setError(t("submit.error.matchPartial")); return; }`
+— structurally identical to categorize-challenge's own handling. Confirmed
+the i18n string is the honest message asked for: "Your report is saved and
+sorted. Matching to institutions did not finish — it will be retried
+shortly." Forced a REAL failure live (invalid domain value against the
+deployed function) to confirm the response shape actually trips this exact
+branch: HTTP 400, {"success":false,...} -> `!mat?.success` is true. Not
+theoretical.
+
+FOUND A REAL BUG while verifying, not fixed already: PipelineStrata's
+stateOf() computed a "reached" index purely from `phase`, and once phase
+hit "done" — which happens on BOTH real success and this soft-fail path —
+every stage rendered "done" (green), including the "matched" stage on a
+run where matching had just failed. The honest error text below it was
+correct; the pipeline visualisation right above it was not — exactly the
+"misleading success state" this review item asked to rule out.
+
+FIX: added `failedStage` state (0/1/2, set only on the categorise/match
+soft-fail branches, not on thrown exceptions which already had their own
+correct "error" phase handling). stateOf() now checks it first: stages
+before the failure show "done", the failed stage shows "failed", stages
+after show "pending" — never masked as complete.
+
+Verified the fixed logic in isolation (replicated stateOf() exactly)
+against all 4 real phase/failedStage combinations:
+  match-institutions fails:  done, done, FAILED   (was: done, done, done)
+  categorize fails:          done, FAILED, pending (was: done, done, done)
+  full real success:         done, done, done      (unchanged, correct)
+  thrown exception:          failed, pending, pending (unchanged, correct)
+
+npm run build clean, npm run lint clean (0 errors, same 3 pre-existing
+warnings, none new) after the fix.
+
+FILES CHANGED:
+- src/components/challenges/ChallengeSubmissionForm.tsx (failedStage state
+  + stateOf() fix; resetForm now clears it too)
+
+BLOCKERS: none. This was verification that surfaced a real defect, which
+was then fixed per the instruction's own "if it doesn't, fix it" branch —
+not scope expansion, the fix is confined to the exact file/behaviour asked
+about.
+
+=== ITEM 3 — true-minimal submission path, live ===
+
+Ran citizen.test through the exact minimal path ChallengeSubmissionForm
+supports: description only — no title (falls back to a description slice,
+same as the real form), no photos (empty array, upload step never invoked),
+no location text, no geolocation (lat/lon both null). A real new challenge
+("community toilet block locked for a month"), inserted via the RLS INSERT
+path, then the real categorize-challenge and match-institutions calls:
+
+  [2 insert]     OK, RE-READ confirmed lat=null lon=null location_text=null
+                 photos=0 immediately after insert (Rule #15 — not assumed
+                 from the insert response)
+  [3 categorize] OK domain=accessibility conf=0.2713
+  [4 match]      OK 3 matches, e.g. #1 0.3824 Deoghar College of Education
+                 and Pedagogy
+  [5 RE-READ]    status=ai_matched, domain populated, photos/lat/lon/
+                 location_text still genuinely null/empty — nothing was
+                 silently defaulted to a non-null placeholder anywhere in
+                 the chain.
+
+VERDICT: PASS. The full insert -> categorize -> match chain completes
+successfully with every optional field genuinely absent, confirmed by
+re-reading the final row, not by trusting the function responses alone.
+
+This created one additional real challenge (not part of item 1's curated
+6 — a natural byproduct of verifying this specific path live, not extra
+feature work). Left in place rather than deleted, same "real data, not
+fabricated" reasoning as the rest of this session; flagging plainly so the
+coordinator can remove it if a more tightly curated count is wanted for the
+demo.
+
+FILES CHANGED: none.
+BLOCKERS: none.
+
+=== FINAL COMBINED STATE, all 3 items applied ===
+
+  challenges total: 12  (5 kept real + 6 fresh demo + 1 from item 3's test)
+  by status:  {"ai_matched":6,"submitted":3,"claimed":3}
+  by domain:  accessibility 4, healthcare 1, environment 1, education 1,
+              water_resources 2, agriculture 2, energy 1  (7 distinct real
+              domains, zero "uncategorised")
+  duplicate_of set: 0  (no leftover synthetic clusters)
+  matches: 38 total, 3 claimed
+  institutions engaged: 17 of 18
+
+Every number above is read directly from the live table after this session's
+own real actions (deletions, real chain submissions, real claims) — nothing
+here was backfilled or set directly on a status column to make it look
+populated.
+```
+
+---
+
+## Visual direction — Razorpay AI Builders reskin (homepage only) — 2026-08-26
+
+STATUS: DONE — homepage + shared chrome reskinned, verified live, awaiting
+coordinator sign-off before Challenges/Dashboard/InstitutionPortal/Auth.
+
+### Scope
+Full replacement of the graphite/rust/ochre/verdigris "mineral strata"
+identity, per coordinator dispatch. NOT a blend — the prior palette is gone
+from the token layer entirely.
+
+### Design-package preview round (preceding this dispatch)
+Previewed 5 typeui.sh packages by pulling real DESIGN.md content (the
+`--dry-run` flag only prints a filename, so each was pulled into an isolated
+scratch dir instead and read):
+- enterprise   — #0C5CAB blue, IBM Plex Sans, dark cloud-dashboard
+- bold         — Archivo Black, #0077BC/#009866, poster register
+- contemporary — #C800DF/#E60076 magenta, playful bento
+- modern       — IBM Plex Serif, #553F83 purple, editorial
+- impeccable   — Chakra Petch, #CC8800/#C55221 warm cream
+Rejected without preview per instruction: Neon, Cosmic, Pacman, Fantasy,
+Glassmorphism, Doodle, Matrix, Retro, Gradient.
+Coordinator selected "enterprise as a base only"; that direction was then
+SUPERSEDED by the Razorpay reskin dispatch before it reached the rest of the
+app. Only the homepage had been built against it.
+
+### Tokens applied (src/index.css — full replacement)
+- background pure black `0 0% 0%`; card `0 0% 4%`
+- single accent `224 100% 50%` = **#0044FF exactly** (verified live, see below)
+- `--radius: 0px` across the board; borderRadius lg/md/sm all flattened in
+  tailwind.config.ts (previously `calc(var(--radius) - 2px)`, which would
+  compute NEGATIVE at radius 0)
+- `--muted-foreground: 0 0% 55%` — deliberately low contrast, DECORATIVE ONLY
+- light/dark no longer diverge: `.dark` carries identical values, black is the
+  one committed look
+
+### JUDGMENT CALL (flagged, not silently applied)
+The old 5-state lifecycle ramp was five unrelated hues (rust, ochre, 2 teals,
+verdigris). Kept literally next to pure-black + one aggressive blue, that reads
+as two design systems bolted together. Recast as a single-hue BLUE RAMP:
+  submitted 224 25% 42% -> ai_matched 224 55% 52% -> claimed 224 75% 55%
+  -> in_progress 224 90% 58% -> resolved 224 100% 50% (converges on brand blue)
+Still five ordinally distinct states; no longer competes with the single-accent
+mandate. Coordinator should confirm or override.
+
+### Typography
+- display: Playfair Display 700/900 (headlines only), Georgia fallback
+- mono: JetBrains Mono (buttons, labels, nav, IDs, ticker) — already in stack
+- sans: Inter RETAINED for body paragraphs. Deliberate: the spec's own
+  accessible-contrast carve-out covers functional copy a citizen must read;
+  mono body paragraphs would hurt real legibility. Flagging as an
+  interpretation, not an omission.
+- index.html font link swapped Barlow Semi Condensed -> Playfair Display
+
+### Components
+- `src/components/home/Ticker.tsx` NEW — infinite CSS marquee, full-bleed
+  (`left-1/2 w-screen -translate-x-1/2`, since AppLayout wraps pages in a
+  max-width container and a boxed marquee reads as a widget). PLACEHOLDER
+  content = the real challenge_domain enum labels, i18n'd. Swap for Codex's
+  live feed when ready; component shell stays.
+- `src/components/home/AsciiBlock.tsx` NEW — static ASCII texture PLACEHOLDER.
+  Swap for Codex's image-to-ASCII generator when ready; keep the frame.
+- `MatchExplainerDemo.tsx` RESKINNED ONLY — reveal sequencing, node structure,
+  tier badge and honest-fallback rules all untouched.
+- `button.tsx` — rounded-none, font-mono uppercase, hard-invert hover per
+  variant (no opacity fades). focus-visible ring deliberately left intact.
+- `AppLayout.tsx` — mono nav chrome, hard invert on hover, active = accent.
+  Brand mark kept mono (Playfair reserved for oversized headlines).
+- `Home.tsx` — vw-scaled headline (`text-[12vw]` / `sm:text-[7vw]`).
+
+### Steps section — flagged pattern corrected BEFORE this dispatch
+Coordinator flagged my first homepage pass for using three equal icon+text
+cards (the same pattern already removed from the presentation deck). Confirmed
+the finding directly rather than defending it. Rebuilt asymmetric: step 02
+(classify+match, the actual differentiator) is larger, bordered, accent-filled
+and flex-[1.35]; 01/03 are smaller quieter satellites; a connecting rule runs
+through all three at icon height so it reads as one sequence, not three tiles.
+
+### BUG FOUND AND FIXED during verification (real, not cosmetic)
+Under `prefers-reduced-motion: reduce`, homepage demo content sat at
+**opacity 0 for ~1.2-1.4s**. Root cause: the global reduced-motion rule zeroed
+`transition-duration` but NOT `transition-delay`, and the reveal drives
+visibility off staggered delays up to ~1.5s. Probed the actual timeline before
+fixing (0/300/600/1000/1400ms samples), added `transition-delay` +
+`animation-delay` resets, re-probed: now opacity 1 by 300ms.
+This is exactly the "reduced-motion respect stays functional" clause in the
+dispatch — it was NOT functional, and would not have been caught by eye.
+
+### Live verification (Playwright against the running dev server)
+- accent CTA rest `rgb(0, 68, 255)` = #0044FF exact; hover hard-inverts to
+  black bg / blue text; `border-radius: 0px`; `font-family: JetBrains Mono`
+- nav link hover inverts transparent/grey -> white bg / black text
+- headline computed family `"Playfair Display", Georgia, serif` (CONFIRMED —
+  first screenshot showed stale `Barlow Semi Condensed`; tailwind.config.ts
+  changes need a dev-server restart, HMR does not pick them up. Re-verified
+  after restart rather than trusting the config edit.)
+- marquee translates -44px -> -110px over 900ms (animating, not stalled)
+- reduced-motion: marquee holds still, demo content visible
+- focus ring present: `rgb(0,68,255) 0 0 0 4px`
+
+### Checks
+- `tsc --noEmit` clean
+- `npm run lint` 0 errors (3 pre-existing react-refresh warnings, untouched)
+- `npm run build` clean; main chunk 583 kB (was 581 kB pre-reskin — the +2 kB
+  is the two new placeholder components, no new heavy dependency added)
+
+### FILES CHANGED
+- src/index.css (token layer replaced; reduced-motion rule completed)
+- tailwind.config.ts (fonts, radius flattening, marquee keyframes/animation)
+- index.html (font link)
+- src/components/ui/button.tsx
+- src/components/layout/AppLayout.tsx
+- src/pages/Home.tsx
+- src/components/challenges/MatchExplainerDemo.tsx
+- src/components/challenges/PipelineStrata.tsx (edge-bar cliche removed in the
+  preceding pass: thin sliver -> full-weight band; active state pulses)
+- src/components/home/Ticker.tsx (NEW)
+- src/components/home/AsciiBlock.tsx (NEW)
+- src/i18n/locales/en.json + hi.json (home.eyebrow/steps/demo keys, both
+  locales, strict key parity maintained)
+
+### BLOCKERS / OPEN
+1. Register tension, flagged not blocked: pure-black + electric-blue +
+   brutalist sits further from the "GOV.UK confident" target than the
+   enterprise direction did, and closer to a fintech/builder-tool register.
+   The dispatch's accessible-contrast carve-out reads as deliberate, so this
+   was executed as specified — naming it, not overriding it.
+2. Status-ramp recast (above) needs confirm/override.
+3. NOT DONE by design: Challenges, Dashboard, InstitutionPortal, Auth, and
+   ChallengeSubmissionForm are all still on the OLD visual language. The app
+   is visually INCONSISTENT until those land. Held per explicit sequencing
+   instruction ("Homepage only first ... Screenshot before proceeding").
+4. When the remaining pages are reskinned, `--muted-foreground` must NOT be
+   applied to form labels, help text, or error copy — the low contrast is for
+   decorative text only.
+
+---
+
+## Strata Visual System Round 2 — Tasks 1, 3, 4 done; Task 2 BLOCKED — 2026-08-26
+
+STATUS: 3 of 4 done. Task 2 (interactive match-simulator hero) is BLOCKED and
+was NOT built — blocker written to `.agent/inbox/claude.md` per Global Rule #5.
+
+### Task 2 — BLOCKED, not attempted (summary; full detail in the inbox)
+`simulateMatch()` needs `VITE_SIMULATOR_CHALLENGE_ID`, which is not set
+(verified: `grep VITE_SIMULATOR_CHALLENGE_ID .env` = 0 matches). Two
+independent problems, both checked against real code rather than assumed:
+1. Both edge functions enforce challenge ownership via the caller's JWT.
+   `/` is a PUBLIC route — confirmed directly in App.tsx, no RequireAuth or
+   RequireUserType wraps it. Anonymous visitors (the majority of homepage
+   traffic, including judges) have no owning JWT, so every simulator run
+   fails the ownership check outright.
+2. Even signed in, each run calls the REAL `match-institutions`, which
+   INSERTS into `challenge_matches` — unboundedly, against one shared
+   placeholder challenge. That re-opens the exact demo-data pollution the
+   debate-room review just finished cleaning up, in ongoing rather than
+   one-time form.
+Homepage centerpiece therefore stays the existing static
+`MatchExplainerDemo`. Three options offered in the inbox; not picking one
+unilaterally (Rule #14 — this is a cross-agent + data-integrity decision).
+
+### Task 1 — StrataDivider (`src/components/StrataDivider.tsx`, NEW)
+SVG polygon bands using Codex's `STRATA_COLORS` + `STRATA_LAYER_THICKNESS`,
+imported not redefined. Boundaries are jagged (two summed sine terms per
+edge, distinct seed per boundary) so no two edges wobble in lockstep —
+geological cross-section, not a gradient bar. Full-bleed, aria-hidden.
+Placed between all major homepage sections, alternating -rotate-1/rotate-1
+(also satisfies Task 4's "bands at a slight angle").
+
+### Task 4 — asymmetric hero
+Was: `mx-auto max-w-4xl text-center` — a centered stack. Now a 12-col grid,
+headline left-weighted at col-span-7 with `text-left`, right column
+(col-span-5) bleeding PAST the container edge on desktop
+(`-right-6 w-[calc(100%+1.5rem)]`). Headline scale raised to
+`text-[14vw]`/`sm:text-[6vw]`.
+The right column uses Codex's `useLiveChallengeMetrics()` — real counts read
+from the live database, not decorative filler and not invented stats. This
+respects the design-brief's "not a dashboard that could be showing fake
+data" standard on a public marketing surface too. Rendered live: 10 / 32 /
+0%, matching the real table state.
+
+### Task 3 — palette migration across remaining pages
+New adapter `src/lib/strataStatusMap.ts` (see DATA-SHAPE FLAG below). Then:
+- `PipelineStrata` — dropped the hand-authored `--status-*` CSS vars for
+  Codex's colours via the adapter; labels switched to mono.
+- `ChallengeDashboard` — funnel `Cell` fills now from the adapter, so a
+  status is one colour in the chart AND in the strata bands.
+- `ChallengeMap` — marker dots now inline `background-color` from the
+  adapter. This also REMOVED a real latent hazard: the old code needed
+  literal Tailwind class names because the marker HTML is handed to Leaflet
+  as a raw string outside JSX, where an interpolated class emits no CSS. A
+  hex value has no such constraint.
+- `SignIn` — stratum marker via adapter.
+- Corner radius flattened to `rounded-none` across all remaining pages
+  (`rounded-full` deliberately KEPT for dots/avatars where it is a shape,
+  not a style choice). Inputs/textarea also flattened.
+- Recharts bar `radius` props removed in 3 places — rounded bar tops
+  directly contradicted the sharp-corner token layer.
+
+### ACCESSIBLE-CONTRAST CARVE-OUT — applied deliberately
+Per the standing instruction that the low-contrast `--muted-foreground`
+trick must NOT touch functional copy: form labels, help text, field
+instructions, and the sign-in intro moved to `text-foreground/70`;
+placeholders to `text-foreground/50`. `--muted-foreground` now remains only
+on genuinely decorative/secondary text. Files: AuthForm,
+ChallengeSubmissionForm, SignIn, input.tsx, textarea.tsx.
+
+### BUG FOUND AND FIXED — contrast failure introduced by the new palette
+Codex's five strata colours span light tan (`#c28a3d`) to near-black
+(`#252b35`). PipelineStrata hardcoded WHITE label text on every filled band.
+Computed real WCAG contrast ratios rather than eyeballing it:
+    submitted   #c28a3d  white 3.00:1  <-- FAILS (below 4.5)
+    ai_matched  #a94b2c  white 5.63:1
+    claimed     #66717f  white 4.96:1
+    in_progress #252b35  white 14.23:1
+    resolved    #0044ff  white 6.42:1
+Added `strataTextOn()` (relative-luminance based) so each band picks the
+higher-contrast option. `submitted` now uses BLACK text at 7.00:1. All five
+bands now clear 4.5:1. Verified numerically before and after.
+
+### BUG FOUND AND FIXED — dashboard funnel hid a whole stage
+Screenshot of the live admin dashboard showed the funnel's second bar with
+NO x-axis label. Recharts silently drops overlapping ticks, and "Matched to
+expertise" was being dropped entirely — an unlabelled bar on the one chart
+whose stated job is making the pipeline provable. Fixed with `interval={0}`
+plus increased axis height and smaller tick font. Re-verified live: all five
+stage labels now render. Pre-existing, surfaced by this pass, not caused by
+it.
+
+### DATA-SHAPE FLAG — Codex's STRATA_STATES do not match the real enum
+`strataTokens.ts` exports
+`["submitted","reviewing","matched","in_progress","resolved"]`.
+The real `public.challenge_status` enum (contracts.md, which is law per
+Global Rule #1) is
+`["submitted","ai_matched","claimed","in_progress","resolved"]`.
+"reviewing" is not a real lifecycle stage, and Codex's "matched" sits at
+index 2 where the real `ai_matched` is index 1 — there is NO correct
+name-for-name mapping. Rather than rename Codex's file (Rule #4) or silently
+mismap, added `strataStatusMap.ts` which maps POSITIONALLY: real status at
+index i takes Codex's colour/thickness at index i. Colour VALUES are always
+imported, never redefined. Lifecycle order is reused from
+`challengeLifecycle.ts` rather than re-declared — caught myself duplicating
+that constant and removed the duplicate before it spread.
+NEEDS A DECISION: either Codex realigns STRATA_STATES to the real enum, or
+this positional adapter is ratified as the permanent seam.
+
+### Codex utilities NOT used, and why
+- `useAnimatedCounter` — USED (hero metrics).
+- `grainTexture.ts` — not used yet. No surface in this dispatch called for
+  it; adding grain purely because it exists would be decorative filler,
+  which the brief rules out.
+- `tickerData.ts` (`loadTickerLabels`) — not wired. Ticker still uses the
+  static domain labels. Swapping it in is a live-data change to a public
+  surface and belongs with the Task 2 decision, not slipped in silently.
+
+### Checks
+- `tsc --noEmit` clean
+- `npm run lint` 0 errors (3 pre-existing react-refresh warnings, untouched)
+- `npm run build` clean, main chunk 587 kB
+- Dev server restarted before every verification pass (Global Rule #7) —
+  this matters: an earlier round proved tailwind.config.ts changes do NOT
+  survive HMR and produced a misleading screenshot.
+- Live page sweep via Playwright: /challenges, /signin, /submit,
+  /institutions, /dashboard — zero console errors, zero page errors.
+  /institutions and /dashboard correctly redirect to sign-in when
+  unauthenticated (route guards intact); dashboard verified while signed in
+  as admin.test.
+
+### FILES CHANGED
+- src/components/StrataDivider.tsx (NEW)
+- src/lib/strataStatusMap.ts (NEW — adapter + contrast helper)
+- src/pages/Home.tsx (asymmetric hero, dividers, live metrics)
+- src/components/challenges/PipelineStrata.tsx
+- src/components/dashboard/ChallengeDashboard.tsx
+- src/components/challenges/ChallengeMap.tsx
+- src/pages/SignIn.tsx
+- src/components/auth/AuthForm.tsx
+- src/components/challenges/ChallengeSubmissionForm.tsx
+- src/components/ui/input.tsx, textarea.tsx
+- src/App.tsx, src/components/layout/AppLayout.tsx (radius sweep)
+- ChallengeFeed / ChallengeCard / MatchExplainer / Challenges /
+  InstitutionQueue / InstitutionPortal / RequireAuth / NotFound / card /
+  skeleton (radius sweep only)
+- src/i18n/locales/en.json + hi.json (home.stats.*, both locales, parity kept)
+- .agent/inbox/claude.md (Task 2 blocker)
+
+### BLOCKERS / OPEN
+1. Task 2 blocked — see inbox. Needs a decision, not more building.
+2. STRATA_STATES vs. real enum mismatch — needs confirm/override.
+3. `loadTickerLabels` and `grainTexture` deliberately unused; say the word
+   and the ticker can move to live data.
+4. (CLOSED) InstitutionPortal verified signed in as university.test —
+   renders correctly under the new palette with real data (Ranchi Institute
+   of Rural Technology, 0 waiting / 2 claimed), no page errors.

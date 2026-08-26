@@ -54,6 +54,14 @@ export function ChallengeSubmissionForm() {
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
+  // Index into the 3-stage strata (0=saved, 1=categorised, 2=matched) of a
+  // stage that degraded rather than errored (phase goes straight to "done",
+  // not "error", for these). Without this, stateOf() had no way to tell a
+  // real completion from a partial failure once phase reached "done" — every
+  // band rendered "done" (green) even when match-institutions had just
+  // failed, directly contradicting the honest error text shown right below
+  // it. Verified this was a real bug, not a theoretical one, before fixing.
+  const [failedStage, setFailedStage] = useState<0 | 1 | 2 | null>(null);
   const [domain, setDomain] = useState<Domain | null>(null);
   // Domain confidence is intentionally NOT surfaced here. contracts.md forbids
   // showing raw scores as percentages, and a bare float is jargon on a citizen
@@ -153,6 +161,7 @@ export function ChallengeSubmissionForm() {
       });
 
       if (catErr || !cat?.success) {
+        setFailedStage(1);
         setPhase("done");
         setError(t("submit.error.categorisePartial"));
         return;
@@ -167,6 +176,7 @@ export function ChallengeSubmissionForm() {
       });
 
       if (matErr || !mat?.success) {
+        setFailedStage(2);
         setPhase("done");
         setError(t("submit.error.matchPartial"));
         return;
@@ -198,9 +208,9 @@ export function ChallengeSubmissionForm() {
     setPhotos([]);
     setPhase("idle");
     setError(null);
+    setFailedStage(null);
     setMatches([]);
     setDomain(null);
-
   }
 
   const stages: Stage[] = [
@@ -234,6 +244,13 @@ export function ChallengeSubmissionForm() {
               ? 3
               : -1;
     if (phase === "error") return idx === 0 ? "failed" : "pending";
+    // A degraded (not thrown) failure reached "done" without actually
+    // completing that stage — show it as failed, not as a false "done".
+    if (failedStage !== null) {
+      if (idx < failedStage) return "done";
+      if (idx === failedStage) return "failed";
+      return "pending";
+    }
     if (reached < 0) return "pending";
     if (idx < reached) return "done";
     if (idx === reached) return phase === "done" ? "done" : "active";
@@ -251,7 +268,7 @@ export function ChallengeSubmissionForm() {
           <h2 className="font-display text-2xl font-semibold tracking-tight">
             {t("submit.auth.heading")}
           </h2>
-          <p className="mt-2 text-muted-foreground">{t("submit.auth.body")}</p>
+          <p className="mt-2 text-foreground/70">{t("submit.auth.body")}</p>
         </div>
         {/* Same AuthForm the SignIn page uses — one credential surface, one set
             of error strings, so the two can never drift apart. */}
@@ -268,13 +285,13 @@ export function ChallengeSubmissionForm() {
           <h2 className="font-display text-3xl font-semibold tracking-tight">
             {t("submit.done.heading")}
           </h2>
-          <p className="mt-2 text-muted-foreground">{t("submit.done.body")}</p>
+          <p className="mt-2 text-foreground/70">{t("submit.done.body")}</p>
         </div>
 
         <PipelineStrata stages={stages} stateOf={stateOf} />
 
         {error ? (
-          <p className="rounded-md border border-border bg-secondary p-4 text-sm">{error}</p>
+          <p className="rounded-none border border-border bg-secondary p-4 text-sm">{error}</p>
         ) : null}
 
         {matches.length > 0 ? (
@@ -282,9 +299,9 @@ export function ChallengeSubmissionForm() {
             <h3 className="font-display text-xl font-semibold">{t("submit.done.sentTo")}</h3>
             <ul className="mt-3 space-y-3">
               {matches.map((m) => (
-                <li key={m.institutionId} className="rounded-lg border border-border p-4">
+                <li key={m.institutionId} className="rounded-none border border-border p-4">
                   <p className="font-medium">{institutionNames[m.institutionId] ?? m.institutionId}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{m.reason}</p>
+                  <p className="mt-1 text-sm text-foreground/70">{m.reason}</p>
                 </li>
               ))}
             </ul>
@@ -304,13 +321,13 @@ export function ChallengeSubmissionForm() {
     <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-8" noValidate>
       <div>
         <h2 className="font-display text-3xl font-semibold tracking-tight">{t("submit.heading")}</h2>
-        <p className="mt-2 text-muted-foreground">{t("submit.intro")}</p>
+        <p className="mt-2 text-foreground/70">{t("submit.intro")}</p>
       </div>
 
       {/* The description is the hero field — biggest target, first in the order. */}
       <div className="space-y-2">
         <Label htmlFor="description">{t("submit.description.label")}</Label>
-        <p id="description-help" className="text-sm text-muted-foreground">
+        <p id="description-help" className="text-sm text-foreground/70">
           {t("submit.description.help")}
         </p>
         <Textarea
@@ -323,13 +340,15 @@ export function ChallengeSubmissionForm() {
           aria-describedby="description-help description-count"
           placeholder={t("submit.description.placeholder")}
         />
-        <p id="description-count" className="text-sm text-muted-foreground">
+        <p id="description-count" className="text-sm text-foreground/70">
           {descriptionTooShort ? t("submit.description.tooShort") : t("submit.description.count", { count: description.trim().length })}
         </p>
       </div>
 
-      <fieldset className="space-y-6 rounded-lg border border-border p-5" disabled={busy}>
-        <legend className="px-2 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+      <fieldset className="space-y-6 border-2 border-border p-5" disabled={busy}>
+        {/* Legend tells a citizen these fields are skippable — functional
+            instruction, so it keeps real contrast. */}
+        <legend className="px-2 font-mono text-sm font-bold uppercase tracking-wide text-foreground/70">
           {t("submit.optional.legend")}
         </legend>
 
@@ -366,7 +385,7 @@ export function ChallengeSubmissionForm() {
               {coords.lat.toFixed(5)}, {coords.lon.toFixed(5)}
             </p>
           ) : null}
-          {geoNote ? <p className="text-sm text-muted-foreground">{geoNote}</p> : null}
+          {geoNote ? <p className="text-sm text-foreground/70">{geoNote}</p> : null}
         </div>
 
         <div className="space-y-2">
@@ -384,12 +403,12 @@ export function ChallengeSubmissionForm() {
             <Camera />
             {t("submit.photo.add")}
           </Button>
-          <p className="text-sm text-muted-foreground">{t("submit.photo.help", { max: MAX_PHOTOS })}</p>
+          <p className="text-sm text-foreground/70">{t("submit.photo.help", { max: MAX_PHOTOS })}</p>
           {photoNote ? <p className="text-sm text-destructive">{photoNote}</p> : null}
           {photos.length > 0 ? (
             <ul className="flex flex-wrap gap-2 pt-1">
               {photos.map((f, i) => (
-                <li key={`${f.name}-${i}`} className="flex items-center gap-2 rounded-md border border-border py-1 pl-3 pr-1 text-sm">
+                <li key={`${f.name}-${i}`} className="flex items-center gap-2 rounded-none border border-border py-1 pl-3 pr-1 text-sm">
                   <span className="max-w-40 truncate">{f.name}</span>
                   <Button
                     type="button"
@@ -411,7 +430,7 @@ export function ChallengeSubmissionForm() {
       {busy ? <PipelineStrata stages={stages} stateOf={stateOf} /> : null}
 
       {error ? (
-        <p role="alert" className="rounded-md border border-destructive bg-destructive/10 p-4 text-sm">
+        <p role="alert" className="rounded-none border border-destructive bg-destructive/10 p-4 text-sm">
           {error}
         </p>
       ) : null}

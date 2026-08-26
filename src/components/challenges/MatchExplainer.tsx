@@ -104,7 +104,7 @@ export function MatchExplainer({ domain, institution, matchScore, matchReason, c
   return (
     <div
       className={cn(
-        "rounded-lg border border-border p-4 sm:p-5",
+        "rounded-none border border-border p-4 sm:p-5",
         // contracts.md: de-emphasize Possible tier rather than presenting it with
         // equal weight to the top result.
         tier === "possible" && "opacity-70",
@@ -112,7 +112,7 @@ export function MatchExplainer({ domain, institution, matchScore, matchReason, c
     >
       <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
         {/* Node 1 — the problem, by domain. */}
-        <div className="flex-1 rounded-md border border-dashed border-border px-3 py-2">
+        <div className="flex-1 rounded-none border border-dashed border-border px-3 py-2">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">{t("match.theProblem")}</p>
           <p className="font-display font-semibold">{domainLabel}</p>
         </div>
@@ -135,7 +135,7 @@ export function MatchExplainer({ domain, institution, matchScore, matchReason, c
         </div>
 
         {/* Node 2 — the institution. */}
-        <div className="flex-1 rounded-md border border-border px-3 py-2">
+        <div className="flex-1 rounded-none border border-border px-3 py-2">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">{institutionTypeLabel}</p>
           <p className="font-display font-semibold">{institution.name}</p>
           {institution.department ? (

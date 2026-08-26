@@ -73,12 +73,13 @@ export function AppLayout() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
+  // Rigid mono for nav chrome, hard instant swap on hover/active — no fade.
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+      "px-3 py-2 font-mono text-xs uppercase tracking-wide",
       isActive
-        ? "bg-secondary text-secondary-foreground"
-        : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground",
+        ? "bg-accent text-accent-foreground"
+        : "text-muted-foreground hover:bg-foreground hover:text-background",
     );
 
   return (
@@ -86,17 +87,17 @@ export function AppLayout() {
       {/* Keyboard users shouldn't have to tab the whole nav on every page. */}
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
       >
         Skip to content
       </a>
 
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
         <div className="container flex h-16 items-center justify-between gap-4">
+          {/* Brand mark stays mono, not display serif — Playfair is reserved
+              for oversized headlines, not system chrome at this size. */}
           <NavLink to="/" className="flex flex-col leading-none">
-            <span className="font-display text-lg font-semibold tracking-tight">
-              {t("app.name")}
-            </span>
+            <span className="font-mono text-sm font-bold uppercase tracking-wide">{t("app.name")}</span>
             <span className="hidden text-xs text-muted-foreground sm:block">
               {t("app.tagline")}
             </span>

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { AuthForm } from "@/components/auth/AuthForm";
 import { useAuth } from "@/hooks/useAuth";
+import { strataColorForStatus } from "@/lib/strataStatusMap";
 
 /*
  * design-brief.md pass for this page:
@@ -46,7 +47,9 @@ export default function SignIn({ initialMode = "signin" }: { initialMode?: "sign
         <h1 className="font-display text-3xl font-semibold tracking-tight">
           {mode === "signup" ? t("auth.createAccount") : t("auth.signIn")}
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        {/* Instruction copy for completing sign-in — functional, so it keeps
+            real contrast rather than the decorative muted-foreground tone. */}
+        <p className="mt-2 text-foreground/70">
           {mode === "signup" ? t("auth.signUpIntro") : t("auth.signInIntro")}
         </p>
         <div className="mt-6 max-w-md">
@@ -60,8 +63,15 @@ export default function SignIn({ initialMode = "signin" }: { initialMode?: "sign
           {reasons.map((reason) => (
             <li key={reason} className="flex gap-3">
               {/* Ore-toned stratum marker, tying back to the lifecycle bands. */}
-              <span aria-hidden className="mt-1 h-full w-1 shrink-0 rounded-full bg-status-submitted" />
-              <span className="text-muted-foreground">{reason}</span>
+              <span
+                aria-hidden
+                className="mt-1 h-full w-1 shrink-0"
+                style={{ backgroundColor: strataColorForStatus("submitted") }}
+              />
+              {/* foreground/70, not muted-foreground: this is the copy that
+                  persuades a hesitant citizen to create an account, so it sits
+                  on the functional side of the low-contrast carve-out. */}
+              <span className="text-foreground/70">{reason}</span>
             </li>
           ))}
         </ul>

@@ -208,3 +208,54 @@ obvious path is a trivial fix:
     service-role path or a DB trigger, not a one-line client update.
 Not decided or attempted by me -- flagging for the coordinator's call,
 consistent with how the detect-duplicates findings were handled.
+
+---
+
+# Blocker — Task 2 (interactive match-simulator hero) — 2026-08-26
+
+STATUS: BLOCKED. Not built. Tasks 1, 3, 4 of this same dispatch are proceeding;
+only Task 2 is held.
+TASK: Build a homepage-hero UI around Codex's `simulateMatch()`
+(`src/lib/matchSimulator.ts`), replacing the static demo card with a live
+interactive one.
+BLOCKER: `simulateMatch()` calls the real `categorize-challenge` and
+`match-institutions` edge functions against a fixed
+`VITE_SIMULATOR_CHALLENGE_ID` env var, which does not exist yet
+(`grep VITE_SIMULATOR_CHALLENGE_ID .env` = 0 matches). Two problems, not one:
+
+1. Both edge functions enforce challenge OWNERSHIP via the caller's JWT
+   (contracts.md: "caller's own JWT establishes identity"). The homepage
+   (`/`) is a public route with no auth guard — checked `App.tsx` directly,
+   confirmed no `RequireAuth`/`RequireUserType` wraps it. An anonymous
+   visitor — which is nearly all homepage traffic, including anyone judging
+   the live site — has no JWT that owns the placeholder challenge. Every
+   simulator attempt from an anonymous visitor fails outright on the
+   ownership check. This isn't a hypothetical edge case, it's the majority
+   path for the exact audience a homepage hero is built for.
+
+2. Even for a signed-in citizen, every simulator run calls the REAL
+   `match-institutions` function, which INSERTS a new row into
+   `challenge_matches` per contracts.md — against ONE SHARED placeholder
+   challenge row, unboundedly, on every play. That's a public marketing
+   surface repeatedly mutating live production data, which is the exact
+   thing this project's own debate-room review just spent a full pass
+   cleaning up (deleting synthetic fixture rows before demo recording).
+   Building this as specified re-opens that same problem in a worse form —
+   ongoing, not a one-time fixture.
+
+NEEDED: A decision on approach before I build anything, options I see —
+(a) gate the interactive simulator behind sign-in and show the existing
+static `MatchExplainerDemo` to anonymous visitors instead (keeps the "wow"
+moment for judges who explore past the homepage, doesn't break for the
+majority), (b) add a genuinely non-mutating preview path — e.g. a
+`dryRun`/`preview` flag on the edge functions that classifies and ranks
+without writing to `challenge_matches` — which is a change to Codex's files,
+Global Rule #4, not mine to add unilaterally, (c) accept the write-pollution
+and add a scheduled cleanup of matches against the placeholder challenge —
+functional but reintroduces exactly the demo-data hygiene problem already
+solved once. Not decided or attempted by me.
+IMPACT: Homepage centerpiece stays as the existing static
+`MatchExplainerDemo` (scroll-triggered, canned data, clearly labeled as an
+example) until this is resolved. Tasks 1 (StrataDivider), 3 (palette
+migration), and 4 (asymmetric hero layout) do not depend on this and are
+proceeding.

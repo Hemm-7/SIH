@@ -56,7 +56,7 @@ export default function App() {
                 <Route
                   path="dashboard"
                   element={
-                    <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg" />}>
+                    <Suspense fallback={<Skeleton className="h-96 w-full rounded-none" />}>
                       <Dashboard />
                     </Suspense>
                   }

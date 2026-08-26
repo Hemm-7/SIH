@@ -121,7 +121,7 @@ export function InstitutionQueue() {
     return (
       <div className="space-y-4">
         {Array.from({ length: 2 }).map((_, i) => (
-          <Skeleton key={i} className="h-40 w-full rounded-lg" />
+          <Skeleton key={i} className="h-40 w-full rounded-none" />
         ))}
       </div>
     );
@@ -129,7 +129,7 @@ export function InstitutionQueue() {
 
   if (error) {
     return (
-      <p role="alert" className="rounded-md border border-destructive bg-destructive/10 p-4 text-sm">
+      <p role="alert" className="rounded-none border border-destructive bg-destructive/10 p-4 text-sm">
         {error}
       </p>
     );
@@ -141,7 +141,7 @@ export function InstitutionQueue() {
     // showing "nothing here" would look identical to "no matches yet" and
     // hide a setup problem the admin can't fix themselves.
     return (
-      <div className="rounded-xl border border-dashed border-border py-16 text-center">
+      <div className="rounded-none border border-dashed border-border py-16 text-center">
         <p className="text-muted-foreground">{t("institution.notLinked")}</p>
       </div>
     );
@@ -162,7 +162,7 @@ export function InstitutionQueue() {
 
   return (
     <div className="space-y-10">
-      <div className="rounded-lg border border-border bg-secondary/40 p-4">
+      <div className="rounded-none border border-border bg-secondary/40 p-4">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">
           {t(`institution.type.${asInstitutionType(institution.institution_type)}`)}
         </p>
@@ -220,7 +220,7 @@ export function InstitutionQueue() {
           <ul className="mt-4 space-y-2">
             {claimed.map((m) =>
               m.challenges ? (
-                <li key={m.id} className="flex flex-wrap items-baseline justify-between gap-2 rounded-md border border-border p-3">
+                <li key={m.id} className="flex flex-wrap items-baseline justify-between gap-2 rounded-none border border-border p-3">
                   <span className="font-medium">{m.challenges.title}</span>
                   <span className="font-mono text-xs text-muted-foreground">
                     {t("institution.queue.claimedOn", {

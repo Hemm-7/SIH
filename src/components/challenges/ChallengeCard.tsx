@@ -81,7 +81,7 @@ export function ChallengeCard({
             src={photos[0]}
             alt=""
             loading="lazy"
-            className="max-h-72 w-full rounded-md border border-border object-cover"
+            className="max-h-72 w-full rounded-none border border-border object-cover"
           />
         ) : null}
 
@@ -108,7 +108,7 @@ export function ChallengeCard({
               }}
             />
             {restMatches.length > 0 ? (
-              <details className="rounded-md border border-border p-3">
+              <details className="rounded-none border border-border p-3">
                 <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
                   {t("match.showMore", { count: restMatches.length })}
                 </summary>

@@ -46,7 +46,7 @@ export default function Challenges() {
           {t("nav.challenges")}
         </h1>
 
-        <div className="inline-flex rounded-md border border-border p-0.5" role="tablist" aria-label={t("challenge.viewToggle")}>
+        <div className="inline-flex rounded-none border border-border p-0.5" role="tablist" aria-label={t("challenge.viewToggle")}>
           <Button
             type="button"
             role="tab"
@@ -76,7 +76,7 @@ export default function Challenges() {
         {view === "list" ? (
           <ChallengeFeed />
         ) : (
-          <Suspense fallback={<Skeleton className="h-[420px] w-full rounded-lg" />}>
+          <Suspense fallback={<Skeleton className="h-[420px] w-full rounded-none" />}>
             <ChallengeMap />
           </Suspense>
         )}

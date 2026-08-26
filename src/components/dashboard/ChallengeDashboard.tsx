@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import { lifecycleStages, lifecycleStateOf } from "@/components/challenges/challengeLifecycle";
+import {
+  lifecycleStages,
+  lifecycleStateOf,
+  type ChallengeStatus,
+} from "@/components/challenges/challengeLifecycle";
 import { MatchExplainer } from "@/components/challenges/MatchExplainer";
 import { PipelineStrata } from "@/components/challenges/PipelineStrata";
 import {
@@ -15,6 +19,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { asInstitutionType } from "@/lib/db-narrow";
+import { strataColorForStatus } from "@/lib/strataStatusMap";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -24,17 +29,13 @@ type Institution = Database["public"]["Tables"]["institutions"]["Row"];
 
 const MAX_ROWS = 2000;
 
-const STATUS_COLOR_VAR: Record<string, string> = {
-  submitted: "hsl(var(--status-submitted))",
-  ai_matched: "hsl(var(--status-ai-matched))",
-  claimed: "hsl(var(--status-claimed))",
-  in_progress: "hsl(var(--status-in-progress))",
-  resolved: "hsl(var(--status-resolved))",
-};
+// Funnel bar colors come from Codex's strataTokens.ts via strataStatusMap —
+// same source as PipelineStrata, so a status reads as one colour everywhere.
+const statusColor = (status: string) => strataColorForStatus(status as ChallengeStatus);
 
 function StatTile({ label, value, sublabel }: { label: string; value: string | number; sublabel?: string }) {
   return (
-    <div className="rounded-lg border border-border p-4">
+    <div className="rounded-none border border-border p-4">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       {/* design-brief.md: monospace for the dashboard's numbers specifically —
           "this is real, auditable data," distinct from the display face used
@@ -122,7 +123,7 @@ export function ChallengeDashboard() {
     return (
       <div className="grid gap-4 sm:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-64 w-full rounded-lg" />
+          <Skeleton key={i} className="h-64 w-full rounded-none" />
         ))}
       </div>
     );
@@ -130,7 +131,7 @@ export function ChallengeDashboard() {
 
   if (error) {
     return (
-      <p role="alert" className="rounded-md border border-destructive bg-destructive/10 p-4 text-sm">
+      <p role="alert" className="rounded-none border border-destructive bg-destructive/10 p-4 text-sm">
         {error}
       </p>
     );
@@ -178,7 +179,7 @@ export function ChallengeDashboard() {
                     value === "uncategorised" ? t("dashboard.domain.uncategorised") : t(`challenge.domain.${value}`)
                   }
                 />
-                <Bar dataKey="count" radius={[0, 4, 4, 0]} fill="hsl(var(--accent))" />
+                <Bar dataKey="count" fill="hsl(var(--accent))" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -194,9 +195,15 @@ export function ChallengeDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={funnel} margin={{ left: 0, right: 16 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />
+                {/* interval={0} forces every stage label to render. Recharts
+                    drops overlapping ticks by default, which silently hid the
+                    "Matched to expertise" stage entirely — an unlabelled bar
+                    on the funnel this page exists to make provable. */}
                 <XAxis
                   dataKey="status"
-                  tick={{ fontSize: 12 }}
+                  interval={0}
+                  height={52}
+                  tick={{ fontSize: 10 }}
                   tickFormatter={(value: string) => t(`challenge.status.${value}`)}
                 />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
@@ -204,9 +211,11 @@ export function ChallengeDashboard() {
                   formatter={(value: number) => [value, t("dashboard.domain.count")]}
                   labelFormatter={(value: string) => t(`challenge.status.${value}`)}
                 />
-                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                {/* Square bar tops — the rounded radius contradicted the
+                    sharp-corner token layer applied across the rest of the app. */}
+                <Bar dataKey="count">
                   {funnel.map((entry) => (
-                    <Cell key={entry.status} fill={STATUS_COLOR_VAR[entry.status]} />
+                    <Cell key={entry.status} fill={statusColor(entry.status)} />
                   ))}
                 </Bar>
               </BarChart>
@@ -238,7 +247,6 @@ export function ChallengeDashboard() {
                   stackId="matches"
                   fill="hsl(var(--secondary))"
                   name={t("dashboard.participation.matched")}
-                  radius={[0, 4, 4, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>

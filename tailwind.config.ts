@@ -56,15 +56,19 @@ export default {
         },
       },
       borderRadius: {
+        // Brutalist reskin: sharp everywhere, not derived via calc() off a
+        // var that could clamp oddly at 0 — every step is just 0 outright.
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "var(--radius)",
+        sm: "var(--radius)",
       },
       fontFamily: {
-        // design-brief.md: typography split by audience. Display face for
-        // judge-facing credibility, humanist body face for citizen-facing text,
-        // mono for IDs/scores/timestamps so dashboard data reads as auditable.
-        display: ["Barlow Semi Condensed", "system-ui", "sans-serif"],
+        // Razorpay-AI-Builders reskin: oversized high-contrast serif for
+        // headlines only, rigid mono for every functional/UI-chrome string
+        // (buttons, labels, tickers, IDs), Inter kept for body copy a citizen
+        // actually has to read at length — mono paragraphs would hurt real
+        // legibility, and the spec's own accessibility carve-out backs that.
+        display: ["Playfair Display", "Georgia", "serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
@@ -77,10 +81,15 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        marquee: "marquee 22s linear infinite",
       },
     },
   },

@@ -8,6 +8,7 @@ import { MatchExplainer } from "@/components/challenges/MatchExplainer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useChallengeMatches } from "@/hooks/useChallengeMatches";
 import { asInstitutionType } from "@/lib/db-narrow";
+import { strataColorForStatus } from "@/lib/strataStatusMap";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -16,21 +17,13 @@ type Challenge = Database["public"]["Tables"]["challenges"]["Row"];
 const JHARKHAND_CENTER: [number, number] = [23.6102, 85.2799];
 const MAX_MAP_ROWS = 500;
 
-// Literal class-name lookup, not a template-interpolated string — Tailwind's
-// build-time scanner only emits CSS for class names it can find written out
-// somewhere in source, and this HTML is handed to Leaflet as a raw string
-// outside JSX, so an interpolated `bg-status-${status}` would silently emit
-// no styling at all.
-const STATUS_DOT_CLASS: Record<string, string> = {
-  submitted: "bg-status-submitted",
-  ai_matched: "bg-status-ai-matched",
-  claimed: "bg-status-claimed",
-  in_progress: "bg-status-in-progress",
-  resolved: "bg-status-resolved",
-};
-
 function clusterIcon(cluster: ChallengeCluster) {
-  const dotClass = STATUS_DOT_CLASS[cluster.canonical.status] ?? "bg-muted-foreground";
+  // Marker colour now comes from Codex's strataTokens.ts via strataStatusMap,
+  // applied as an inline background-color. This also removes the previous
+  // Tailwind-scanner hazard: because this HTML is handed to Leaflet as a raw
+  // string outside JSX, a class name had to be written out literally or no
+  // CSS would be emitted for it. A real hex value has no such constraint.
+  const dotColor = strataColorForStatus(cluster.canonical.status);
   const count = cluster.members.length;
   const badge =
     count > 1
@@ -39,7 +32,7 @@ function clusterIcon(cluster: ChallengeCluster) {
 
   return L.divIcon({
     className: "", // suppress Leaflet's default marker box/shadow classes
-    html: `<span class="relative flex h-5 w-5 items-center justify-center"><span class="h-4 w-4 rounded-full border-2 border-background ${dotClass} shadow"></span>${badge}</span>`,
+    html: `<span class="relative flex h-5 w-5 items-center justify-center"><span class="h-4 w-4 rounded-full border-2 border-background shadow" style="background-color:${dotColor}"></span>${badge}</span>`,
     iconSize: [20, 20],
     iconAnchor: [10, 10],
     popupAnchor: [0, -10],
@@ -90,7 +83,7 @@ function ClusterPopupContent({ cluster }: { cluster: ChallengeCluster }) {
           wrong auto-link is something a citizen or institution can catch by
           looking, not something that silently hides a report. */}
       {members.length > 1 ? (
-        <details className="rounded-md border border-border p-2">
+        <details className="rounded-none border border-border p-2">
           <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
             {t("map.linkedReports", { count: members.length })}
           </summary>
@@ -125,7 +118,7 @@ function ClusterPopupContent({ cluster }: { cluster: ChallengeCluster }) {
             }}
           />
           {restMatches.length > 0 ? (
-            <details className="rounded-md border border-border p-2">
+            <details className="rounded-none border border-border p-2">
               <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
                 {t("match.showMore", { count: restMatches.length })}
               </summary>
@@ -206,12 +199,12 @@ export function ChallengeMap() {
   );
 
   if (loading) {
-    return <Skeleton className="h-[420px] w-full rounded-lg" />;
+    return <Skeleton className="h-[420px] w-full rounded-none" />;
   }
 
   if (error) {
     return (
-      <div className="rounded-lg border border-destructive bg-destructive/10 p-6 text-center text-sm" role="alert">
+      <div className="rounded-none border border-destructive bg-destructive/10 p-6 text-center text-sm" role="alert">
         {error}
       </div>
     );
@@ -219,14 +212,14 @@ export function ChallengeMap() {
 
   if (clusters.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border py-16 text-center">
+      <div className="rounded-none border border-dashed border-border py-16 text-center">
         <p className="text-muted-foreground">{t("map.noLocatedChallenges")}</p>
       </div>
     );
   }
 
   return (
-    <div className="h-[420px] overflow-hidden rounded-lg border border-border sm:h-[520px]">
+    <div className="h-[420px] overflow-hidden rounded-none border border-border sm:h-[520px]">
       <MapContainer center={JHARKHAND_CENTER} zoom={7} scrollWheelZoom className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

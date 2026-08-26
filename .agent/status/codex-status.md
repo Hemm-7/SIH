@@ -31,6 +31,21 @@ INTEGRATION NOTES: Deployed to `fhjxngqfredhsszwqmuf`. Regression results, re-re
 The response retains the contracted `duplicateOf` and `clusterSize` fields while adding the candidate/term diagnostics requested for debugging.
 BLOCKERS: None.
 
+## Strata Visual System Utilities — Round 2
+
+STATUS: READY
+WHAT I BUILT: Added four additive utilities with no JSX/component, RLS, migration, or edge-function changes. Strata tokens define five lifecycle colors, a gradient scale, CSS custom-properties string, and normalized layer thicknesses. The match simulator stages production categorization/matching output into a category, institution, strength, and 200ms-staggered tags. The counter hook animates live challenge, match, and resolution metrics with an ease-out 1.2s requestAnimationFrame loop. The grain utility creates a tileable SVG `feTurbulence` texture with controllable opacity, seed, and frequency.
+FILES CHANGED: src/lib/strataTokens.ts; src/lib/matchSimulator.ts; src/hooks/useAnimatedCounter.ts; src/lib/grainTexture.ts; .agent/status/codex-status.md
+INTEGRATION NOTES: Exact imports for Claude Code:
+
+- `STRATA_STATES`, `STRATA_COLORS`, `STRATA_GRADIENT`, `STRATA_LAYER_THICKNESS`, `STRATA_CSS_CUSTOM_PROPERTIES` from `src/lib/strataTokens.ts`.
+- `simulateMatch(problemText)` and `SimulatedMatch` from `src/lib/matchSimulator.ts`. Because both production edge functions require an owned `challengeId`, set `VITE_SIMULATOR_CHALLENGE_ID` to a preview challenge owned by the signed-in user; the adapter fails clearly instead of creating synthetic database rows.
+- `useAnimatedCounter`, `loadChallengeMetrics`, `useLiveChallengeMetrics`, and `ChallengeMetrics` from `src/hooks/useAnimatedCounter.ts`.
+- `createGrainSvg`, `createGrainTexture`, `grainTextureStyle`, and `GrainTextureOptions` from `src/lib/grainTexture.ts`.
+
+Validation: `npm run typecheck` passes. `npm run lint` passes with only existing unrelated Fast Refresh warnings in `button.tsx` and `useAuth.tsx`.
+BLOCKERS: None. Pillow remains a documented prerequisite only for the separate build-time ASCII renderer.
+
 ## Match Status Transition
 
 STATUS: COMPLETE
@@ -52,4 +67,12 @@ INTEGRATION NOTES: Deployed to Supabase project `fhjxngqfredhsszwqmuf`. Final li
 - Motorbike hazard versus ration-shop lock (~110 m, shared `school`/`gate`): PASS after the dynamic filter. Returned `duplicateOf: null`, so common landmark terms no longer create a duplicate link.
 
 The temporary positive fixture was deleted and the canonical `report_count` restored to its pre-test value. This completes the final planned iteration for this duplicate-detection bug class.
+BLOCKERS: None.
+
+## Visual Redesign Utilities
+
+STATUS: READY
+WHAT I BUILT: Added a build-time image-to-ASCII renderer and a public-read live ticker data loader. The renderer supports configurable output width, density, luminance charset, inversion, and deterministic glitch perturbation. The ticker loader returns the existing `Ticker` component's `string[]` shape, combining total submissions, per-domain counts, and recent institution names from claimed matches, with a 30-second rotating order.
+FILES CHANGED: scripts/image-to-ascii.py; src/lib/tickerData.ts; .agent/status/codex-status.md
+INTEGRATION NOTES: Claude Code can run `python scripts/image-to-ascii.py <image> --width 72 --density 1.1 --glitch 0.04` during asset generation, or write with `--output`. Pillow is the only build-time prerequisite (`python -m pip install Pillow`). Import `loadTickerLabels` and pass its result directly to `<Ticker labels={labels} />`. Both Supabase queries use the existing anon client and public-read RLS; a live anon query returned 12 challenge rows and 3 claimed-match rows, including recent public institution names.
 BLOCKERS: None.

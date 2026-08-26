@@ -72,7 +72,7 @@ export function ChallengeFeed() {
     return (
       <div className="space-y-6" aria-busy="true" aria-label={t("common.loading")}>
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="space-y-3 rounded-lg border border-border p-6">
+          <div key={i} className="space-y-3 rounded-none border border-border p-6">
             <Skeleton className="h-6 w-2/3" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6" />
@@ -85,7 +85,7 @@ export function ChallengeFeed() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-destructive bg-destructive/10 p-6 text-center">
+      <div className="rounded-none border border-destructive bg-destructive/10 p-6 text-center">
         <p role="alert">{error}</p>
         <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
           {t("common.retry")}
@@ -96,7 +96,7 @@ export function ChallengeFeed() {
 
   if (challenges.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border py-16 text-center">
+      <div className="rounded-none border border-dashed border-border py-16 text-center">
         <p className="text-muted-foreground">{t("empty.challenges")}</p>
       </div>
     );

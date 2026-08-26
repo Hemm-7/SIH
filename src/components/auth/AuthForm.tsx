@@ -105,18 +105,18 @@ export function AuthForm({
           onChange={(e) => setPassword(e.target.value)}
           aria-describedby="auth-password-help"
         />
-        <p id="auth-password-help" className="text-sm text-muted-foreground">
+        <p id="auth-password-help" className="text-sm text-foreground/70">
           {t("auth.passwordHelp")}
         </p>
       </div>
 
       {error ? (
-        <p role="alert" className="rounded-md border border-destructive bg-destructive/10 p-3 text-sm">
+        <p role="alert" className="rounded-none border border-destructive bg-destructive/10 p-3 text-sm">
           {error}
         </p>
       ) : null}
       {notice ? (
-        <p role="status" className="rounded-md border border-border bg-secondary p-3 text-sm">
+        <p role="status" className="rounded-none border border-border bg-secondary p-3 text-sm">
           {notice}
         </p>
       ) : null}
@@ -127,7 +127,7 @@ export function AuthForm({
       </Button>
 
       {onSwitchMode ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-foreground/70">
           {isSignUp ? t("auth.haveAccount") : t("auth.noAccount")}{" "}
           <button
             type="button"
