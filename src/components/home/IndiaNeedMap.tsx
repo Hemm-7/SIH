@@ -181,10 +181,10 @@ export function IndiaNeedMap() {
               </div>
               <div className="absolute bottom-3.5 right-3.5 text-[11px] font-mono font-bold text-[#ECE7DC] flex items-center gap-1.5 bg-black/50 px-2.5 py-1 rounded-sm border border-white/10">
                 <span className="h-2 w-2 rounded-full bg-[#ECE7DC] animate-ping" />
-                <span>● 24 DISTRICTS SYNCHRONIZED</span>
+                <span>● LIVE FROM THE DATABASE</span>
               </div>
 
-              {/* District Node Markers with Animated Multi-Ring Radar Telemetry */}
+              {/* Real challenge markers, positioned from their actual coordinates */}
               {filteredMarkers.map((marker) => {
                 const isSelected = activeMarkerId === marker.id;
                 return (
@@ -235,7 +235,7 @@ export function IndiaNeedMap() {
             </div>
 
             <div className="pt-3.5 flex flex-wrap items-center justify-between text-xs font-mono font-semibold text-[#C5BEB3]">
-              <span>Click district pins to inspect telemetry and matched lab</span>
+              <span>Click a pin to see the report and its matched institution</span>
               <span className="font-bold text-[#ECE7DC] flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#ECE7DC] animate-pulse" />
                 Direct Lab Routing Active

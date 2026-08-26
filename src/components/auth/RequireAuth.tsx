@@ -57,13 +57,22 @@ export function RequireUserType({ allow }: { allow: UserType[] }) {
   if (!userType || !allow.includes(userType)) {
     // Not a redirect — an explanation. Bouncing someone to the home page with no
     // reason is the kind of dead end the design brief calls out.
+    //
+    // PHASE 2 fix: this used to show "This page is for institutions" for EVERY
+    // gated route, including the admin-only dashboard — so a citizen visiting
+    // /dashboard was told the wrong thing about why they were blocked. The
+    // message now reflects the role the route actually requires.
+    const departmentOnly = allow.length === 1 && allow[0] === "admin";
+    const role = userType ?? t("auth.wrongRole.none");
     return (
       <Gate>
         <h1 className="font-display text-2xl font-semibold tracking-tight">
-          {t("auth.wrongRole.heading")}
+          {departmentOnly ? t("auth.wrongRole.headingDepartment") : t("auth.wrongRole.heading")}
         </h1>
         <p className="mt-3 text-muted-foreground">
-          {t("auth.wrongRole.body", { role: userType ?? t("auth.wrongRole.none") })}
+          {departmentOnly
+            ? t("auth.wrongRole.bodyDepartment", { role })
+            : t("auth.wrongRole.body", { role })}
         </p>
         <Button asChild variant="outline" className="mt-6">
           <Link to="/">{t("error.backHome")}</Link>

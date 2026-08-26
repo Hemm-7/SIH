@@ -48,7 +48,9 @@ const JOURNEY_STEPS = [
     step: "07",
     phase: "AUDIT",
     title: "Audited Public Resolution",
-    description: "District administration signs off, telemetry confirms water/crop yield improvement, and challenge is marked resolved.",
+    // Was "telemetry confirms water/crop yield improvement" — there is no
+    // telemetry. The real confirmation step is the citizen's own.
+    description: "The institution marks the work done, and the citizen who reported the problem confirms independently that it was actually fixed.",
   },
 ];
 

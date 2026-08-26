@@ -15,7 +15,7 @@ const NAV: NavItem[] = [
   { to: "/challenges", label: "Challenges" },
   { to: "/#how-it-works", label: "How It Works" },
   { to: "/institutions", label: "Collaborate" },
-  { to: "/dashboard", label: "Impact & Telemetry" },
+  { to: "/dashboard", label: "Impact" },
 ];
 
 function LanguageSwitcher() {

@@ -17,10 +17,39 @@ import { STRATA_COLORS, STRATA_LAYER_THICKNESS, STRATA_STATES } from "@/lib/stra
  * re-declared — that file is the single place the sequence is defined.
  */
 
+/*
+ * PHASE 2 (visual consistency): the app now has one visual language — the
+ * warm broadsheet palette the homepage established (cream #ECE7DC, charcoal
+ * #2C2925). Two of Codex's five strata hues sit outside that family and read
+ * as a different app when placed next to it:
+ *   - `matched`     #66717f  a cool blue-grey
+ *   - `in_progress` #252b35  a cool near-black navy
+ *   - `resolved`    #0044ff  a saturated electric blue, by far the worst clash
+ *
+ * The strata CONCEPT is design-brief.md's signature element and is kept
+ * intact — five ordered bands, same order, same thicknesses. Only the hues
+ * are retuned into the warm family, with `resolved` moving to the verdigris
+ * the design brief actually asked for ("a cool verdigris accent for matched/
+ * resolved states") rather than a primary blue.
+ *
+ * Deliberately overridden HERE rather than by editing `strataTokens.ts`:
+ * that file is Codex's, is imported elsewhere, and this is a presentation
+ * decision belonging to the frontend. The imports below stay so the ordering
+ * and thickness scale remain Codex's single source of truth, and so the
+ * original values stay visible for comparison.
+ */
+const HARMONISED_STRATA: Record<string, string> = {
+  submitted: "#C28A3D", // tan — already warm, unchanged
+  reviewing: "#A94B2C", // rust — already warm, unchanged
+  matched: "#6E6A60", // was #66717f (cool blue-grey) -> warm stone grey
+  in_progress: "#3D3831", // was #252b35 (cool navy) -> warm charcoal
+  resolved: "#3F7D6E", // was #0044ff (electric blue) -> verdigris, per design-brief.md
+};
+
 export function strataColorForStatus(status: ChallengeStatus): string {
   const index = CHALLENGE_STATUS_ORDER.indexOf(status);
   const key = STRATA_STATES[index] ?? STRATA_STATES[0];
-  return STRATA_COLORS[key];
+  return HARMONISED_STRATA[key] ?? STRATA_COLORS[key];
 }
 
 export function strataThicknessForStatus(status: ChallengeStatus): number {

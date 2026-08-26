@@ -51,7 +51,7 @@ export function FooterSection() {
               </li>
               <li>
                 <Link to="/dashboard" className="hover:text-white hover:underline transition-colors">
-                  Impact &amp; Telemetry Data
+                  Impact Data
                 </Link>
               </li>
             </ul>
@@ -62,25 +62,29 @@ export function FooterSection() {
             <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#ECE7DC]">
               Research Domains
             </div>
+            {/* Were four invented specialisms ("Hydro-GIS", "Indigenous NLP
+                (Ol Chiki)", "Clean Mining & Eco-Bricks") that are not domains
+                this platform classifies into. These are four of the ten real
+                `challenge_domain` values. */}
             <ul className="space-y-2 text-xs sm:text-[13px] text-[#DDD8CD] font-semibold">
               <li>
                 <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
-                  Water Security &amp; Hydro-GIS
+                  Water
                 </Link>
               </li>
               <li>
                 <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
-                  Decentralized Agriculture &amp; IoT
+                  Agriculture
                 </Link>
               </li>
               <li>
                 <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
-                  Indigenous NLP (Ol Chiki)
+                  Healthcare
                 </Link>
               </li>
               <li>
                 <Link to="/challenges" className="hover:text-white hover:underline transition-colors">
-                  Clean Mining &amp; Eco-Bricks
+                  Accessibility
                 </Link>
               </li>
             </ul>
@@ -121,7 +125,9 @@ export function FooterSection() {
                 number for a platform that is not a registered publication. */}
             <span>SIH 2026 · SIH26043</span>
             <span>•</span>
-            <span>24 DISTRICTS SYNCHRONIZED</span>
+            {/* Was "24 DISTRICTS SYNCHRONIZED" — the same unbacked statewide
+                coverage claim removed elsewhere on the page. */}
+            <span>DEPT. OF HIGHER &amp; TECHNICAL EDUCATION</span>
           </div>
         </div>
 

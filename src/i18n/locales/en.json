@@ -197,6 +197,8 @@
     "wrongRole": {
       "heading": "This page is for institutions",
       "body": "This area is for university and industry partners. Your account is registered as {{role}}.",
+      "headingDepartment": "This page is for the department",
+      "bodyDepartment": "The pipeline dashboard is for Department of Higher & Technical Education officials. Your account is registered as {{role}}.",
       "none": "a citizen account"
     }
   },
