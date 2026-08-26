@@ -2149,3 +2149,217 @@ sections — a product decision, not a bug fix. Written up in full with a
 per-component table in `.agent/inbox/claude.md`; NOT actioned, per Rule #4.
 Phases 2-5 not started, per the instruction to stop and report when Phase 1
 changes scope.
+
+---
+
+## Phase 1 (cont.) — Fabrication removed from the whole homepage — 2026-08-27
+
+STATUS: DONE, live-verified. The earlier Phase 1 entry covered the two files
+the dispatch named; this covers the eight other rendered components that the
+verification pass found carrying the same problem. Scope was expanded on
+instruction rather than escalated.
+
+### Context: the merge put the fabrication back
+`git pull` brought teammate commit 1bbc403, merged as ea726f7. It rebuilt the
+landing page and reverted the earlier honest-numbers fix, restoring the
+fabricated tiles and adding new ones. Their visual direction was taken whole
+(conflict resolved to theirs, verified byte-identical to origin/main) and the
+real data re-applied on top, so no design work was lost.
+
+### What was fabricated, per component, and what replaced it
+- HeroSection — five hardcoded "news dispatch" tickers and four fake
+  newspaper articles with invented bylines ("By Innovation Bureau, Ranchi",
+  "By Agri-Tech Correspondent, Gumla") and invented statistics ("Over 48,000
+  residents", a 94 percent contaminant reduction, "48 Degree Colleges"). Also
+  an invented press registration, volume number ("VOL. CXXXVIII NO. 242"),
+  cover price, and an "ALL 24 DISTRICT PANCHAYATS SYNCHRONIZED" claim.
+  Tickers and columns now build from real challenge rows; the byline is
+  honest attribution to the citizen who filed the report. The broadsheet
+  AESTHETIC was kept — that is a legitimate design choice; the fake
+  JOURNALISM was not.
+- AiMatchingSection — a scripted demo pairing three invented problems with
+  BIT Mesra / IIT-ISM / BAU / NIT Jamshedpur / "Coal India & Tata Steel CSR
+  Division" at invented scores (98/94/92/97) under an invented "95% Match
+  Fit". Now runs on real challenge_matches: real problem text, the real
+  institutions the classifier matched, and the real reason strings it wrote.
+  Scores render as qualitative tiers, never raw percentages, per contracts.md.
+  This is the project's signature claim, so it is now genuinely demonstrable.
+- IndiaNeedMap — six invented district markers with invented affected
+  populations, CRITICAL/HIGH priorities, district codes, and matched labs, on
+  hand-placed coordinates. Now real geo-located challenges projected from
+  their actual lat/lon. The panel has no map outline behind it, so the
+  projection is strictly more faithful than the dots it replaced.
+- ImpactStories — an invented case study presented as audited fact: "CASE
+  STUDY ARCHIVE: PALAMU-2025-W1", "48,000 villagers", fluoride reduced from
+  5.2 ppm to 0.8 ppm, "Prof. R. Sengupta", "Audited by PHED". Now the real
+  resolved challenges, citizen-confirmed first. The outcome metrics were
+  REMOVED, not substituted — there is no measurement or beneficiary table.
+- CoreConceptEcosystem — per-role achievement figures ("42+ Research Labs
+  Active", a grant-pipeline rupee figure, "1,200+ Village Panchayats") with
+  no backing table, and real organisations named as active participants.
+  Figures removed entirely (a role is not a countable thing here);
+  organisations described by role instead of by name. Section kept — it
+  explains the intended model, which is honest.
+- ProblemToImpactJourney / FinalCtaSection / FooterSection — "312 university
+  laboratories", "Over 14,286 Active Problems", "all 24 districts", a
+  telemetry confirmation step, and four invented "research domains" now use
+  real counts, real domain values, and honest coverage wording.
+
+### Real-data plumbing — src/hooks/useHomepageData.ts (NEW)
+A new file, not an edit to Codex's useAnimatedCounter.ts: that hook is
+Codex's, already consumed elsewhere, and does not expose institutions,
+institution-type split, claimed matches or distinct locations. Kept additive
+so the two cannot collide. Exports useHomepageStats, useFeaturedChallenges,
+useMatchShowcase, useImpactStories, useMappedChallenges. null is the
+"not loaded" signal throughout so the UI shows a neutral placeholder rather
+than a momentarily-wrong zero, and every section returns null when its real
+read is empty rather than falling back to examples.
+
+### VERIFICATION
+Case-insensitive sweep of ~45 fabricated tokens across all 7 routes, signed
+out and as citizen / university / admin, with full-page scroll: ALL CLEAN,
+zero console errors. The all-caps footer claim "24 DISTRICTS SYNCHRONIZED"
+was initially MISSED because the first sweep was case-sensitive — the sweep
+now lowercases, strips HTML comments, and excludes a Google-Fonts-URL false
+positive (the string "1,800" is a Playfair italic weight, not page content).
+
+### FILES CHANGED
+src/hooks/useHomepageData.ts (NEW); HeroSection, StatsSection,
+FeaturedProblems, AiMatchingSection, IndiaNeedMap, ImpactStories,
+CoreConceptEcosystem, ProblemToImpactJourney, FinalCtaSection, FooterSection.
+Commits c7040c7, d2bd5a1.
+
+### HONEST NOTES
+- Numbers are small (12 challenges, 1 confirmed fix) because the dataset is
+  small. Nothing padded; no database row was touched to improve a figure.
+- One featured card has no district line because that row's location_text is
+  genuinely null, and its title is truncated mid-word IN THE DATABASE ITSELF
+  ("...has been locke"). Real source data, not a rendering bug; the row was
+  not edited to tidy it.
+- Six fabricated components exist but are NOT rendered anywhere
+  (FramerStudioMockup, PartnerInstitutions, PeopleBehindSolutions,
+  PipelineVisualizer, SectorBentoGrid, LiveMetricsTicker). Left untouched as
+  dead code, listed here so they are not wired up later by accident.
+
+---
+
+## Phase 2 — Visual consistency audit and decision — 2026-08-27
+
+STATUS: DONE. Audited, decided, and applied — the dispatch originally asked
+to report and wait, and was later amended to decide without stopping.
+
+### Audit method
+All 7 routes walked signed out and as citizen / university / admin, with
+computed styles sampled (body background, heading font/size, control radius)
+and screenshots captured. /dashboard and /institutions are auth-gated, so
+they were audited with the real test accounts, not from the sign-in wall.
+
+### What was actually inconsistent
+Less than expected: the shared layout and index.css already gave every page
+the same cream background, Times serif headings and 0px radius. The genuine
+clashes were:
+1. The strata lifecycle palette. Three of Codex's five hues sat outside the
+   warm broadsheet family — a cool blue-grey, a cool navy, and a saturated
+   electric blue for "resolved" that clashed hardest. These appear in
+   PipelineStrata, the dashboard funnel and the map markers, so the inner
+   pages read as a different app.
+2. Container width. Homepage is full-bleed; inner pages are max-w-2xl.
+3. Card treatment. Homepage uses heavy double borders and dossier framing;
+   inner pages use plain thin-bordered cards.
+
+### DECISION
+The broadsheet editorial language wins — newest, most developed, covers the
+landing page, and the inner pages already inherit its background and
+typography. Applied by RETUNING THE STRATA PALETTE INTO THAT FAMILY RATHER
+THAN REPLACING THE CONCEPT: same five ordered bands, same thicknesses, with
+resolved moving to the verdigris the design brief actually asked for.
+Overridden in the frontend's own strataStatusMap.ts adapter, NOT in Codex's
+strataTokens.ts — that file is Codex's and is imported elsewhere, and this is
+a presentation decision. All five bands re-checked for WCAG contrast: worst
+case 4.81:1, all pass.
+
+DELIBERATELY NOT CHANGED: container width and card treatment. The narrow
+column is a legitimate readability choice for a text feed, and rewriting page
+structures carried real regression risk for a debatable gain. Flagged here
+rather than silently changed.
+
+### Two bugs the audit surfaced
+1. Wrong role-gate copy. RequireUserType showed "This page is for
+   institutions" on EVERY gated route, so a citizen hitting the admin-only
+   dashboard was told the wrong reason. Now reflects the role the route
+   actually requires; new keys in both locales, parity kept.
+2. Telemetry leftovers. Nav and footer still advertised "Impact & Telemetry"
+   and the footer carried a "24 DISTRICTS SYNCHRONIZED" claim. No telemetry
+   exists anywhere in this system.
+
+Commit 3f56f07.
+
+---
+
+## Phase 3 — Department aggregate views — 2026-08-27
+
+STATUS: DONE, verified against live data before and after building the UI.
+
+### What was added
+districtCounts, resolutionProgress, timeToMatch and formatDuration in
+dashboardStats.ts, following that file's existing pure-function pattern so
+each can be checked against a real snapshot independently of rendering.
+Rendered as a "Department overview" card reusing the existing Card and
+StatTile components rather than new UI primitives.
+
+### Honesty decisions worth recording
+- Labelled "REPORTS BY LOCATION", not "by district". location_text is free
+  text a citizen typed; there is no district table. Calling it a district
+  breakdown would overstate the column, and the UI says so in a note.
+- MEDIAN time-to-match leads, average shown beside it. On real data the two
+  differ by orders of magnitude (median 4.9s vs average 5.4m, dragged up by a
+  few late matches). Quoting only the mean would misrepresent the typical
+  case; quoting only the median would hide the spread. Both, labelled.
+- Challenges with no match are excluded from timing rather than counted as
+  zero, and impossible negative durations are dropped.
+
+### VERIFICATION (live, before and after)
+An independent script computing the same aggregates from raw REST reads
+returned: 83.3% unresolved (10 of 12); median 4.9s, average 5.4m across all
+12 matched; 1 confirmed of 2 resolved; 12 location groups summing to 12. The
+rendered dashboard matches all of it exactly, including Khunti block and
+Simdega district correctly showing "0 open" (the two resolved rows). Zero
+console errors. Commit 7965781.
+
+---
+
+## Phase 4 — Regression pass — 2026-08-27
+
+STATUS: DONE. 22 of 22 checks pass.
+
+npm run build clean, npm run lint 0 errors (same 5 pre-existing warnings,
+none introduced), tsc --noEmit clean. Dev server restarted before
+verification per Global Rule #7.
+
+Live click-through, not a compile check: all 7 routes signed out and as
+citizen / university / admin; all three Challenges view tabs with real marker
+clicks and popup text asserted (Map 11 markers, Clusters 9 markers, popup
+read "1 report — Healthcare"); the Hindi toggle asserted to actually change
+rendered copy to Devanagari; both role gates; the institution queue; and the
+dashboard including the new department card. Zero console errors on every
+route.
+
+### Bug found and fixed during the pass
+The "Duplicate clusters" KPI read totalClusters, which counts single-report
+clusters too — so with 12 challenges and no duplicates detected it displayed
+12, implying twelve duplicate groups existed, and directly contradicted the
+card immediately beneath it reading "No duplicate reports have been
+recognised yet". Added an explicit duplicateClusters field (multi-member
+clusters only) and pointed the KPI at it. Now reads 0, consistent with the
+card. Commit 50abbc6.
+
+### NOT TESTED — stated rather than implied
+- No automated unit/integration test suite exists in this project; all
+  verification here is live browser interaction plus independent REST
+  cross-checks. There is no npm test script.
+- Mobile/responsive breakpoints were not tested — all checks ran at 1440x1000.
+- The submit to categorize to match end-to-end flow was not re-run in this
+  pass (it was verified in an earlier session); only that /submit loads for a
+  citizen was checked here.
+- Timing figures come from a 12-row dataset and are not statistically
+  meaningful; they are correct readings of a small sample, not a benchmark.
